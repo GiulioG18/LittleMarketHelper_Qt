@@ -36,6 +36,15 @@
     <ClInclude Include="FinProduct.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PortfolioTrades.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Weights.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProductExcluder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">

@@ -7,7 +7,6 @@
 
 #include <set>
 #include <string>
-#include <memory>
 
 #include "Null.h"
 #include "Errors.h"
@@ -15,10 +14,10 @@
 
 namespace lmh {
 
-	// TODO: register what needs to be registered...
-
 	// Forward declarations
 	class MakeFinProduct;
+
+
 
 	class FinProduct
 	{
@@ -31,23 +30,19 @@ namespace lmh {
 			float price
 		);
 
+	public:
+
+		inline float openPosition() const;
+
 	private:
-
-		class Derived
-		{
-		private:
-
-			float openPosition_;
-			float weight_;
-			bool exclude_;
-		};
 
 		const std::string name_;
 		std::string isin_;
 		int quantity_;
 		float price_;
-		std::unique_ptr<Derived> derived_;
 	};
+
+
 
 	class MakeFinProduct
 	{
@@ -85,7 +80,13 @@ namespace lmh {
 
 
 
+
 	// Inline definitions
+
+	inline float lmh::FinProduct::openPosition() const
+	{
+		return static_cast<float>(quantity_) * price_;
+	}
 
 	inline MakeFinProduct& MakeFinProduct::withIsin(const std::string& isin)
 	{
