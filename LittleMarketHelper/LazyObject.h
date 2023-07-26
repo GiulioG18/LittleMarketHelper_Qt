@@ -6,6 +6,7 @@
 #pragma once
 
 #include "Observable.h"
+#include "Assertions.h"
 
 
 namespace lmh {

@@ -35,6 +35,10 @@ namespace lmh {
 	template<typename Type>
 	class Null
 	{
+
+		static_assert(std::is_arithmetic<Type>::value, "Only arithmetic types are allowed");
+		static_assert(!std::is_same<Type, bool>::value, "Booleans not allowed");
+
 	public:
 
 		Null() = default;

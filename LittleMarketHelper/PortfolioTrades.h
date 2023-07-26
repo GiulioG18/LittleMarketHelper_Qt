@@ -10,6 +10,8 @@
 #include "FinProduct.h"
 #include "Weights.h"
 #include "ProductExcluder.h"
+#include "Assertions.h"
+
 
 namespace lmh {
 
@@ -34,7 +36,7 @@ namespace lmh {
 
 		// Every method that operates on these members has to
 		// to ensure that each vector is of the same size (size_)
-		// and that the order is maintained at all times
+		// and that the order is maintained 
 
 		size_t size_;
 		std::vector<FinProduct> products_;

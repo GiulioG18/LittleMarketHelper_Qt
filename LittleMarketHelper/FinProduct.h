@@ -7,9 +7,9 @@
 
 #include <set>
 #include <string>
+#include <memory>
 
 #include "Null.h"
-#include "Errors.h"
 
 
 namespace lmh {

@@ -1,5 +1,6 @@
 
 #include "observable.h"
+#include "Assertions.h"
 
 
 namespace lmh {

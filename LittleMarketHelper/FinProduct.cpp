@@ -1,5 +1,6 @@
 
 #include "FinProduct.h"
+#include "Assertions.h"
 
 
 namespace lmh {
