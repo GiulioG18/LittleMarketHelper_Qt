@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "Null.h"
+#include "Observable.h"
 
 
 namespace lmh {
@@ -18,9 +19,11 @@ namespace lmh {
 	class MakeFinProduct;
 
 
-
-	class FinProduct
+	class FinProduct : public Observable
 	{
+		// Every non-const method has to validate
+		// quantity and/or price before sending notifications
+
 	public:
 
 		FinProduct(
@@ -30,19 +33,27 @@ namespace lmh {
 			float price
 		);
 
-	public:
+		float openPosition() const;
 
-		inline float openPosition() const;
+		// Non-const methods
+		void setQuantityTo(int value);
+		void setPriceTo(float value);
+
+		// Const methods
+		inline const std::string& name() const;
+		inline int quantity() const;
+		inline float price() const;
 
 	private:
-
+		
 		const std::string name_;
-		std::string isin_;
+		const std::string isin_;
 		int quantity_;
 		float price_;
 	};
 
 
+	// Helper class to build a FinProduct
 
 	class MakeFinProduct
 	{
@@ -79,13 +90,28 @@ namespace lmh {
 	};
 
 
-
-
 	// Inline definitions
 
-	inline float lmh::FinProduct::openPosition() const
+	inline const std::string& FinProduct::name() const { return name_; }
+	inline int FinProduct::quantity() const { return quantity_; }
+	inline float FinProduct::price() const { return price_; }
+
+	inline void FinProduct::setQuantityTo(int value)
 	{
-		return static_cast<float>(quantity_) * price_;
+		if (quantity_ != value)
+		{
+			quantity_ = value;
+			notifyObservers();
+		}
+	}
+
+	inline void FinProduct::setPriceTo(float value)
+	{
+		if (price_ != value)
+		{
+			price_ = value;
+			notifyObservers();
+		}
 	}
 
 	inline MakeFinProduct& MakeFinProduct::withIsin(const std::string& isin)
@@ -105,5 +131,6 @@ namespace lmh {
 		price_ = price;
 		return *this;
 	}
+
 }
 

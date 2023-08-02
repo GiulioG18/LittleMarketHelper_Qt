@@ -1,6 +1,5 @@
-
 // ========================================================================
-//		Product excluder
+//		Currencies available
 // ========================================================================
 
 #pragma once
@@ -8,20 +7,25 @@
 
 namespace lmh {
 
-	// Wrapper around a bool type to allow for  
-	// the object to be Observable
-
-	class ProductExcluder
+	class Currency
 	{
-	public:
+	public:		
 
-		ProductExcluder()
-			: exclude_(false)
+		enum class Iso
+		{
+			EUR,
+			USD,
+			GBP,
+		};
+
+		Currency(Currency::Iso ccy)
+			: ccy_(ccy)
 		{
 		}
 
-	private:
+	private:	
 
-		bool exclude_;
+		Currency::Iso ccy_;
 	};
+
 }

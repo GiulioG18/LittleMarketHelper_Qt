@@ -5,8 +5,6 @@
 
 namespace lmh {
 
-	// FinProduct definitions
-
 	FinProduct::FinProduct(
 		const std::string& name,
 		const std::string& isin,
@@ -17,7 +15,12 @@ namespace lmh {
 	{
 	}
 
-	// MakeFinProduct definitions
+	float lmh::FinProduct::openPosition() const
+	{
+		return static_cast<float>(quantity_) * price_;
+	}
+
+
 
 	MakeFinProduct::MakeFinProduct(
 		const std::string& name,
@@ -57,11 +60,12 @@ namespace lmh {
 
 	void MakeFinProduct::validate() const
 	{
-		VALIDATE_INPUT(!name_.empty(), "name is empty");
+		VALIDATE_USER_INPUT(!name_.empty(), "name is empty");
 		// ISIN is a unique 12-character alphanumeric code 
 		// NB: optional, but when provided needs the have the correct length
-		VALIDATE_INPUT(isin_.empty() || isin_.length() == 12, "ISIN incorrect");
-		VALIDATE_INPUT(quantity_ >= 0, "negative quantity");
-		VALIDATE_INPUT(price_ > 0, "non-positive price");
+		VALIDATE_USER_INPUT(isin_.empty() || isin_.length() == 12, "ISIN incorrect");
+		VALIDATE_USER_INPUT(quantity_ >= 0, "negative quantity");
+		VALIDATE_USER_INPUT(price_ > 0, "non-positive price");
 	}
+
 }

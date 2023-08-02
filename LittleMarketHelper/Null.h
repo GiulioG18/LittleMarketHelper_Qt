@@ -11,8 +11,10 @@
 
 namespace lmh {
 
+	// Forward declarations
 	template<bool>
 	struct FloatingPoint;
+
 
 	template<>
 	struct FloatingPoint<true>
@@ -46,6 +48,11 @@ namespace lmh {
 		operator Type() const
 		{
 			return Type(FloatingPoint<std::is_floating_point<Type>::value>::maxValue());
+		}
+
+		static inline bool check(Type value)
+		{
+			return value == Null<Type>();
 		}
 	};
 

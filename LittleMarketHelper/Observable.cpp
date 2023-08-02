@@ -5,8 +5,6 @@
 
 namespace lmh {
 
-	// Observable definitions
-
 	Observable& Observable::operator=(const Observable& other)
 	{
 		// TODO: the notification is sent before the data is actually copied,
@@ -59,7 +57,6 @@ namespace lmh {
 	}
 
 
-	// Observer definitions
 
 	Observer::Observer(const Observer& other)
 		: observables_(other.observables_)

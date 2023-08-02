@@ -16,7 +16,6 @@ namespace lmh {
 	class Observer;
 
 
-
 	// Object that notifies its changes to its Observers
 	class Observable
 	{

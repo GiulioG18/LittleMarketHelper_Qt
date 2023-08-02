@@ -25,7 +25,6 @@
         } while(false) \
         __pragma(warning(pop))
 
-
 // FAIL, ASSERT, REQUIRE, ENSURE:
 
 // Throw an error (possibly with file and line information)
@@ -66,8 +65,8 @@ if (!(condition)) { \
 } \
 MULTILINE_ASSERTION_END
 
-// For input validation (throws a specific error)
-#define VALIDATE_INPUT(condition, message) \
+// For user input validation (throws a specific error)
+#define VALIDATE_USER_INPUT(condition, message) \
 MULTILINE_ASSERTION_BEGIN \
 if (!(condition)) { \
     std::ostringstream msg_stream; \
