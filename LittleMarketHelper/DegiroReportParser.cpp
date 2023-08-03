@@ -4,19 +4,26 @@
 
 namespace lmh {
 
-	DegiroReportParser::DegiroReportParser(ReportParser::Type type, const fs::path& reportPath)
-		: ReportParser(type, reportPath)
+	DegiroReportParser::DegiroReportParser(ReportParser::Type type)
+		: ReportParser(type)
 	{
 	}
 
-	/*PortfolioTrades DegiroReportParser::parse() const
+	std::pair<std::vector<FinProduct>, bool> DegiroReportParser::run(std::vector<FinProduct>& products, bool& successful) const
 	{
-		REQUIRE(!reportPath_.empty(), "path to report has not been set");
-		REQUIRE(reportPath_.extension() == ".csv", "'.csv' extension expected for DEGIRO reports");
+		REQUIRE(type_ == ReportParser::Type::DEGIRO, "parser type is not DEGIRO");
+		REQUIRE(successful, "parser status is invalid");
+		
+	}
 
-		PortfolioTrades trades;
+	fs::path DegiroReportParser::defaultFilename() const
+	{
+		return fs::path("Portfolio");
+	}
 
-		return trades;
-	}*/
+	fs::path DegiroReportParser::defaultExtension() const
+	{
+		return fs::path(".csv");
+	}
 
 }

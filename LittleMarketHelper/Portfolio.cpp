@@ -34,6 +34,13 @@ namespace lmh {
 		// TODO: implement
 	}
 
+	void Portfolio::clear()
+	{
+		iTradeset_->clear();
+		eTradeset_->clear();
+		balance_->clear();
+	}
+
 	size_t Portfolio::size() const
 	{
 		return iTradeset_->size();

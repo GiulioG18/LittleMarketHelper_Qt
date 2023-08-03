@@ -5,13 +5,19 @@
 #pragma once
 
 #include <filesystem>
+#include <set>
+#include <memory>
+#include <optional>
+#include <utility>
 
 #include "Assertions.h"
+#include "FinProduct.h"
+
 
 namespace fs = std::filesystem;
 
-
 namespace lmh {
+
 
 	class ReportParser
 	{
@@ -25,29 +31,30 @@ namespace lmh {
 
 	public:
 
-		ReportParser(Type type, const fs::path& reportPath);
+		ReportParser(ReportParser::Type type);
 		virtual ~ReportParser() = default;
 
 		// Non-const methods
-		//virtual PortfolioTrades parse() const = 0;
 		
 		// Const methods
-		inline void setFile(const fs::path& reportPath);	
+		std::pair<std::vector<FinProduct>, bool> parse(std::optional<fs::path> file) const;
+		std::pair<std::vector<FinProduct>, bool> parseDefault() const;
 
 	protected:
 
-		fs::path reportPath_;
-		Type type_;
+		// Const methods
+		virtual std::pair<std::vector<FinProduct>, bool> run(std::vector<FinProduct>& products, bool& successful) const = 0;
+		virtual fs::path defaultFilename() const;
+		virtual fs::path defaultExtension() const;
+
+	private:
+
+		// Factory method
+		static std::unique_ptr<ReportParser> create(ReportParser::Type type);
+
+	protected:
+
+		const ReportParser::Type type_;
+		std::set<fs::path> guesses_;
 	};
-
-
-	// Inline definitions
-
-	void ReportParser::setFile(const fs::path& reportPath)
-	{
-		REQUIRE(reportPath.has_filename(), "fullpath not provided, file name is missing");
-
-		reportPath_ = reportPath;
-	}
-
 }

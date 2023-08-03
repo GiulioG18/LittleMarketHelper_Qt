@@ -28,4 +28,10 @@ namespace lmh {
 		notifyObservers();		
 	}
 
+	void Balance::clear()
+	{
+		value_ = Null<float>();
+		notifyObservers();
+	}
+
 }

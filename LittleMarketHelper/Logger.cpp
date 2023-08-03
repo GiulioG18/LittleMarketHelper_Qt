@@ -14,6 +14,12 @@ namespace lmh {
 	{
 		if (stream_->is_open())
 		{
+			// Set log file to read-only
+			fs::permissions(file_, 
+				fs::perms::owner_read | 
+				fs::perms::group_read |
+				fs::perms::others_read, 
+				fs::perm_options::replace);
 			stream_->close();
 		}
 	}
@@ -27,9 +33,11 @@ namespace lmh {
 		// Make sure this is only called once.
 		// This is to ensure that the stream is not redirected midway
 		REQUIRE(!logger.initialized_, "logger was already initialized");
+		logger.file_ = filePath;
+		REQUIRE(fs::is_regular_file(logger.file_), "not a regular file");
 
 		logger.stream_ = std::make_unique<std::fstream>();
-		logger.stream_->open(filePath, std::ios_base::out | std::ios_base::trunc);
+		logger.stream_->open(logger.file_, std::ios_base::out | std::ios_base::trunc);
 		logger.logLevel_ = logLevel;
 		logger.initialized_ = true;
 

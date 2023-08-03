@@ -29,6 +29,7 @@ namespace lmh {
 
 		// Non-const methods
 		void update() override;
+		void clear();
 
 		// Const methods
 		inline float value() const;

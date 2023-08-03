@@ -36,6 +36,7 @@ namespace lmh {
 		void update() override;
 		void add(Trade&& trade);
 		void remove();
+		void clear();
 
 		// Const methods
 		size_t size() const;

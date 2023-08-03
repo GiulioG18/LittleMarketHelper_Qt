@@ -12,13 +12,35 @@
 
 // TODO: write logs for existing code!
 
+
+using namespace lmh;
+
+
 class A
 {
 public:
 
+	virtual void f() const { std::cout << "BASE CLASS f()" << std::endl; };
+	virtual void g() const = 0;
+	void n() { f(); }
 };
 
-using namespace lmh;
+class B : public A
+{
+public:
+
+	virtual void f() const override { std::cout << "DERIVED (B) CLASS f()" << std::endl; };
+	virtual void g() const override { f(); }
+};
+
+class C : public A
+{
+public:
+
+	virtual void g() const override { f(); }
+};
+
+
 
 int main()
 {
@@ -44,12 +66,16 @@ int main()
 		std::cout << portfolio->balance()->value() << std::endl;
 		portfolio->addTrade(product);
 		std::cout << portfolio->balance()->value() << std::endl;
-		product->setQuantityTo(13);
-		std::cout << portfolio->balance()->value() << std::endl;
-		product2->setQuantityTo(100);
-		std::cout << portfolio->balance()->value() << std::endl;
 		product2->setPriceTo(1.2f);
 		std::cout << portfolio->balance()->value() << std::endl;
+		portfolio->clear();
+		std::cout << portfolio->balance()->value() << std::endl;
+
+		std::unique_ptr<A> b = std::make_unique<B>();
+		std::unique_ptr<A> c = std::make_unique<C>();
+
+		b->n();
+		c->n();
 	}
 	catch (std::exception& exception)
 	{

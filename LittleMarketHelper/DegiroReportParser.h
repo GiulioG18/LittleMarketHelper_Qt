@@ -13,10 +13,13 @@ namespace lmh {
 	{
 	public:
 
-		DegiroReportParser(ReportParser::Type type, const fs::path & reportPath);
+		DegiroReportParser(ReportParser::Type type);
 		virtual ~DegiroReportParser() = default;
 
-		//virtual PortfolioTrades parse() const override;
+		// Const methods
+		virtual std::pair<std::vector<FinProduct>, bool> run(std::vector<FinProduct>& products, bool& successful) const override;
+		virtual fs::path defaultFilename() const override;
+		virtual fs::path defaultExtension() const override;
 	};
 
 }

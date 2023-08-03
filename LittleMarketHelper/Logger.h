@@ -55,7 +55,7 @@ namespace lmh {
 	public:
 
 		// Non-const methods
-		// Set stream and log level
+		// Set stream, path and log level
 		static bool initialize(const fs::path& filePath, LogLevel logLevel = LOG_LEVEL_DEFAULT);
 
 		// Const methods
@@ -75,6 +75,7 @@ namespace lmh {
 	private:
 
 		std::unique_ptr<std::fstream> stream_;
+		fs::path file_;
 		LogLevel logLevel_;
 		bool initialized_;		
 	};

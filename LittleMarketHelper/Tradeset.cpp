@@ -25,6 +25,12 @@ namespace lmh {
 		notifyObservers();
 	}
 
+	void Tradeset::clear()
+	{
+		trades_.clear();
+		notifyObservers();
+	}
+
 	size_t Tradeset::size() const
 	{
 		return trades_.size();

@@ -23,7 +23,8 @@ namespace lmh {
 		// Non-const methods
 		void addTrade(const std::shared_ptr<FinProduct>& product);
 		void removeTrade(const std::string& name);
-		void excludeTrade();
+		void excludeTrade();		
+		void clear();
 
 		// Const methods
 		size_t size() const;

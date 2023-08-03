@@ -9,9 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Header Files\Utils">
-      <UniqueIdentifier>{ee9c4c4c-f9a2-4811-83f2-bbf2e9fa5b6d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Patterns">
       <UniqueIdentifier>{b4081adb-aa99-4a7b-a9df-e8ceb9c26276}</UniqueIdentifier>
     </Filter>
@@ -23,6 +20,9 @@
     </Filter>
     <Filter Include="To delete">
       <UniqueIdentifier>{37248484-5dc3-4f44-ab2b-6f47864aad7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utils">
+      <UniqueIdentifier>{ee9c4c4c-f9a2-4811-83f2-bbf2e9fa5b6d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
