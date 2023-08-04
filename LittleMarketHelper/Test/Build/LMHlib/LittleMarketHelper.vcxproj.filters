@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Src\Portfolio.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Src\FinProduct.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Src\Balance.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Src\ReportParser.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Src\DegiroReportParser.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Src\Weight.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Src\Tradeset.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Src\Utils\Errors.cpp">
+      <Filter>Src\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Src\Utils\Logger.cpp">
+      <Filter>Src\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Src\Patterns\Observable.cpp">
+      <Filter>Src\Patterns</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\Balance.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\Currency.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\DegiroReportParser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\FinProduct.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\Portfolio.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\ReportParser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\Tradeset.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\Weight.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\Utils\Assertions.h">
+      <Filter>Header\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\Utils\Environment.h">
+      <Filter>Header\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\Utils\Errors.h">
+      <Filter>Header\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\Utils\Logger.h">
+      <Filter>Header\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\Utils\Null.h">
+      <Filter>Header\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\Patterns\LazyObject.h">
+      <Filter>Header\Patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\Patterns\Observable.h">
+      <Filter>Header\Patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\Header\Patterns\Singleton.h">
+      <Filter>Header\Patterns</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Workspace\LMH\LittleMarketHelper_Qt\LittleMarketHelper\Library\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{49693DF4-D44F-36CC-B4D7-B057B3AA696B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\Patterns">
+      <UniqueIdentifier>{961EFB5A-ED48-3B45-9F9B-E3A8A720B92F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\Utils">
+      <UniqueIdentifier>{20F0C2BD-BF49-38E5-848D-85F643F7B7FB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src">
+      <UniqueIdentifier>{565944BE-DA1C-30BE-8A15-B8C8DE8D1988}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Patterns">
+      <UniqueIdentifier>{421AD188-2313-300E-98FC-77A6EE9485F5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Utils">
+      <UniqueIdentifier>{8E7F6E5D-C793-3A8E-B919-01126D2E8976}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

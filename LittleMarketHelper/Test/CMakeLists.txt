@@ -1,0 +1,14 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.20.3)
+
+PROJECT(LittleMarketHelper)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+ADD_SUBDIRECTORY("C:/Workspace/LMH/LittleMarketHelper_Qt/LittleMarketHelper/Library" LMHlib)
+
+ADD_EXECUTABLE(LMHTest Main.cpp)
+
+TARGET_LINK_LIBRARIES(LMHTest LittleMarketHelper)
+

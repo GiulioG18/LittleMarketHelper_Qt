@@ -1,0 +1,86 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.20.3"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "LMHlib",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.20.3"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "C:/Workspace/LMH/LittleMarketHelper_Qt/LittleMarketHelper/Library",
+					"targetIndexes" : 
+					[
+						1
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1
+					],
+					"name" : "LittleMarketHelper",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "LMHTest::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-LMHTest-Debug-4c3f5df5f871d4ad6d22.json",
+					"name" : "LMHTest",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "LittleMarketHelper::@c5dd18074a2fb3f33647",
+					"jsonFile" : "target-LittleMarketHelper-Debug-d17a6eeee2a05e5e5a34.json",
+					"name" : "LittleMarketHelper",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Workspace/LMH/LittleMarketHelper_Qt/LittleMarketHelper/Test/out/build/x64-Debug",
+		"source" : "C:/Workspace/LMH/LittleMarketHelper_Qt/LittleMarketHelper/Test"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 2
+	}
+}

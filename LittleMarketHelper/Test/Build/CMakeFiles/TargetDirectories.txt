@@ -1,0 +1,4 @@
+C:/Workspace/LMH/LittleMarketHelper_Qt/LittleMarketHelper/Test/Build/CMakeFiles/LMHTest.dir
+C:/Workspace/LMH/LittleMarketHelper_Qt/LittleMarketHelper/Test/Build/CMakeFiles/ALL_BUILD.dir
+C:/Workspace/LMH/LittleMarketHelper_Qt/LittleMarketHelper/Test/Build/CMakeFiles/ZERO_CHECK.dir
+C:/Workspace/LMH/LittleMarketHelper_Qt/LittleMarketHelper/Test/Build/LMHlib/CMakeFiles/LittleMarketHelper.dir
