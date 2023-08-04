@@ -1,6 +1,7 @@
 
 #include "Utils/Logger.h"
 #include "Utils/Null.h"
+#include "Utils/File.h"
 
 
 namespace lmh {
@@ -33,13 +34,16 @@ namespace lmh {
 		// Create the logger in memory
 		Logger& logger = Singleton<Logger>::instance();
 
-		// Make sure this is only called once.
+		// Assures log is only initialized once.
 		// This is to ensure that the stream is not redirected midway
 		REQUIRE(!logger.initialized_, "logger was already initialized");
 
+		// TODO: initialize file name with a name.
+		//		 the parameter of this function should be the folder instead
+		
+		// Initialize file
 		logger.file_ = filePath;
-		// TODO: should (especially) care to check if the file is writable here!
-		if (!fs::is_regular_file(logger.file_))
+		if (!File::writable(logger.file_)) // TODO: have to first create file
 		{
 			logger.initialized_ = false;
 			return logger.initialized_;
@@ -47,10 +51,10 @@ namespace lmh {
 
 		logger.stream_ = std::make_unique<std::fstream>();
 		ASSERT(logger.stream_, "invalid stream");
+
+		// Initialize stream and log level
 		logger.stream_->open(logger.file_, std::ios_base::out | std::ios_base::trunc);
 		logger.logLevel_ = logLevel;
-		logger.initialized_ = true;
-
 		if (logger.logLevel_ > LOG_LEVEL_MAX)
 		{
 			logger.logLevel_ = LOG_LEVEL_DEFAULT;
@@ -59,6 +63,7 @@ namespace lmh {
 		if (logger.stream_->is_open())
 		{
 			logger.writeLogHeader();
+			logger.initialized_ = true;
 		}
 		else
 		{

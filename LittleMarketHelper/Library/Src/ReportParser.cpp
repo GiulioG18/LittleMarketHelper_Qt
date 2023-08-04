@@ -34,22 +34,10 @@ namespace lmh {
 		}
 
 		if (!successful)
-		{
+		{			
+
+			// Check that the file exists and is readable, if so, parse it
 			
-			// check that file exists and parse it
-			//bool IsReadable(const fs::path & p)
-			//{
-			//	std::error_code ec; // For noexcept overload usage.
-			//	auto perms = fs::status(p, ec).permissions();
-			//	if ((perms & fs::perms::owner_read) != fs::perms::none &&
-			//		(perms & fs::perms::group_read) != fs::perms::none &&
-			//		(perms & fs::perms::others_read) != fs::perms::none
-			//		)
-			//	{
-			//		return true;
-			//	}
-			//	return false;
-			//}
 		}
 
 		return { products, successful };

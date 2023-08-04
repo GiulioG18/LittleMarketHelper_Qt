@@ -40,6 +40,7 @@ SET(HEADER
 	Header/Utils/Errors.h
 	Header/Utils/Logger.h
 	Header/Utils/Null.h
+	Header/Utils/File.h
 	Header/Patterns/LazyObject.h
 	Header/Patterns/Observable.h
 	Header/Patterns/Singleton.h

@@ -46,6 +46,11 @@ int main()
 {
 	try
 	{
+		fs::path pattti = "C:/Users/giuli/OneDrive/Desktop/test.txt";
+		fs::path parent = pattti.parent_path();
+		bool booli = fs::is_regular_file(pattti);
+		bool booli2 = fs::is_directory(pattti);
+		bool booli3 = fs::is_directory(parent);
 		lmh::Logger::initialize("C:/Users/giuli/OneDrive/Desktop/test.txt", LOG_LEVEL_MAX);
 		if (!Logger::instance().initialized())
 		{
