@@ -56,8 +56,7 @@ namespace lmh {
 	public:
 
 		// Non-const methods
-		// Set stream, path and log level
-		static bool initialize(const fs::path& filePath, LogLevel logLevel = LOG_LEVEL_DEFAULT);
+		static bool initialize(const fs::path& folder, LogLevel logLevel = LOG_LEVEL_DEFAULT);
 
 		// Const methods
 		inline bool initialized() const;		
@@ -70,14 +69,16 @@ namespace lmh {
 
 		// Const methods
 		template<LogLevel messageLevel> inline std::string writeLevelSeverity() const;
-		inline void writeLogHeader() const;
+		void writeLogHeader() const;
 
 	private:
 
 		std::unique_ptr<std::fstream> stream_;
-		fs::path file_;
 		LogLevel logLevel_;
-		bool initialized_;		
+		time_t time_;
+		fs::path folder_;
+		fs::path file_;
+		bool initialized_;
 	};
 
 
@@ -92,15 +93,6 @@ namespace lmh {
 		{
 			*(stream_) << writeLevelSeverity<messageLevel>() << message << std::endl;
 		}
-	}
-
-	inline void Logger::writeLogHeader() const
-	{
-		const time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-		*(stream_) << "Little Market Helper LOG taken on " << std::ctime(&time)
-			<< std::endl;
-		*(stream_) << "=============================================================="
-			<< std::endl << std::endl;
 	}
 
 	template<LogLevel messageLevel>

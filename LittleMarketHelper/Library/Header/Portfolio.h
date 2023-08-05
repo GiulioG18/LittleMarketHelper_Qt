@@ -21,9 +21,10 @@ namespace lmh {
 		Portfolio();		
 
 		// Non-const methods
-		void addTrade(const std::shared_ptr<FinProduct>& product);
-		void removeTrade(const std::string& name);
+		bool addTrade(const std::shared_ptr<FinProduct>& product);
+		bool removeTrade(const std::string& name);
 		void excludeTrade();		
+		void includeTrade();
 		void clear();
 
 		// Const methods

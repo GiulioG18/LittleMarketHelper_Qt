@@ -11,23 +11,46 @@ namespace lmh {
 		notifyObservers();
 	}
 
-	void Tradeset::add(Trade&& trade)
+	bool Tradeset::add(Trade&& trade)
 	{
-		registerWith(trade.first);
 		bool inserted = trades_.insert(std::move(trade)).second;
-		VALIDATE_USER_INPUT(inserted, "adding a duplicate product");
+		if (inserted)
+		{
+			registerWith(trade.first);
+			notifyObservers();
+		}
 
-		notifyObservers();
+		return inserted;
 	}
 
-	void Tradeset::remove()
+	bool Tradeset::remove(const std::string& name)
 	{
-		notifyObservers();
+		auto it = std::find_if(std::begin(trades_), std::end(trades_),
+			[&name](const Tradeset::Trade& trade) 
+			{ 
+				return trade.first->name() == name; 
+			}
+		);
+
+		bool found = it != trades_.end();
+		if (found)
+		{
+			unregisterWith(it->first);
+			trades_.erase(it);
+			notifyObservers();
+		}
+
+		return found;
 	}
 
 	void Tradeset::clear()
 	{
+		if (trades_.empty())
+			return;
+
 		trades_.clear();
+		// Unregister with observed products (now cleared from set)
+		unregisterWithAll();
 		notifyObservers();
 	}
 
@@ -40,5 +63,4 @@ namespace lmh {
 	{
 		return left.first->name() < right.first->name();
 	}
-
 }

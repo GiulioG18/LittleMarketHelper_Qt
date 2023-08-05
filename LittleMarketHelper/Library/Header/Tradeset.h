@@ -34,21 +34,21 @@ namespace lmh {
 
 		// Non-const methods
 		void update() override;
-		void add(Trade&& trade);
-		void remove();
+		bool add(Trade&& trade);
+		bool remove(const std::string& name);
 		void clear();
 
 		// Const methods
 		size_t size() const;
 		inline const std::set<Trade>& trades() const;
 		
-	protected:
+	private:
 
 		std::set<Trade> trades_;
 	};
 
-	// Set uses comparison operator to check for equality
-	// Product name is used to check for identical products
+	// Set uses comparison operator to check for equivalence:
+	// Product name is used
 	bool operator<(const Tradeset::Trade& left, const Tradeset::Trade& right);
 
 

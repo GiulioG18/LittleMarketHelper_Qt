@@ -7,6 +7,8 @@
 #include "Portfolio.h"
 #include "ReportParser.h"
 #include "DegiroReportParser.h"
+#include "Utils/File.h"
+#include "Weight.h"
 
 #include <iostream>
 
@@ -16,42 +18,15 @@
 using namespace lmh;
 
 
-class A
-{
-public:
-
-	virtual void f() const { std::cout << "BASE CLASS f()" << std::endl; };
-	virtual void g() const = 0;
-	void n() { f(); }
-};
-
-class B : public A
-{
-public:
-
-	virtual void f() const override { std::cout << "DERIVED (B) CLASS f()" << std::endl; };
-	virtual void g() const override { f(); }
-};
-
-class C : public A
-{
-public:
-
-	virtual void g() const override { f(); }
-};
-
-
-
 int main()
 {
 	try
 	{
-		fs::path pattti = "C:/Users/giuli/OneDrive/Desktop/test.txt";
-		fs::path parent = pattti.parent_path();
-		bool booli = fs::is_regular_file(pattti);
-		bool booli2 = fs::is_directory(pattti);
-		bool booli3 = fs::is_directory(parent);
-		lmh::Logger::initialize("C:/Users/giuli/OneDrive/Desktop/test.txt", LOG_LEVEL_MAX);
+		// When parsing from inside Portfolio we should think 
+		// of catching validate user input exception
+		ReportParser::parseDefault(ReportParser::Type::DEGIRO);
+
+		lmh::Logger::initialize(fs::current_path(), LOG_LEVEL_MAX);
 		if (!Logger::instance().initialized())
 		{
 			std::cout << "Logger uninitialized!" << std::endl;
@@ -61,7 +36,8 @@ int main()
 		WARNING("this is a warning");
 		ERROR("this is an error");
 
-		const fs::path t = "Path/Example/t.csv";
+		const fs::path t = "C:/Users/giuli/OneDrive/Desktop/test.txt";
+		File::writable(t);
 
 		std::shared_ptr<FinProduct> product = MakeFinProduct("gay prod")
 			.withPrice(12.2f)
@@ -75,16 +51,16 @@ int main()
 		std::cout << portfolio->balance()->value() << std::endl;
 		portfolio->addTrade(product);
 		std::cout << portfolio->balance()->value() << std::endl;
+		portfolio->removeTrade("gay prod");
+		std::cout << portfolio->balance()->value() << std::endl;
 		product2->setPriceTo(1.2f);
+		std::cout << portfolio->balance()->value() << std::endl;
+		portfolio->removeTrade("gay prod2");
 		std::cout << portfolio->balance()->value() << std::endl;
 		portfolio->clear();
 		std::cout << portfolio->balance()->value() << std::endl;
-
-		std::unique_ptr<A> b = std::make_unique<B>();
-		std::unique_ptr<A> c = std::make_unique<C>();
-
-		b->n();
-		c->n();
+		product2->setPriceTo(1.55f);
+		portfolio->removeTrade("gay prod2");
 	}
 	catch (std::exception& exception)
 	{

@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-ADD_SUBDIRECTORY("C:/Workspace/LMH/LittleMarketHelper_Qt/LittleMarketHelper/Library" LMHlib)
+ADD_SUBDIRECTORY(../Library LMHlib)
 
 ADD_EXECUTABLE(LMHTest Main.cpp)
 

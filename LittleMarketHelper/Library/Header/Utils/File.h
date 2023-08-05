@@ -27,37 +27,42 @@ namespace lmh {
 
 		// It exists
 		status = fs::exists(file);
-		if (!status) return;
-		// There is a file in the path
-		status = file.has_filename();
-		if (!status) return;
+		if (!status) 
+			return status;
+
+		// ...and it's a file
+		status = fs::is_regular_file(file);
+		if (!status) 
+			return status;
 
 		auto permissions = fs::status(file).permissions();
-		if ((permissions & fs::perms::owner_read) == fs::perms::none ||
+		if (
+			(permissions & fs::perms::owner_read) == fs::perms::none ||
 			(permissions & fs::perms::group_read) == fs::perms::none ||
 			(permissions & fs::perms::others_read) == fs::perms::none
 			)
 		{
 			status = false;
-		}		
+		}
 
 		return status;
 	}
 
-	// TODO: change the logic, this should work with folders.
-	//		 Ideally when this returns true, subsequent tries to open() should work fine
 	inline bool lmh::File::writable(const fs::path& folder)
 	{
 		bool status = true;
 
 		// It exists
 		status = fs::exists(folder);
-		if (!status) return;
-		// There is a file in the path
-		status = !file.has_filename();
-		if (!status) return;
+		if (!status) 
+			return status;
+
+		// ...and it's a folder
+		status = fs::is_directory(folder);
+		if (!status) 
+			return status;
 				
-		auto permissions = fs::status(file).permissions();
+		auto permissions = fs::status(folder).permissions();
 		if ((permissions & fs::perms::owner_write) == fs::perms::none ||
 			(permissions & fs::perms::group_write) == fs::perms::none ||
 			(permissions & fs::perms::others_write) == fs::perms::none
@@ -66,7 +71,6 @@ namespace lmh {
 			status = false;
 		}
 
-		// TODO: check if writable
 		return status;
 	}
 

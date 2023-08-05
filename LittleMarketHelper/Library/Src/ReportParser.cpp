@@ -9,43 +9,47 @@ namespace lmh {
 		: type_(type)
 	{
 		// TODO: what about other OS executables?
-		fs::path download = std::string(std::getenv("USERPROFILE")) + '\\' + "Downloads";
-		fs::path current = fs::current_path();
+		fs::path downloads = std::string(std::getenv("USERPROFILE")) + '\\' + "Downloads";
+		fs::path documents = std::string(std::getenv("USERPROFILE")) + '\\' + "Documents";
 
-		if (fs::is_directory(current))
+		if (fs::is_directory(downloads))
 		{
-			guesses_.insert(current);
+			guesses_.insert(downloads);
 		}
 
-		if (fs::is_directory(download))
+		if (fs::is_directory(documents))
 		{
-			guesses_.insert(download);
+			guesses_.insert(documents);
 		}
 	}
 
-	std::pair<std::vector<FinProduct>, bool> ReportParser::parse(std::optional<fs::path> file) const
+	std::pair<std::vector<FinProduct>, bool> ReportParser::parse(ReportParser::Type type, std::optional<fs::path> file)
 	{
 		std::vector<FinProduct> products;
 		bool successful = true;
 
-		if (!file)
+		if (!file.has_value())
 		{
-			auto [products, successful] = parseDefault();
+			auto [products, successful] = parseDefault(type);
 		}
 
-		if (!successful)
+		if (file.has_value() || !successful)
 		{			
+			std::unique_ptr<ReportParser> parser = create(type);
+			ASSERT(parser, "invalid parser");
 
-			// Check that the file exists and is readable, if so, parse it
-			
+			if (fs::is_regular_file(file.value()))
+			{
+				parser->readFile(file.value(), products, successful);
+			}			
 		}
 
 		return { products, successful };
 	}
 
-	std::pair<std::vector<FinProduct>, bool> ReportParser::parseDefault() const
+	std::pair<std::vector<FinProduct>, bool> ReportParser::parseDefault(ReportParser::Type type)
 	{
-		std::unique_ptr<ReportParser> parser = create(type_);
+		std::unique_ptr<ReportParser> parser = create(type);
 		ASSERT(parser, "invalid parser");
 
 		std::vector<FinProduct> products;
@@ -53,16 +57,33 @@ namespace lmh {
 
 		fs::path file = parser->defaultFilename();
 		file += parser->defaultExtension();	// Add file default extension to file name
-		if (!file.has_filename() || !file.has_extension())
+		if (!file.has_filename())
 		{
 			// No default file, return
 			successful = false;
 		}
 		else
 		{
-			// Default file is provided for this parser, try 
-			// to guess the directory and, if found, parse it
-			//parser->run(products, successful);
+			// Default file is provided for this parser. Try 
+			// to guess its folder and, if found, parse it
+			// NB: for performance reason, this only checks
+			//	   few pre-defined user folders
+			for (const auto& folder : parser->guesses_)
+			{
+				ASSERT(fs::is_directory(folder), "not a valid folder");
+
+				fs::path absolutePath;
+				absolutePath += folder;
+				absolutePath += "\\";
+				absolutePath += file;
+
+				if (fs::is_regular_file(absolutePath))
+				{
+					parser->readFile(absolutePath, products, successful);
+					if (successful) 
+						break;
+				}
+			}
 		}
 
 		return { products, successful };

@@ -10,7 +10,7 @@ namespace lmh {
 	Balance::Balance(std::shared_ptr<Tradeset> iTradeset)
 		: iTradeset_(std::move(iTradeset)), value_(Null<float>()), ccy_(Currency::Iso::EUR)
 	{
-		REQUIRE(iTradeset_, "invalid iTrades"); // TODO: THIS SHOULD FAIL!!!
+		REQUIRE(iTradeset_, "invalid iTrades");
 		registerWith(iTradeset_);
 	}
 
@@ -30,7 +30,7 @@ namespace lmh {
 
 	void Balance::clear()
 	{
-		value_ = Null<float>();
+		value_ = 0.0f;
 		notifyObservers();
 	}
 

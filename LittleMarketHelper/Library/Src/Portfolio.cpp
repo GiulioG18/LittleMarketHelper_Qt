@@ -15,21 +15,25 @@ namespace lmh {
 	{
 	}
 
-	void Portfolio::addTrade(const std::shared_ptr<FinProduct>& product)
+	bool Portfolio::addTrade(const std::shared_ptr<FinProduct>& product)
 	{
-		REQUIRE(product, "invalid product");
-		REQUIRE(balance_, "invalid balance");
-
-		iTradeset_->add(std::make_pair(product, 
-			std::make_unique<ActualWeight>(product, balance_)));
+		return iTradeset_->add(std::make_pair(
+			product, 
+			std::make_unique<ActualWeight>(product, balance_))
+		);
 	}
 
-	void Portfolio::removeTrade(const std::string& name)
+	bool Portfolio::removeTrade(const std::string& name)
+	{
+		return iTradeset_->remove(name);
+	}
+
+	void Portfolio::excludeTrade()
 	{
 		// TODO: implement
 	}
 
-	void Portfolio::excludeTrade()
+	void Portfolio::includeTrade()
 	{
 		// TODO: implement
 	}

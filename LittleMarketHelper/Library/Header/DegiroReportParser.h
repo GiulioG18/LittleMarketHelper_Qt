@@ -17,7 +17,7 @@ namespace lmh {
 		virtual ~DegiroReportParser() = default;
 
 		// Const methods
-		virtual std::pair<std::vector<FinProduct>, bool> run(std::vector<FinProduct>& products, bool& successful) const override;
+		virtual void readFile(const fs::path& file, std::vector<FinProduct>& products, bool& successful) const override;
 		virtual fs::path defaultFilename() const override;
 		virtual fs::path defaultExtension() const override;
 	};

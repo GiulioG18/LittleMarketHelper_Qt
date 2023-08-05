@@ -7,13 +7,18 @@
 namespace lmh {
 
 	Logger::Logger()
-		: logLevel_(Null<LogLevel>()), initialized_(false)
+		: 
+		logLevel_(Null<LogLevel>()),
+		time_(Null<time_t>()),
+		initialized_(false)
 	{
 	}
 
 	Logger::~Logger()
 	{
 		if (!initialized_) return;
+
+		// TODO: clean oldest Log_* if there are more than 5
 
 		if (stream_->is_open())
 		{
@@ -23,13 +28,12 @@ namespace lmh {
 				fs::perms::group_read |
 				fs::perms::others_read, 
 				fs::perm_options::replace);
+
 			stream_->close();
 		}
 	}
 
-	// Set stream and log level
-	
-	bool Logger::initialize(const fs::path& filePath, LogLevel logLevel)
+	bool Logger::initialize(const fs::path& folder, LogLevel logLevel)
 	{
 		// Create the logger in memory
 		Logger& logger = Singleton<Logger>::instance();
@@ -38,28 +42,30 @@ namespace lmh {
 		// This is to ensure that the stream is not redirected midway
 		REQUIRE(!logger.initialized_, "logger was already initialized");
 
-		// TODO: initialize file name with a name.
-		//		 the parameter of this function should be the folder instead
-		
-		// Initialize file
-		logger.file_ = filePath;
-		if (!File::writable(logger.file_)) // TODO: have to first create file
+		// Initialize folder
+		logger.folder_ = folder;
+		if (!File::writable(logger.folder_))
 		{
 			logger.initialized_ = false;
 			return logger.initialized_;
 		}
+		
+		// Initialize time
+		logger.time_ = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
-		logger.stream_ = std::make_unique<std::fstream>();
-		ASSERT(logger.stream_, "invalid stream");
+		// Initialize file
+		logger.file_ = "Log_" + std::to_string(logger.time_) + ".txt";
 
-		// Initialize stream and log level
-		logger.stream_->open(logger.file_, std::ios_base::out | std::ios_base::trunc);
+		// Initialize log level
 		logger.logLevel_ = logLevel;
 		if (logger.logLevel_ > LOG_LEVEL_MAX)
 		{
 			logger.logLevel_ = LOG_LEVEL_DEFAULT;
 		}
 
+		// Initialize stream
+		logger.stream_ = std::make_unique<std::fstream>(logger.file_, std::ios_base::out | std::ios_base::trunc);
+		ASSERT(logger.stream_, "invalid stream");
 		if (logger.stream_->is_open())
 		{
 			logger.writeLogHeader();
@@ -71,6 +77,14 @@ namespace lmh {
 		}
 
 		return logger.initialized_;
+	}
+
+	void Logger::writeLogHeader() const
+	{
+		*(stream_) << "Little Market Helper LOG taken on " << std::ctime(&time_)
+			<< std::endl;
+		*(stream_) << "=============================================================="
+			<< std::endl << std::endl;
 	}
 
 }
