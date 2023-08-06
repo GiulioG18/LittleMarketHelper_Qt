@@ -23,8 +23,14 @@ namespace lmh {
 		// Non-const methods
 		bool addTrade(const std::shared_ptr<FinProduct>& product);
 		bool removeTrade(const std::string& name);
-		void excludeTrade();		
-		void includeTrade();
+		// Move trade from iTradeset to eTradeset
+		// NB: it could successfully delete from first tradeset
+		// but fail to move it into second tradeset
+		bool excludeTrade(const std::string& name);	
+		// Move trade from eTradeset to iTradeset
+		// NB: it could successfully delete from first tradeset
+		// but fail to move it into second tradeset
+		bool includeTrade(const std::string& name);
 		void clear();
 
 		// Const methods

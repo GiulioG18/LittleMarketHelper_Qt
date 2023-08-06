@@ -25,22 +25,29 @@ namespace lmh {
 
 	bool Tradeset::remove(const std::string& name)
 	{
-		auto it = std::find_if(std::begin(trades_), std::end(trades_),
-			[&name](const Tradeset::Trade& trade) 
-			{ 
-				return trade.first->name() == name; 
-			}
-		);
-
-		bool found = it != trades_.end();
+		Iterator trade = find(name);
+		bool found = (trade != trades_.end());
 		if (found)
 		{
-			unregisterWith(it->first);
-			trades_.erase(it);
+			unregisterWith(trade->first);
+			trades_.erase(trade);
 			notifyObservers();
 		}
 
 		return found;
+	}
+
+	std::optional<Tradeset::Trade> Tradeset::move(const std::string& name)
+	{
+		Iterator it = find(name);
+		if (it == trades_.end())
+			return std::nullopt;
+
+		unregisterWith(it->first);
+		std::optional<Tradeset::Trade> trade = std::move(trades_.extract(it).value());
+		notifyObservers();
+
+		return trade;
 	}
 
 	void Tradeset::clear()
@@ -57,6 +64,16 @@ namespace lmh {
 	size_t Tradeset::size() const
 	{
 		return trades_.size();
+	}
+
+	Tradeset::Iterator Tradeset::find(const std::string& name) const
+	{
+		return std::find_if(std::begin(trades_), std::end(trades_),
+			[&name](const Tradeset::Trade& trade)
+			{
+				return trade.first->name() == name;
+			}
+		);
 	}
 
 	bool operator<(const Tradeset::Trade& left, const Tradeset::Trade& right)

@@ -23,25 +23,18 @@ namespace lmh {
 		}
 	}
 
-	std::pair<std::vector<FinProduct>, bool> ReportParser::parse(ReportParser::Type type, std::optional<fs::path> file)
+	std::pair<std::vector<FinProduct>, bool> ReportParser::parse(ReportParser::Type type, const fs::path& file)
 	{
+
+		std::unique_ptr<ReportParser> parser = create(type);
+		ASSERT(parser, "invalid parser");
+
 		std::vector<FinProduct> products;
-		bool successful = true;
+		bool successful = fs::is_regular_file(file);
 
-		if (!file.has_value())
+		if (successful)
 		{
-			auto [products, successful] = parseDefault(type);
-		}
-
-		if (file.has_value() || !successful)
-		{			
-			std::unique_ptr<ReportParser> parser = create(type);
-			ASSERT(parser, "invalid parser");
-
-			if (fs::is_regular_file(file.value()))
-			{
-				parser->readFile(file.value(), products, successful);
-			}			
+			parser->readFile(file, products, successful);
 		}
 
 		return { products, successful };
@@ -59,15 +52,15 @@ namespace lmh {
 		file += parser->defaultExtension();	// Add file default extension to file name
 		if (!file.has_filename())
 		{
-			// No default file, return
+			// No default file provided for this parser
 			successful = false;
 		}
 		else
 		{
 			// Default file is provided for this parser. Try 
 			// to guess its folder and, if found, parse it
-			// NB: for performance reason, this only checks
-			//	   few pre-defined user folders
+			// NB: for performance reason, this is not a recursive search,
+			//	   (only few pre-defined user folders are searched)
 			for (const auto& folder : parser->guesses_)
 			{
 				ASSERT(fs::is_directory(folder), "not a valid folder");

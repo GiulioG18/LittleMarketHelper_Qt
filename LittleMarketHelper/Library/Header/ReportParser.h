@@ -7,7 +7,6 @@
 #include <filesystem>
 #include <set>
 #include <memory>
-#include <optional>
 #include <utility>
 
 #include "Utils/Assertions.h"
@@ -32,9 +31,9 @@ namespace lmh {
 
 	public:
 
-		[[nodiscard("Parsed products will not be stored anywhere")]]
-		static std::pair<std::vector<FinProduct>, bool> parse(ReportParser::Type type, std::optional<fs::path> file = std::nullopt);
-		[[nodiscard("Parsed products will not be stored anywhere")]]
+		[[nodiscard("Parsed products will be lost")]]
+		static std::pair<std::vector<FinProduct>, bool> parse(ReportParser::Type type, const fs::path&);
+		[[nodiscard("Parsed products will be lost")]]
 		static std::pair<std::vector<FinProduct>, bool> parseDefault(ReportParser::Type type);
 
 		virtual ~ReportParser() = default;

@@ -6,6 +6,7 @@
 #pragma once
 
 #include <set>
+#include <optional>
 
 #include "Patterns/Observable.h"
 #include "FinProduct.h"
@@ -25,6 +26,7 @@ namespace lmh {
 	public:
 
 		using Trade = std::pair<std::shared_ptr<FinProduct>, std::unique_ptr<Weight<float>>>;
+		using Iterator = std::set<Trade>::iterator;
 
 	public:
 
@@ -36,10 +38,12 @@ namespace lmh {
 		void update() override;
 		bool add(Trade&& trade);
 		bool remove(const std::string& name);
+		std::optional<Trade> move(const std::string& name);
 		void clear();
 
 		// Const methods
 		size_t size() const;
+		Iterator find(const std::string& name) const;
 		inline const std::set<Trade>& trades() const;
 		
 	private:

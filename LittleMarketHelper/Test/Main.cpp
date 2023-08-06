@@ -22,10 +22,6 @@ int main()
 {
 	try
 	{
-		// When parsing from inside Portfolio we should think 
-		// of catching validate user input exception
-		ReportParser::parseDefault(ReportParser::Type::DEGIRO);
-
 		lmh::Logger::initialize(fs::current_path(), LOG_LEVEL_MAX);
 		if (!Logger::instance().initialized())
 		{
@@ -44,7 +40,7 @@ int main()
 			.withQuantity(12);
 		std::shared_ptr<FinProduct> product2 = MakeFinProduct("gay prod2")
 			.withPrice(0.2f)
-			.withQuantity(0);
+			.withQuantity(21);
 
 		std::unique_ptr<Portfolio> portfolio = std::make_unique<Portfolio>();
 		portfolio->addTrade(product2);
@@ -61,6 +57,26 @@ int main()
 		std::cout << portfolio->balance()->value() << std::endl;
 		product2->setPriceTo(1.55f);
 		portfolio->removeTrade("gay prod2");
+		// When parsing from inside Portfolio we should think 
+		// of catching validate user input exception
+		auto parsingResults = ReportParser::parseDefault(ReportParser::Type::DEGIRO);
+		if (parsingResults.second)
+		{
+			for (const auto& product : parsingResults.first)
+			{
+				portfolio->addTrade(std::make_shared<FinProduct>(product));
+			}
+		}
+		portfolio->addTrade(product2);
+		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
+		portfolio->excludeTrade("gay prod");
+		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
+		portfolio->excludeTrade("gay prod2");
+		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
+		std::cout << portfolio->balance()->value() << std::endl;
+		portfolio->includeTrade("gay prod2");
+		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
+		std::cout << portfolio->balance()->value() << std::endl;
 	}
 	catch (std::exception& exception)
 	{

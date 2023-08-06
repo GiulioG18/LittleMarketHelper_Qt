@@ -1,4 +1,6 @@
 
+#include <optional>
+
 #include "Portfolio.h"
 #include "Utils/Assertions.h"
 #include "Weight.h"
@@ -28,14 +30,32 @@ namespace lmh {
 		return iTradeset_->remove(name);
 	}
 
-	void Portfolio::excludeTrade()
+	bool Portfolio::excludeTrade(const std::string& name)
 	{
-		// TODO: implement
+		bool status = true;
+		auto trade = iTradeset_->move(name);
+		status = trade.has_value();
+
+		if (status)
+		{
+			status = eTradeset_->add(std::move(trade.value()));
+		}
+
+		return status;
 	}
 
-	void Portfolio::includeTrade()
+	bool Portfolio::includeTrade(const std::string& name)
 	{
-		// TODO: implement
+		bool status = true;
+		auto trade = eTradeset_->move(name);
+		status = trade.has_value();
+
+		if (status)
+		{
+			status = iTradeset_->add(std::move(trade.value()));
+		}
+
+		return status;
 	}
 
 	void Portfolio::clear()
