@@ -15,7 +15,6 @@
 namespace lmh {
 
 	// Forward declarations
-	template<typename Type>
 	class Weight;
 
 
@@ -25,7 +24,7 @@ namespace lmh {
 	{
 	public:
 
-		using Trade = std::pair<std::shared_ptr<FinProduct>, std::unique_ptr<Weight<float>>>;
+		using Trade = std::pair<std::shared_ptr<FinProduct>, std::unique_ptr<Weight>>;
 		using Iterator = std::set<Trade>::iterator;
 
 	public:
@@ -36,9 +35,9 @@ namespace lmh {
 
 		// Non-const methods
 		void update() override;
-		bool add(Trade&& trade);
-		bool remove(const std::string& name);
-		std::optional<Trade> move(const std::string& name);
+		bool insert(Trade&& trade);
+		bool erase(const std::string& name);
+		std::optional<Trade> extract(const std::string& name);
 		void clear();
 
 		// Const methods

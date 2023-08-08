@@ -11,7 +11,7 @@ namespace lmh {
 		notifyObservers();
 	}
 
-	bool Tradeset::add(Trade&& trade)
+	bool Tradeset::insert(Trade&& trade)
 	{
 		bool inserted = trades_.insert(std::move(trade)).second;
 		if (inserted)
@@ -23,7 +23,7 @@ namespace lmh {
 		return inserted;
 	}
 
-	bool Tradeset::remove(const std::string& name)
+	bool Tradeset::erase(const std::string& name)
 	{
 		Iterator trade = find(name);
 		bool found = (trade != trades_.end());
@@ -37,7 +37,7 @@ namespace lmh {
 		return found;
 	}
 
-	std::optional<Tradeset::Trade> Tradeset::move(const std::string& name)
+	std::optional<Tradeset::Trade> Tradeset::extract(const std::string& name)
 	{
 		Iterator it = find(name);
 		if (it == trades_.end())

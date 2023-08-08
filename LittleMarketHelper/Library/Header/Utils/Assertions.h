@@ -65,13 +65,3 @@ if (!(condition)) { \
 } \
 MULTILINE_ASSERTION_END
 
-// For user input validation (throws a specific error)
-#define VALIDATE_USER_INPUT(condition, message) \
-MULTILINE_ASSERTION_BEGIN \
-if (!(condition)) { \
-    std::ostringstream msg_stream; \
-    msg_stream << message; \
-    throw lmh::InputValidationError(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, msg_stream.str()); \
-} \
-MULTILINE_ASSERTION_END
-

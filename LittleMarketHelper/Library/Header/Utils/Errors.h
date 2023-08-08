@@ -38,19 +38,4 @@ namespace lmh {
         std::string message_;
     };
 
-    // Error thrown by input validation functions
-    class InputValidationError : public Error
-    {
-    public:
-
-        InputValidationError(
-            const std::string& file,
-            long line,
-            const std::string& functionName,
-            const std::string& reason)
-            : Error(file, line, functionName, reason)
-        {   
-        }
-    };
-
 }

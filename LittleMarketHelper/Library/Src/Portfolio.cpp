@@ -17,42 +17,49 @@ namespace lmh {
 	{
 	}
 
-	bool Portfolio::addTrade(const std::shared_ptr<FinProduct>& product)
+	bool Portfolio::add(const std::shared_ptr<FinProduct>& product)
 	{
-		return iTradeset_->add(std::make_pair(
+		return iTradeset_->insert(std::make_pair(
 			product, 
-			std::make_unique<ActualWeight>(product, balance_))
+			std::make_unique<Weight>(product, balance_))
 		);
 	}
 
-	bool Portfolio::removeTrade(const std::string& name)
+	bool Portfolio::remove(const std::string& name)
 	{
-		return iTradeset_->remove(name);
+		return iTradeset_->erase(name);
 	}
 
-	bool Portfolio::excludeTrade(const std::string& name)
+	bool Portfolio::exclude(const std::string& name)
 	{
 		bool status = true;
-		auto trade = iTradeset_->move(name);
+		auto trade = iTradeset_->extract(name);
 		status = trade.has_value();
 
 		if (status)
 		{
-			status = eTradeset_->add(std::move(trade.value()));
+			// Delete the weight
+			trade.value().second.reset(nullptr);
+			status = eTradeset_->insert(std::move(trade.value()));
 		}
 
 		return status;
 	}
 
-	bool Portfolio::includeTrade(const std::string& name)
+	bool Portfolio::include(const std::string& name)
 	{
 		bool status = true;
-		auto trade = eTradeset_->move(name);
+		auto trade = eTradeset_->extract(name);
 		status = trade.has_value();
 
 		if (status)
 		{
-			status = iTradeset_->add(std::move(trade.value()));
+			// Create an ActualWeight for the trade
+			std::unique_ptr<Weight>& weight = trade.value().second;
+			ASSERT(!weight, "there was a weight object inside an excluded trade");
+			weight = std::make_unique<Weight>(trade.value().first, balance_);
+
+			status = iTradeset_->insert(std::move(trade.value()));
 		}
 
 		return status;

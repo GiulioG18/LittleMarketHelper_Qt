@@ -60,12 +60,12 @@ namespace lmh {
 
 	void MakeFinProduct::validate() const
 	{
-		VALIDATE_USER_INPUT(!name_.empty(), "name is empty");
+		REQUIRE(!name_.empty(), "name is empty");
 		// ISIN is a unique 12-character alphanumeric code 
 		// NB: optional, but when provided needs the have the correct length
-		VALIDATE_USER_INPUT(isin_.empty() || isin_.length() == 12, "ISIN incorrect");
-		VALIDATE_USER_INPUT(quantity_ >= 0, "negative quantity");
-		VALIDATE_USER_INPUT(price_ > 0, "non-positive price");
+		REQUIRE(isin_.empty() || isin_.length() == 12, "ISIN incorrect");
+		REQUIRE(quantity_ >= 0, "negative quantity");
+		REQUIRE(price_ > 0, "non-positive price");
 	}
 
 }

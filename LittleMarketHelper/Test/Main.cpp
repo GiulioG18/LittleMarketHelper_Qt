@@ -9,10 +9,12 @@
 #include "DegiroReportParser.h"
 #include "Utils/File.h"
 #include "Weight.h"
+#include "Calibrator.h"
 
 #include <iostream>
 
 // TODO: write logs for existing code!
+// TODO: test functionalities...
 
 
 using namespace lmh;
@@ -43,20 +45,20 @@ int main()
 			.withQuantity(21);
 
 		std::unique_ptr<Portfolio> portfolio = std::make_unique<Portfolio>();
-		portfolio->addTrade(product2);
+		portfolio->add(product2);
 		std::cout << portfolio->balance()->value() << std::endl;
-		portfolio->addTrade(product);
+		portfolio->add(product);
 		std::cout << portfolio->balance()->value() << std::endl;
-		portfolio->removeTrade("gay prod");
+		portfolio->remove("gay prod");
 		std::cout << portfolio->balance()->value() << std::endl;
 		product2->setPriceTo(1.2f);
 		std::cout << portfolio->balance()->value() << std::endl;
-		portfolio->removeTrade("gay prod2");
+		portfolio->remove("gay prod2");
 		std::cout << portfolio->balance()->value() << std::endl;
 		portfolio->clear();
 		std::cout << portfolio->balance()->value() << std::endl;
 		product2->setPriceTo(1.55f);
-		portfolio->removeTrade("gay prod2");
+		portfolio->remove("gay prod2");
 		// When parsing from inside Portfolio we should think 
 		// of catching validate user input exception
 		auto parsingResults = ReportParser::parseDefault(ReportParser::Type::DEGIRO);
@@ -64,22 +66,37 @@ int main()
 		{
 			for (const auto& product : parsingResults.first)
 			{
-				portfolio->addTrade(std::make_shared<FinProduct>(product));
+				portfolio->add(std::make_shared<FinProduct>(product));
 			}
 		}
-		portfolio->addTrade(product2);
+		portfolio->add(product2);
 		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
-		portfolio->excludeTrade("gay prod");
+		portfolio->exclude("gay prod");
 		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
-		portfolio->excludeTrade("gay prod2");
-		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
-		std::cout << portfolio->balance()->value() << std::endl;
-		portfolio->includeTrade("gay prod2");
+		portfolio->exclude("gay prod2");
 		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
 		std::cout << portfolio->balance()->value() << std::endl;
+		portfolio->include("gay prod2");
+		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
+		std::cout << portfolio->balance()->value() << std::endl; 
+		//portfolio->exclude("ISHARES CORE S&P 500 UCITS ETF ...");
+		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
+		std::cout << portfolio->balance()->value() << std::endl;
+
+		Calibrator cal{ *portfolio };
+		Calibrator::Input input;
+		float weight = static_cast<float>(1.0f / 6.0f);
+		input.emplace("ISHARES CORE S&P 500 UCITS ETF ...", Calibrator::Datum(weight));
+		for (const auto& t : portfolio->included()->trades())
+		{
+			input.emplace(t.first->name(), Calibrator::Datum(weight));
+		}
+		cal.runOptimization(input);
+
 	}
 	catch (std::exception& exception)
 	{
 		std::cout << exception.what() << std::endl;
+		return EXIT_FAILURE;
 	}
 }

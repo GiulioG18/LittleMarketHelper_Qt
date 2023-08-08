@@ -5,7 +5,6 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 
 #include "Currency.h"
 #include "Patterns/Observable.h"

@@ -20,6 +20,7 @@ SET(SRC
 	Src/DegiroReportParser.cpp
 	Src/Weight.cpp
 	Src/Tradeset.cpp
+	Src/Calibrator.cpp
 	Src/Utils/Errors.cpp
 	Src/Utils/Logger.cpp
 	Src/Patterns/Observable.cpp
@@ -35,6 +36,7 @@ SET(HEADER
 	Header/ReportParser.h
 	Header/Tradeset.h
 	Header/Weight.h
+	Header/Calibrator.h
 	Header/Utils/Assertions.h
 	Header/Utils/Environment.h
 	Header/Utils/Errors.h

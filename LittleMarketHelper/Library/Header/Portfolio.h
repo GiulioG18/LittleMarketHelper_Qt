@@ -21,23 +21,23 @@ namespace lmh {
 		Portfolio();		
 
 		// Non-const methods
-		bool addTrade(const std::shared_ptr<FinProduct>& product);
-		bool removeTrade(const std::string& name);
+		bool add(const std::shared_ptr<FinProduct>& product);
+		bool remove(const std::string& name);
 		// Move trade from iTradeset to eTradeset
-		// NB: it could successfully delete from first tradeset
-		// but fail to move it into second tradeset
-		bool excludeTrade(const std::string& name);	
+		// NB: it could successfully extract trade
+		// but fail to insert it into second tradeset
+		bool exclude(const std::string& name);	
 		// Move trade from eTradeset to iTradeset
-		// NB: it could successfully delete from first tradeset
-		// but fail to move it into second tradeset
-		bool includeTrade(const std::string& name);
+		// NB: it could successfully extract trade 
+		// but fail to insert it into second tradeset
+		bool include(const std::string& name);
 		void clear();
 
 		// Const methods
 		size_t size() const;
 		size_t excludedTradesCount() const;
-		inline const std::shared_ptr<Tradeset>& iTradeset() const;
-		inline const std::shared_ptr<Tradeset>& eTradeset() const;
+		inline const std::shared_ptr<Tradeset>& included() const;
+		inline const std::shared_ptr<Tradeset>& excluded() const;
 		inline const std::shared_ptr<Balance>& balance() const;
 		
 	private:
@@ -50,7 +50,7 @@ namespace lmh {
 
 	// Inline definitions
 
-	inline const std::shared_ptr<Tradeset>& Portfolio::iTradeset() const { return iTradeset_; }
-	inline const std::shared_ptr<Tradeset>& Portfolio::eTradeset() const { return eTradeset_; }
+	inline const std::shared_ptr<Tradeset>& Portfolio::included() const { return iTradeset_; }
+	inline const std::shared_ptr<Tradeset>& Portfolio::excluded() const { return eTradeset_; }
 	inline const std::shared_ptr<Balance>& Portfolio::balance() const { return balance_; }
 }
