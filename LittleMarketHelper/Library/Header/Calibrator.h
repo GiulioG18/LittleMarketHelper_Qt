@@ -58,7 +58,9 @@ namespace lmh {
 
 		// Non-const method
 		// Input products must match exactly the portfolio trades
-		bool runOptimization(Input input);
+		// If 'amountToInvest' is not provided, the balance from the tracked
+		// portfolio object is used instead
+		bool runOptimization(Input input, float amountToInvest = Null<float>());
 
 		// Const methods
 		const Output& output() const;

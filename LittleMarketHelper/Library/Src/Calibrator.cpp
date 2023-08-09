@@ -18,16 +18,27 @@ namespace lmh {
 		registerWith(portfolio.balance());
 	}
 
-	bool Calibrator::runOptimization(Input input)
+	bool Calibrator::runOptimization(Input input, float amountToInvest)
 	{
 		// Clear old output
 		output_ = std::nullopt;
+
 		if (!validateInput(input))
+			return false;
+
+
+		float total = Null<float>::check(amountToInvest) ?
+			balance_->value() :	// Use the balance as total
+			amountToInvest;		// Use the customized amount as total
+		if (total <= 0.0f)
 			return false;
 
 		bool successful = true;
 
-
+		// Start optimization
+		// Empty because of Arvind...
+		//...
+		//...
 
 		return successful;
 	}
@@ -68,6 +79,10 @@ namespace lmh {
 		}
 		// Check if sum of target weights is 1
 		if (weightSum - 1.0f > FLT_EPSILON)
+			return false;
+
+		// Check balance
+		if (balance_->value() <= 0)
 			return false;
 
 		return true;

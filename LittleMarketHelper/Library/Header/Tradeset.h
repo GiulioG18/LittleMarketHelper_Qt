@@ -37,6 +37,7 @@ namespace lmh {
 		void update() override;
 		bool insert(Trade&& trade);
 		bool erase(const std::string& name);
+		// Removes trade from the set (does not delete the weight)
 		std::optional<Trade> extract(const std::string& name);
 		void clear();
 
