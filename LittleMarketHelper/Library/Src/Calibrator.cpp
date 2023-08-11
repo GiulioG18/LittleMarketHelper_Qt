@@ -36,11 +36,13 @@ namespace lmh {
 		bool successful = true;
 
 		// Start optimization
+		
 		// Empty because of Arvind...
 		//...
 		//...
 
-		return successful;
+		if (true/*!successful*/)
+			return NaiveFallback(input, total);
 	}
 
 	const Calibrator::Output& Calibrator::output() const
@@ -51,6 +53,81 @@ namespace lmh {
 	void Calibrator::update()
 	{
 		output_ = std::nullopt;
+	}
+
+	bool Calibrator::NaiveFallback(const Input& input, float amountToInvest)
+	{
+		// Fill data from input
+		std::vector<ODatum> optData;
+		for (const auto& i : input)
+		{
+			static int counter = 0;
+
+			int index = counter++;
+			std::string name = i.first;
+			float price = i.second.price_;
+			float idealWeight = i.second.targetWeight_;
+			float realWeight = Null<float>();		// To be computed
+			int idealQuantity = Null<int>();		// To be computed
+			int realQuantity = Null<int>();			// To be computed
+
+			optData.push_back(ODatum(index, name, price, idealWeight, realWeight, idealQuantity, realQuantity));
+		}
+		// Sort based on price.
+		// This actually should not have much of an impact, since
+		// we are flooring the ideal quantity (flooring will cause to 
+		// under-invest the available amount, but allows enough cash for all products
+		std::sort(std::begin(optData), std::end(optData), [](const ODatum& i, const ODatum& j)
+			{
+				return i.price_ > j.price_;
+			}
+		);
+
+		// Fill ideal quantities
+		std::for_each(std::begin(optData), std::end(optData), [amountToInvest](ODatum& o)
+			{
+				o.idealQuantity_ = static_cast<int>(std::floorf(o.idealWeight_ * amountToInvest / o.price_));
+			}
+		);
+
+		// Fill real quantities
+		float total = 0.0f;
+		std::for_each(std::begin(optData), std::end(optData), [&total, amountToInvest](ODatum& o)
+			{
+				float newTotal = total + o.idealQuantity * o.price;
+
+				if (newTotal > amountToInvest)
+				{
+					o.realQuantity = static_cast<int>(std::floorf((amountToInvest - total) / o.price));
+				}
+				else
+				{
+					o.realQuantity = o.idealQuantity;
+				}
+
+				total = newTotal;
+			}
+		);
+
+		// Fill real weights
+		std::for_each(std::begin(optData), std::end(optData), [total](OptDatum_& o)
+			{
+				o.realWeight = o.realQuantity * o.price / total;
+			}
+		);
+
+		// Validate results
+		bool successful = true;
+		std::for_each(std::begin(optData), std::end(optData), [&successful](OptDatum_& o)
+			{
+				successful =
+						(!Null<float>::check(o.realWeight) &&
+						!Null<int>::check(o.idealQuantity) &&
+						!Null<int>::check(o.realQuantity));
+			}
+		);
+
+		return successful;
 	}
 
 	bool Calibrator::validateInput(Input& input)

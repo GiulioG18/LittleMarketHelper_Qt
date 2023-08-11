@@ -69,6 +69,7 @@ int main()
 				portfolio->add(std::make_shared<FinProduct>(product));
 			}
 		}
+		portfolio->exclude("ISHARES FTSE MIB UCITS ETF EUR ...");
 		portfolio->add(product2);
 		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
 		portfolio->exclude("gay prod");
@@ -76,7 +77,7 @@ int main()
 		portfolio->exclude("gay prod2");
 		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
 		std::cout << portfolio->balance()->value() << std::endl;
-		portfolio->include("gay prod2");
+		//portfolio->include("gay prod2");
 		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
 		std::cout << portfolio->balance()->value() << std::endl; 
 		//portfolio->exclude("ISHARES CORE S&P 500 UCITS ETF ...");
@@ -85,13 +86,11 @@ int main()
 
 		Calibrator cal{ *portfolio };
 		Calibrator::Input input;
-		float weight = static_cast<float>(1.0f / 6.0f);
-		input.emplace("ISHARES CORE S&P 500 UCITS ETF ...", Calibrator::Datum(weight));
-		for (const auto& t : portfolio->included()->trades())
-		{
-			input.emplace(t.first->name(), Calibrator::Datum(weight));
-		}
-		cal.runOptimization(input);
+		input.emplace("ISHARES CORE S&P 500 UCITS ETF ...", 0.65f);
+		input.emplace("AMUNDI ETF MSCI EM", 0.15f);
+		input.emplace("LYXOR STOXX EUROPE 600 (DR) UCI...", 0.15f);
+		input.emplace("SPDR RUSSELL 2000 US SMALL CAP ...", 0.05f);
+		cal.runOptimization(input, 9000.f);
 
 	}
 	catch (std::exception& exception)

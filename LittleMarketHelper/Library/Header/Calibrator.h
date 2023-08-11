@@ -5,9 +5,9 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 #include <optional>
 #include <map>
+#include <vector>
 
 #include "Portfolio.h"
 #include "Weight.h"
@@ -24,40 +24,52 @@ namespace lmh {
 
 	public:
 
-		struct Datum
+		// Output
+		struct ODatum
 		{
 		public:
 
 			friend class Calibrator;
 
-		public:
+		private:
 
-			// price_ is extracted later during the calibration,
-			// Users must only specify the desired target weight
-			Datum(float targetWeight)
+			ODatum(
+				int index,
+				std::string name,
+				float price,
+				float idealWeight,
+				float realWeight,
+				int idealQuantity,
+				int realQuantity)
 				: 
-				targetWeight_(targetWeight),
-				price_(Null<float>())
+				index_(index), name_(name), price_(price),
+				idealWeight_(idealWeight), realWeight_(realWeight),
+				idealQuantity_(idealQuantity), realQuantity_(realQuantity)
 			{
-			}
+			};
 
 		private:
 
-			const float targetWeight_;
-			float price_;
+			const int index_;
+			const std::string name_;
+			const float price_;
+			const float idealWeight_;
+			float realWeight_;
+			int idealQuantity_;
+			int realQuantity_;
 		};
 
 	public:
 
-		using Input = std::map<std::string, Datum>;
-		using Output = std::optional<std::map<std::string, int>>;
+		using Input = std::map<std::string, float>;
+		using Output = std::optional<std::vector<ODatum>>;
 
 	public:
 
 		Calibrator(const Portfolio& portfolio);
 
 		// Non-const method
-		// Input products must match exactly the portfolio trades
+		// Input keys must match exactly the portfolio trades name.
 		// If 'amountToInvest' is not provided, the balance from the tracked
 		// portfolio object is used instead
 		bool runOptimization(Input input, float amountToInvest = Null<float>());
@@ -69,6 +81,7 @@ namespace lmh {
 
 		// Non-const methods
 		virtual void update() override;
+		bool NaiveFallback(const Input& input, float amountToInvest);
 		// Get input from included trades in the portfolio
 		bool validateInput(Input& input);
 
