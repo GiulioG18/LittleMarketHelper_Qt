@@ -1,15 +1,18 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.20.3)
 
-PROJECT(LittleMarketHelper)
+PROJECT(LittleMarketHelper VERSION 1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Check for Boost env. variable
+# Check for user defined variables
 IF(NOT DEFINED ENV{Boost})
 MESSAGE(SEND_ERROR "Please set environment variable 'Boost' before building")
 ENDIF()
+
+# OR-tools
+find_package(ortools CONFIG REQUIRED)
 
 # Source files
 SET(SRC
@@ -56,6 +59,10 @@ ADD_LIBRARY(LittleMarketHelper STATIC
 TARGET_INCLUDE_DIRECTORIES(LittleMarketHelper PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/Header	
 	$ENV{Boost}
+)
+
+TARGET_LINK_LIBRARIES(LittleMarketHelper
+	ortools::ortools
 )
 
 # For VS, to maintain the current directory tree inside the Solution Explorer

@@ -44,7 +44,11 @@ namespace lmh {
 			return std::nullopt;
 
 		unregisterWith(it->first);
-		std::optional<Tradeset::Trade> trade = std::move(trades_.extract(it).value());
+		Trade trade = std::move(trades_.extract(it).value());
+		// Delete the weight object (it can only exist when the 
+		// trade is included in a portfolio)
+		if (trade.second)
+			trade.second.reset();
 		notifyObservers();
 
 		return trade;

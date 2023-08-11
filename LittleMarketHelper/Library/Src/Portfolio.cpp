@@ -38,8 +38,9 @@ namespace lmh {
 
 		if (status)
 		{
-			// Delete the weight
-			trade.value().second.reset(nullptr);
+			// If trade has been excluded, there must be no weight object
+			ASSERT(!trade.value().second,
+				"weight object found in trade outside of portfolio");
 			status = eTradeset_->insert(std::move(trade.value()));
 		}
 

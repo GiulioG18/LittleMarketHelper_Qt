@@ -13,11 +13,15 @@
 
 #include <iostream>
 
-// TODO: write logs for existing code!
-// TODO: test functionalities...
-
 
 using namespace lmh;
+
+// TODO: something is off with the exception what() format
+// ==== TODO: FIX THE BUG in release mode
+// TODO: change name to ODatum to Datum 
+// TODO: review the whole calibrator data structure
+// TODO: implement naive and ortools algos
+// TODO: test it and enjoy, it's all done!
 
 
 int main()
@@ -77,10 +81,13 @@ int main()
 		portfolio->exclude("gay prod2");
 		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
 		std::cout << portfolio->balance()->value() << std::endl;
-		//portfolio->include("gay prod2");
+		portfolio->include("gay prod2");
 		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
 		std::cout << portfolio->balance()->value() << std::endl; 
-		//portfolio->exclude("ISHARES CORE S&P 500 UCITS ETF ...");
+		portfolio->include("gay prod222");
+		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
+		std::cout << portfolio->balance()->value() << std::endl;
+		portfolio->exclude("ISHARES CORE S&P 500 UCITS ETF ...");
 		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
 		std::cout << portfolio->balance()->value() << std::endl;
 
