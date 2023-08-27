@@ -1,16 +1,14 @@
 
 #include <algorithm>
+#include <memory>
 
 #include "Calibrator.h"
 
-
-#include <memory>
-
-#include "ortools/linear_solver/linear_solver.h"
-
-
-using namespace operations_research;
-
+//#include "ortools/linear_solver/linear_solver.h"
+//
+//
+//using namespace operations_research;
+//
 // Example:
 // 
 // Balance:			1200$
@@ -33,67 +31,11 @@ using namespace operations_research;
 //		c7: -(p2Q2 - a2) <= X2
 // 
 
-int sblech() 
-{
-	//// Create solver
-	//std::unique_ptr<MPSolver> solver(MPSolver::CreateSolver("SCIP_MIXED_INTEGER_PROGRAMMING"));
-	//if (!solver)
-	//	return EXIT_FAILURE;
-
-	//// Create constants
-	//const float balance = 1200.0f;
-	//const float p1 = 100.0f;
-	//const float p2 = 25.0f;
-	//const float w1 = 0.3f;
-	//const float w2 = 0.7f;
-	//const float a1 = w1 * static_cast<float>(balance);
-	//const float a2 = w2 * static_cast<float>(balance);
-
-	//// Create variables
-	//MPVariable* const Q1 = solver->MakeIntVar(0.0, balance / p1, "Q1");
-	//MPVariable* const Q2 = solver->MakeIntVar(0.0, balance / p2, "Q2");
-	//MPVariable* const X1 = solver->MakeNumVar(0.0, INFINITY, "X1");
-	//MPVariable* const X2 = solver->MakeNumVar(0.0, INFINITY, "X2");
-
-	//// Helpers
-	//LinearExpr Q1expr(Q1);
-	//LinearExpr Q2expr(Q2);
-	//const LinearRange l4 = +1 * (p1 * Q1expr - a1) <= X1;
-	//const LinearRange l5 = -1 * (p1 * Q1expr - a1) <= X1;
-	//const LinearRange l6 = +1 * (p2 * Q2expr - a2) <= X2;
-	//const LinearRange l7 = -1 * (p2 * Q2expr - a2) <= X2;
-
-	//// Create constraints	(NB: c2 and c3 are included in variable definitions)
-	//MPConstraint* const c1 = solver->MakeRowConstraint(0.0, balance, "c1");
-	//c1->SetCoefficient(Q1, p1);
-	//c1->SetCoefficient(Q2, p2);
-	//solver->MakeRowConstraint(l4);
-	//solver->MakeRowConstraint(l5);
-	//solver->MakeRowConstraint(l6);
-	//solver->MakeRowConstraint(l7);
-
-	//// Create objective function
-	//MPObjective* const objective = solver->MutableObjective();
-	//objective->MinimizeLinearExpr(LinearExpr(X1) + LinearExpr(X2));
-
-	//MPSolver::ResultStatus status = solver->Solve();
-	//if (status == MPSolver::OPTIMAL) {
-	//	std::cout << "Optimal Solution Found:" << std::endl;
-	//	std::cout << "Buy " << Q1->solution_value() << " units of Product 1" << std::endl;
-	//	std::cout << "Buy " << Q2->solution_value() << " units of Product 2" << std::endl;
-	//}
-	//else {
-	//	std::cout << "No solution found." << std::endl;
-	//}
-	return 2;
-}
-
-
 namespace lmh {
 
 	Calibrator::Calibrator(const Portfolio& portfolio)
 		: 
-		output_(std::nullopt),
+		result_(std::nullopt),
 		trades_(portfolio.included()),
 		balance_(portfolio.balance())
 	{
@@ -103,150 +45,201 @@ namespace lmh {
 		registerWith(portfolio.balance());
 	}
 
-	bool Calibrator::runOptimization(Input input, float amountToInvest)
+	void Calibrator::runOptimization(WeightsMap wm, float investment)
 	{
 		// Clear old output
-		output_ = std::nullopt;
+		clearResult();
 
-		if (!validateInput(input))
-			return false;
+		if (!validateWeightsMap(wm))
+			return;
 
+		// If investment amount is not provided, use the linked portfolio 
+		// balance as cash constraint for the optimization
+		float inv = Null<float>::check(investment) ?
+			balance_->value() :
+			investment;		
+		if (inv <= 0.0f)
+			return;
 
-		float total = Null<float>::check(amountToInvest) ?
-			balance_->value() :	// Use the balance as total
-			amountToInvest;		// Use the customized amount as total
-		if (total <= 0.0f)
-			return false;
+		CalibrationResult result;
+		bool successful= result.initialize(
+			wm, 
+			inv,
+			trades_.get());
 
-		bool successful = true;
+		if (!successful)
+			return;
 
-		// Start optimization
-		
-		sblech();
+		// Run all available optimizations until successful
+		successful = opt_SCIP(result);
+		if (!successful)
+			successful = opt_Floored(result);
 
-		if (true/*!successful*/)
-			return NaiveFallback(input, total);
-	}
-
-	const Calibrator::Output& Calibrator::output() const
-	{
-		return output_;
+		if (successful)
+			setResult(std::move(result));
 	}
 
 	void Calibrator::update()
 	{
-		output_ = std::nullopt;
+		clearResult();
 	}
 
-	bool Calibrator::NaiveFallback(const Input& input, float amountToInvest)
+	void Calibrator::clearResult()
 	{
-		//// Fill data from input
-		//std::vector<ODatum> optData;
-		//for (const auto& i : input)
-		//{
-		//	static int counter = 0;
-
-		//	int index = counter++;
-		//	std::string name = i.first;
-		//	float price = i.second.price_;
-		//	float idealWeight = i.second.targetWeight_;
-		//	float realWeight = Null<float>();		// To be computed
-		//	int idealQuantity = Null<int>();		// To be computed
-		//	int realQuantity = Null<int>();			// To be computed
-
-		//	optData.push_back(ODatum(index, name, price, idealWeight, realWeight, idealQuantity, realQuantity));
-		//}
-		//// Sort based on price.
-		//// This actually should not have much of an impact, since
-		//// we are flooring the ideal quantity (flooring will cause to 
-		//// under-invest the available amount, but allows enough cash for all products
-		//std::sort(std::begin(optData), std::end(optData), [](const ODatum& i, const ODatum& j)
-		//	{
-		//		return i.price_ > j.price_;
-		//	}
-		//);
-
-		//// Fill ideal quantities
-		//std::for_each(std::begin(optData), std::end(optData), [amountToInvest](ODatum& o)
-		//	{
-		//		o.idealQuantity_ = static_cast<int>(std::floorf(o.idealWeight_ * amountToInvest / o.price_));
-		//	}
-		//);
-
-		//// Fill real quantities
-		//float total = 0.0f;
-		//std::for_each(std::begin(optData), std::end(optData), [&total, amountToInvest](ODatum& o)
-		//	{
-		//		float newTotal = total + o.idealQuantity * o.price;
-
-		//		if (newTotal > amountToInvest)
-		//		{
-		//			o.realQuantity = static_cast<int>(std::floorf((amountToInvest - total) / o.price));
-		//		}
-		//		else
-		//		{
-		//			o.realQuantity = o.idealQuantity;
-		//		}
-
-		//		total = newTotal;
-		//	}
-		//);
-
-		//// Fill real weights
-		//std::for_each(std::begin(optData), std::end(optData), [total](OptDatum_& o)
-		//	{
-		//		o.realWeight = o.realQuantity * o.price / total;
-		//	}
-		//);
-
-		//// Validate results
-		//bool successful = true;
-		//std::for_each(std::begin(optData), std::end(optData), [&successful](OptDatum_& o)
-		//	{
-		//		successful =
-		//				(!Null<float>::check(o.realWeight) &&
-		//				!Null<int>::check(o.idealQuantity) &&
-		//				!Null<int>::check(o.realQuantity));
-		//	}
-		//);
-
-		//return successful;
-		return false;
+		result_ = std::nullopt;
 	}
 
-	bool Calibrator::validateInput(Input& input)
+	void Calibrator::setResult(CalibrationResult&& result)
 	{
-		//if (input.size() != trades_->trades().size())
-		//	return false;
+		result_ = std::make_optional(std::move(result));
+	}
 
-		//float weightSum = 0.0f;
-		//for (const auto& trade : trades_->trades())
-		//{
-		//	// Check if input products match portfolio trades
-		//	std::string name = trade.first->name();
-		//	auto it = input.find(name);
-		//	if (it == input.end())
-		//		return false;
+	bool Calibrator::opt_SCIP(CalibrationResult& result)
+	{
+		// TODO: implement
+		 
+		//// Create solver
+		//std::unique_ptr<MPSolver> solver(MPSolver::CreateSolver("SCIP_MIXED_INTEGER_PROGRAMMING"));
+		//if (!solver)
+		//	return EXIT_FAILURE;
 
-		//	// Extract price
-		//	it->second.price_ = trade.first->price();
-		//	REQUIRE(!Null<float>::check(it->second.price_), "null price");
+		//// Create constants
+		//const float balance = 1200.0f;
+		//const float p1 = 100.0f;
+		//const float p2 = 25.0f;
+		//const float w1 = 0.3f;
+		//const float w2 = 0.7f;
+		//const float a1 = w1 * static_cast<float>(balance);
+		//const float a2 = w2 * static_cast<float>(balance);
 
-		//	// Validate target weights
-		//	const float& weight = it->second.targetWeight_;
-		//	if (weight > 1 || weight < 0)
-		//		return false;
-		//	weightSum += weight;
+		//// Create variables
+		//MPVariable* const Q1 = solver->MakeIntVar(0.0, balance / p1, "Q1");
+		//MPVariable* const Q2 = solver->MakeIntVar(0.0, balance / p2, "Q2");
+		//MPVariable* const X1 = solver->MakeNumVar(0.0, INFINITY, "X1");
+		//MPVariable* const X2 = solver->MakeNumVar(0.0, INFINITY, "X2");
+
+		//// Helpers
+		//LinearExpr Q1expr(Q1);
+		//LinearExpr Q2expr(Q2);
+		//const LinearRange l4 = +1 * (p1 * Q1expr - a1) <= X1;
+		//const LinearRange l5 = -1 * (p1 * Q1expr - a1) <= X1;
+		//const LinearRange l6 = +1 * (p2 * Q2expr - a2) <= X2;
+		//const LinearRange l7 = -1 * (p2 * Q2expr - a2) <= X2;
+
+		//// Create constraints	(NB: c2 and c3 are included in variable definitions)
+		//MPConstraint* const c1 = solver->MakeRowConstraint(0.0, balance, "c1");
+		//c1->SetCoefficient(Q1, p1);
+		//c1->SetCoefficient(Q2, p2);
+		//solver->MakeRowConstraint(l4);
+		//solver->MakeRowConstraint(l5);
+		//solver->MakeRowConstraint(l6);
+		//solver->MakeRowConstraint(l7);
+
+		//// Create objective function
+		//MPObjective* const objective = solver->MutableObjective();
+		//objective->MinimizeLinearExpr(LinearExpr(X1) + LinearExpr(X2));
+
+		//MPSolver::ResultStatus status = solver->Solve();
+		//if (status == MPSolver::OPTIMAL) {
+		//	std::cout << "Optimal Solution Found:" << std::endl;
+		//	std::cout << "Buy " << Q1->solution_value() << " units of Product 1" << std::endl;
+		//	std::cout << "Buy " << Q2->solution_value() << " units of Product 2" << std::endl;
 		//}
-		//// Check if sum of target weights is 1
-		//if (weightSum - 1.0f > FLT_EPSILON)
-		//	return false;
+		//else {
+		//	std::cout << "No solution found." << std::endl;
+		//}
 
-		//// Check balance
-		//if (balance_->value() <= 0)
-		//	return false;
+		bool successful = result.validate();
+		if (!successful)
+			result.partialReset();
+
+		return successful;
+	}
+
+	bool Calibrator::opt_Floored(CalibrationResult& result)
+	{
+		// This algorithm computes the ideal quantity by simply
+		// flooring the floating computation.
+		// This solution has seemingly adequate results but tends
+		// to underuse the investment available
+
+		const float&	investment = result.investment_;
+		float&			cash = result.cash_;
+		float&			openPosition = result.openPosition_;
+
+		// Fill ideal quantities
+		std::for_each(std::begin(result.data_), std::end(result.data_), 
+			[&investment](auto& d)
+			{
+				d.idealQuantity_ = static_cast<int>(std::floorf(d.idealWeight_ * investment / d.price_));
+			}
+		);
+
+		// Fill real quantities
+		openPosition = 0.0f;
+		std::for_each(std::begin(result.data_), std::end(result.data_), 
+			[&openPosition, investment](auto& d)
+			{
+				// If there is not enough cash for this product, we only use the remaining cash
+				if (openPosition + d.idealQuantity_ * d.price_ > investment)
+				{
+					d.realQuantity_ = static_cast<int>(std::floorf((investment - openPosition) / d.price_));
+					
+				}
+				else
+				{
+					d.realQuantity_ = d.idealQuantity_;
+				}
+
+				openPosition += d.realQuantity_ * d.price_;
+			}
+		);
+		REQUIRE(openPosition > 0.0f, "open position is not positive");
+
+		// Fill real weights
+		std::for_each(std::begin(result.data_), std::end(result.data_), 
+			[openPosition](auto& d)
+			{
+				d.realWeight_ = d.realQuantity_ * d.price_ / openPosition;
+			}
+		);
+
+		// Cash
+		cash = investment - openPosition;
+
+		bool successful = result.validate();
+		if (!successful)
+			result.partialReset();
+
+		return successful;
+	}
+
+	bool Calibrator::validateWeightsMap(const WeightsMap& wm) const
+	{
+		// Check if input weights match portfolio trades 
+		if (wm.size() != trades_->get().size())
+			return false;
+
+		float weightSum = 0.0f;
+		for (const auto& trade : trades_->get())
+		{
+			// Check that it is provided 1 weight per product
+			std::string name = trade.first->name();
+			auto it = wm.find(name);
+			if (it == wm.end())
+				return false;
+
+			// Check ideal weights
+			const float& weight = it->second;
+			if (weight > 1 || weight < 0)
+				return false;
+			weightSum += weight;
+		}
+
+		// Check if sum of ideal weights is 1.0
+		if (weightSum - 1.0f > FLT_EPSILON)
+			return false;
 
 		return true;
 	}
-
 }

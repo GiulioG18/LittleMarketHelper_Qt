@@ -17,7 +17,7 @@ namespace lmh {
 	void Balance::update()
 	{
 		value_ = 0.0f;
-		for (const auto& trade : iTradeset_->trades())
+		for (const auto& trade : iTradeset_->get())
 		{		
 			REQUIRE(!Null<int>::check(trade.first->quantity()), "null quantity");
 			REQUIRE(!Null<float>::check(trade.first->price()), "null price");

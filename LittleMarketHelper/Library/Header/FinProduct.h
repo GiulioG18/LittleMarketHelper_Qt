@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "Utils/Null.h"
+#include "Utils/Assertions.h"
 #include "Patterns/Observable.h"
 
 
@@ -98,6 +99,8 @@ namespace lmh {
 
 	inline void FinProduct::setQuantityTo(int value)
 	{
+		REQUIRE(value >= 0, "negative quantity");
+
 		if (quantity_ != value)
 		{
 			quantity_ = value;
@@ -107,6 +110,8 @@ namespace lmh {
 
 	inline void FinProduct::setPriceTo(float value)
 	{
+		REQUIRE(value > 0, "non-positive price");
+
 		if (price_ != value)
 		{
 			price_ = value;

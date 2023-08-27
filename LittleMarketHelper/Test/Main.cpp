@@ -16,8 +16,9 @@
 
 using namespace lmh;
 
-// TODO: something is off with the exception what() format
-// ==== TODO: FIX THE BUG in release mode
+// TODO: somethinwhat() format
+// ==== TODO: FIX THE BUG in reg is off with the exception lease mode
+// TODO: the logger should redirect everything into a file, change it!
 // TODO: change name to ODatum to Datum 
 // TODO: review the whole calibrator data structure
 // TODO: implement naive and ortools algos
@@ -73,15 +74,16 @@ int main()
 				portfolio->add(std::make_shared<FinProduct>(product));
 			}
 		}
-		portfolio->exclude("ISHARES FTSE MIB UCITS ETF EUR ...");
+		portfolio->exclude("ISHARES FTSE MIB UCITS ETF EUR (...");
 		portfolio->add(product2);
 		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
 		portfolio->exclude("gay prod");
 		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
 		portfolio->exclude("gay prod2");
 		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
+		portfolio->exclude("d");
 		std::cout << portfolio->balance()->value() << std::endl;
-		portfolio->include("gay prod2");
+		//portfolio->include("gay prod2");
 		std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
 		std::cout << portfolio->balance()->value() << std::endl; 
 		portfolio->include("gay prod222");
@@ -92,13 +94,15 @@ int main()
 		std::cout << portfolio->balance()->value() << std::endl;
 
 		Calibrator cal{ *portfolio };
-		Calibrator::Input input;
-		input.emplace("ISHARES CORE S&P 500 UCITS ETF ...", 0.65f);
-		input.emplace("AMUNDI ETF MSCI EM", 0.15f);
-		input.emplace("LYXOR STOXX EUROPE 600 (DR) UCI...", 0.15f);
-		input.emplace("SPDR RUSSELL 2000 US SMALL CAP ...", 0.05f);
-		cal.runOptimization(input, 9000.f);
-
+		Calibrator::WeightsMap wm;
+		wm.emplace("ISHARES CORE S&P 500 UCITS ETF U...", 0.65f);
+		wm.emplace("AMUNDI ETF MSCI EM", 0.15f);
+		wm.emplace("LYXOR STOXX EUROPE 600 (DR) UCIT...", 0.15f);
+		wm.emplace("SPDR RUSSELL 2000 US SMALL CAP U...", 0.05f);
+		cal.runOptimization(wm, 9000.f);
+		auto result = cal.result();
+		result.value().cash();
+		result.value().data().at(2).idealQuantity();
 	}
 	catch (std::exception& exception)
 	{

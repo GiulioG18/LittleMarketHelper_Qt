@@ -32,6 +32,10 @@ namespace lmh {
 		// For now it's allowed only to construct an empty trade set 
 		// and add trades one by one with 'add()'
 		Tradeset() = default;
+		Tradeset(const Tradeset&) = delete;
+		Tradeset(Tradeset&&) = delete;
+		Tradeset& operator=(const Tradeset&) = delete;
+		Tradeset& operator=(Tradeset&&) = delete;
 
 		// Non-const methods
 		void update() override;
@@ -44,7 +48,7 @@ namespace lmh {
 		// Const methods
 		size_t size() const;
 		Iterator find(const std::string& name) const;
-		inline const std::set<Trade>& trades() const;
+		inline const std::set<Trade>& get() const;
 		
 	private:
 
@@ -58,6 +62,6 @@ namespace lmh {
 
 	// Inline definitions
 
-	inline const std::set<Tradeset::Trade>& Tradeset::trades() const { return trades_; }
+	inline const std::set<Tradeset::Trade>& Tradeset::get() const { return trades_; }
 
 }

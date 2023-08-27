@@ -12,7 +12,8 @@ MESSAGE(SEND_ERROR "Please set environment variable 'Boost' before building")
 ENDIF()
 
 # OR-tools
-find_package(ortools CONFIG REQUIRED)
+#FIND_PACKAGE(ortools CONFIG REQUIRED)
+#add_subdirectory(or-tools)
 
 # Source files
 SET(SRC
@@ -24,6 +25,7 @@ SET(SRC
 	Src/Weight.cpp
 	Src/Tradeset.cpp
 	Src/Calibrator.cpp
+	Src/CalibrationResult.cpp
 	Src/Utils/Errors.cpp
 	Src/Utils/Logger.cpp
 	Src/Patterns/Observable.cpp
@@ -40,6 +42,7 @@ SET(HEADER
 	Header/Tradeset.h
 	Header/Weight.h
 	Header/Calibrator.h
+	Header//CalibrationResult.h
 	Header/Utils/Assertions.h
 	Header/Utils/Environment.h
 	Header/Utils/Errors.h
@@ -61,9 +64,9 @@ TARGET_INCLUDE_DIRECTORIES(LittleMarketHelper PUBLIC
 	$ENV{Boost}
 )
 
-TARGET_LINK_LIBRARIES(LittleMarketHelper
-	ortools::ortools
-)
+#TARGET_LINK_LIBRARIES(LittleMarketHelper
+#	ortools::ortools
+#)
 
 # For VS, to maintain the current directory tree inside the Solution Explorer
 SOURCE_GROUP(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC})

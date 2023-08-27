@@ -45,7 +45,7 @@ namespace lmh {
 
 		Null() = default;
 
-		operator Type() const
+		constexpr operator Type() const
 		{
 			return Type(FloatingPoint<std::is_floating_point<Type>::value>::maxValue());
 		}
