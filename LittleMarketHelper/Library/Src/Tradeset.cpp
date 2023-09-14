@@ -23,9 +23,9 @@ namespace lmh {
 		return inserted;
 	}
 
-	bool Tradeset::erase(const std::string& name)
+	bool Tradeset::erase(const std::string& isin)
 	{
-		Iterator trade = find(name);
+		Iterator trade = find(isin);
 		bool found = (trade != trades_.end());
 		if (found)
 		{
@@ -37,16 +37,15 @@ namespace lmh {
 		return found;
 	}
 
-	std::optional<Tradeset::Trade> Tradeset::extract(const std::string& name)
+	std::optional<Tradeset::Trade> Tradeset::extract(const std::string& isin)
 	{
-		Iterator it = find(name);
+		Iterator it = find(isin);
 		if (it == trades_.end())
 			return std::nullopt;
 
 		unregisterWith(it->first);
 		Trade trade = std::move(trades_.extract(it).value());
-		// Delete the weight object (it can only exist when the 
-		// trade is included in a portfolio)
+		// Delete the Weight since the trade does not belong to a portfolio anymore
 		if (trade.second)
 			trade.second.reset();
 		notifyObservers();
@@ -60,7 +59,7 @@ namespace lmh {
 			return;
 
 		trades_.clear();
-		// Unregister with observed products (now cleared from set)
+		// Unregister with observed trades (now cleared from set)
 		unregisterWithAll();
 		notifyObservers();
 	}
@@ -70,18 +69,18 @@ namespace lmh {
 		return trades_.size();
 	}
 
-	Tradeset::Iterator Tradeset::find(const std::string& name) const
+	Tradeset::Iterator Tradeset::find(const std::string& isin) const
 	{
 		return std::find_if(std::begin(trades_), std::end(trades_),
-			[&name](const Tradeset::Trade& trade)
+			[&isin](const Tradeset::Trade& trade)
 			{
-				return trade.first->name() == name;
+				return trade.first->isin() == isin;
 			}
 		);
 	}
 
 	bool operator<(const Tradeset::Trade& left, const Tradeset::Trade& right)
 	{
-		return left.first->name() < right.first->name();
+		return left.first->isin() < right.first->isin();
 	}
 }

@@ -2,39 +2,50 @@
 #include <algorithm>
 
 #include "CalibrationResult.h"
+#include "Security.h"
+#include "Utils/Assertions.h"
 
 
 namespace lmh {
 
 	bool CalibrationResult::initialize(const WeightsMap& wm, float investment, Tradeset* tradeset)
 	{
+		if (initialized_)
+			return true;
+
 		// Initialize data
 		if (wm.empty())
 			return false;
 		data_.reserve(wm.size());
-		for (const auto& NameWeight : wm)
+		for (const auto& isinWeight : wm)
 		{
+			const std::string& isin = isinWeight.first;
+			const float& weight = isinWeight.second;
+
 			// Extract price
-			const auto& it = tradeset->find(NameWeight.first);
+			const auto& it = tradeset->find(isin);
 			ASSERT(it != tradeset->get().end(), "trades-inputs mismatch");
 			float price = it->first->price();
-			ASSERT(!Null<float>::check(price), "null price");
+			ASSERT(Security::validatePrice(price), "not valid price");
 
 			// Create datum from weight map entry
 			data_.emplace_back(
-				NameWeight.first, price, NameWeight.second,
-				Null<int>(), Null<float>(), Null<int>()
+				isin, price, weight,
+				0, 0.0f, 0
 			);
 		}
 
 		// Initialize investment
 		investment_ = investment;
 
+		initialized_ = true;
 		return true;
 	}
 
 	void CalibrationResult::partialReset()
 	{
+		ASSERT(initialized_, "un-initialized results");
+
 		// Reset non-const data members
 		std::for_each(std::begin(data_), std::end(data_), 
 			[](CalibrationResult::Datum& d)
@@ -44,17 +55,19 @@ namespace lmh {
 		);
 
 		// Reset cash, open position
-		cash_ = openPosition_ = Null<float>();
+		cash_ = openPosition_ = 0.0f;
 	}
 
 	bool CalibrationResult::validate() const
 	{
+		ASSERT(initialized_, "un-initialized results");
+
 		// Data
 		bool validated = true;
 		std::for_each(std::begin(data_), std::end(data_), 
 			[&validated](const CalibrationResult::Datum& d)
 			{
-				if (!d.checkNull())
+				if (!d.validate())
 					validated = false;
 			}
 		);
@@ -67,9 +80,6 @@ namespace lmh {
 		if (investment_ < 0 ||
 			cash_ < 0 || 
 			openPosition_ < 0)
-			return false;
-		if (Null<float>::check(cash_) ||
-			Null<float>::check(openPosition_))
 			return false;
 
 		return true;
@@ -91,19 +101,19 @@ namespace lmh {
 	{
 	};
 
-	bool CalibrationResult::Datum::checkNull() const
+	bool CalibrationResult::Datum::validate() const
 	{
 		return
-			!Null<int>::check(idealQuantity_) &&
-			!Null<float>::check(realWeight_) &&
-			!Null<int>::check(realQuantity_);
+			idealQuantity_ >= 0 &&
+			(realWeight_ >= 0 || realWeight_ <= 1) &&
+			!realQuantity_ >= 0;
 	}
 
 	void CalibrationResult::Datum::partialReset()
 	{
-		idealQuantity_ = Null<int>();
-		realWeight_ = Null<float>();
-		realQuantity_ = Null<int>();
+		idealQuantity_ = 0;
+		realWeight_ = 0.0f;
+		realQuantity_ = 0;
 	}
 
 }

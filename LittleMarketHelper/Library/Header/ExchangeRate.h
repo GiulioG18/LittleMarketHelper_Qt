@@ -1,27 +1,23 @@
 // ========================================================================
-//		Currencies available
+//		Exchange Rate class
 // ========================================================================
 
 #pragma once
 
+#include "Currency.h"
+#include "Utils/Nullable.h"
 #include "Patterns/Observable.h"
-
 
 namespace lmh {
 
-	enum class Currency
+	class ExchangeRate : public Observable
 	{
-		EUR,
-		USD,
-		GBP, GBp,
-		JPY,
-		CHF,
-		AUD,
-		CAD,
-		CNY,
-		HKD,
-		SEK,
-		BZR
+
+	private:
+
+		float_n rate_;
+		Currency x_;
+		Currency y_;
 	};
 
 }

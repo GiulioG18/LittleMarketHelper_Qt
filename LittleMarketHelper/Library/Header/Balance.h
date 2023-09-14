@@ -20,11 +20,9 @@ namespace lmh {
 		public Observable,
 		public Observer
 	{
-		// For now only single currency is supported 
-
 	public:
 
-		Balance(std::shared_ptr<Tradeset> iTradeset);
+		Balance(Currency ccy, std::shared_ptr<Tradeset> trades);
 
 		// Non-const methods
 		void update() override;
@@ -36,9 +34,8 @@ namespace lmh {
 	private:
 
 		float value_;
-		Currency ccy_;
-		// Observed
-		std::shared_ptr<Tradeset> iTradeset_;
+		Currency ccy_;		
+		std::shared_ptr<Tradeset> trades_;	// Observed
 	};
 
 

@@ -23,29 +23,29 @@ namespace lmh {
 		}
 	}
 
-	std::pair<std::vector<FinProduct>, bool> ReportParser::parse(ReportParser::Type type, const fs::path& file)
+	std::pair<std::vector<Security>, bool> ReportParser::parse(ReportParser::Type type, const fs::path& file)
 	{
 
 		std::unique_ptr<ReportParser> parser = create(type);
 		ASSERT(parser, "invalid parser");
 
-		std::vector<FinProduct> products;
+		std::vector<Security> securities;
 		bool successful = fs::is_regular_file(file);
 
 		if (successful)
 		{
-			parser->readFile(file, products, successful);
+			parser->readFile(file, securities, successful);
 		}
 
-		return { products, successful };
+		return { securities, successful };
 	}
 
-	std::pair<std::vector<FinProduct>, bool> ReportParser::parseDefault(ReportParser::Type type)
+	std::pair<std::vector<Security>, bool> ReportParser::parseDefault(ReportParser::Type type)
 	{
 		std::unique_ptr<ReportParser> parser = create(type);
 		ASSERT(parser, "invalid parser");
 
-		std::vector<FinProduct> products;
+		std::vector<Security> securities;
 		bool successful = true;
 
 		fs::path file = parser->defaultFilename();
@@ -72,14 +72,14 @@ namespace lmh {
 
 				if (fs::is_regular_file(absolutePath))
 				{
-					parser->readFile(absolutePath, products, successful);
+					parser->readFile(absolutePath, securities, successful);
 					if (successful) 
 						break;
 				}
 			}
 		}
 
-		return { products, successful };
+		return { securities, successful };
 	}
 
 	std::unique_ptr<ReportParser> ReportParser::create(ReportParser::Type type)

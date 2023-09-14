@@ -9,7 +9,7 @@
 #include <optional>
 
 #include "Patterns/Observable.h"
-#include "FinProduct.h"
+#include "Security.h"
 
 
 namespace lmh {
@@ -24,7 +24,7 @@ namespace lmh {
 	{
 	public:
 
-		using Trade = std::pair<std::shared_ptr<FinProduct>, std::unique_ptr<Weight>>;
+		using Trade = std::pair<std::shared_ptr<Security>, std::unique_ptr<Weight>>;
 		using Iterator = std::set<Trade>::iterator;
 
 	public:
@@ -40,14 +40,13 @@ namespace lmh {
 		// Non-const methods
 		void update() override;
 		bool insert(Trade&& trade);
-		bool erase(const std::string& name);
-		// Removes trade from the set (does not delete the weight)
-		std::optional<Trade> extract(const std::string& name);
+		bool erase(const std::string& isin);
+		std::optional<Trade> extract(const std::string& isin);
 		void clear();
 
 		// Const methods
 		size_t size() const;
-		Iterator find(const std::string& name) const;
+		Iterator find(const std::string& isin) const;
 		inline const std::set<Trade>& get() const;
 		
 	private:
@@ -55,8 +54,8 @@ namespace lmh {
 		std::set<Trade> trades_;
 	};
 
-	// Set uses comparison operator to check for equivalence:
-	// Product name is used
+	// std::set uses comparison operator to check for equivalence:
+	// security Isin is used
 	bool operator<(const Tradeset::Trade& left, const Tradeset::Trade& right);
 
 

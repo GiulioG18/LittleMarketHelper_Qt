@@ -4,26 +4,30 @@
 
 #pragma once
 
-#include <optional>
 #include <vector>
 #include <string>
 #include <map>
 
-#include "Utils/Null.h"
 #include "Tradeset.h"
 
 
 namespace lmh {
 
 	// Forward declarations
-	class Calibrator;
+	class Optimizer;
+	class SCIP;
+	class Floored;
 
 
 	class CalibrationResult
 	{
 	public:
 
-		friend class Calibrator;
+		friend class Optimizer;
+		friend class SCIP;
+		friend class Floored;
+
+		//							   Isin		 weight
 		using WeightsMap = std::map<std::string, float>;
 
 	public:
@@ -42,15 +46,17 @@ namespace lmh {
 		inline float investment() const;
 		inline float cash() const;
 		inline float openPosition() const;
+		inline bool initialized() const;
 
 	private:
 
 		struct Datum;
 
 		std::vector<Datum> data_;
-		float investment_	= Null<float>();
-		float cash_			= Null<float>();	// Investment - open position
-		float openPosition_ = Null<float>();	
+		float investment_	= 0.0f;
+		float cash_			= 0.0f;	// Investment - open position
+		float openPosition_ = 0.0f;	
+		bool initialized_	= false;
 	};
 
 
@@ -59,6 +65,7 @@ namespace lmh {
 	inline float CalibrationResult::investment() const { return investment_; }
 	inline float CalibrationResult::cash() const { return cash_; }
 	inline float CalibrationResult::openPosition() const { return openPosition_; }
+	inline bool CalibrationResult::initialized() const { return initialized_; }
 
 
 
@@ -67,7 +74,8 @@ namespace lmh {
 	public:
 
 		friend class CalibrationResult;
-		friend class Calibrator;
+		friend class SCIP;
+		friend class Floored;
 
 	public:
 
@@ -90,7 +98,7 @@ namespace lmh {
 	private:
 
 		// Const methods
-		bool checkNull() const;
+		bool validate() const;
 
 		// Non-const methods
 		void partialReset();	// Reset non-const values

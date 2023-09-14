@@ -1,27 +1,27 @@
 
 #include "Balance.h"
 #include "Utils/Assertions.h"
-#include "Utils/Null.h"
 #include "Tradeset.h"
 
 
 namespace lmh {
 
-	Balance::Balance(std::shared_ptr<Tradeset> iTradeset)
-		: iTradeset_(std::move(iTradeset)), value_(Null<float>()), ccy_(Currency::Iso::EUR)
+	Balance::Balance(Currency ccy, std::shared_ptr<Tradeset> trades)
+		: value_(0.0f), ccy_(ccy), trades_(std::move(trades))
 	{
-		REQUIRE(iTradeset_, "invalid iTrades");
-		registerWith(iTradeset_);
+		REQUIRE(trades_->get().empty(), 
+			"Balance object must linked to an initially empty Tradeset");
+		REQUIRE(trades_, "invalid trades");
+		registerWith(trades_);			
 	}
 
 	void Balance::update()
 	{
 		value_ = 0.0f;
-		for (const auto& trade : iTradeset_->get())
-		{		
-			REQUIRE(!Null<int>::check(trade.first->quantity()), "null quantity");
-			REQUIRE(!Null<float>::check(trade.first->price()), "null price");
-
+		for (const auto& trade : trades_->get())
+		{
+			// For now only single currency is supported 
+			ASSERT(trade.first->ccy() == this->ccy_, "only single ccy is supported");
 			value_ += trade.first->openPosition();
 		}
 
@@ -31,6 +31,7 @@ namespace lmh {
 	void Balance::clear()
 	{
 		value_ = 0.0f;
+		trades_->clear();
 		notifyObservers();
 	}
 

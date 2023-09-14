@@ -11,7 +11,6 @@
 #include "CalibrationResult.h"
 #include "Weight.h"
 #include "Patterns/Observable.h"
-#include "Utils/Null.h"
 
 
 namespace lmh {
@@ -20,7 +19,7 @@ namespace lmh {
 	{
 	public:
 
-		using WeightsMap = std::map<std::string, float>; // Maps each product to an ideal weight
+		using WeightsMap = std::map<std::string, float>; // Maps each security to an ideal weight
 
 	public:
 
@@ -30,7 +29,7 @@ namespace lmh {
 		// Input keys must match exactly the portfolio trades name.
 		// If 'investment' is not provided, the balance from the tracked
 		// portfolio object is used instead
-		void runOptimization(WeightsMap wm, float investment = Null<float>());
+		void runOptimization(WeightsMap wm, float investment = 0.0f);
 
 		// Getters
 		inline const std::optional<CalibrationResult>& result() const;
@@ -41,12 +40,6 @@ namespace lmh {
 		virtual void update() override;
 		void clearResult();
 		void setResult(CalibrationResult&& result);
-
-		// Optimizations available:
-		// NB: every optmization must (partially) reset the result
-		// object in case it is not successful
-		bool opt_SCIP(CalibrationResult& result);
-		bool opt_Floored(CalibrationResult& result);
 
 		// Const methods
 		bool validateWeightsMap(const WeightsMap& wm) const;

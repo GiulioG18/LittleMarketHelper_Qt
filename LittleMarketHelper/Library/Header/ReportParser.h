@@ -10,7 +10,7 @@
 #include <utility>
 
 #include "Utils/Assertions.h"
-#include "FinProduct.h"
+#include "Security.h"
 
 
 namespace fs = std::filesystem;
@@ -31,10 +31,12 @@ namespace lmh {
 
 	public:
 
-		[[nodiscard("Parsed products will be lost")]]
-		static std::pair<std::vector<FinProduct>, bool> parse(ReportParser::Type type, const fs::path&);
-		[[nodiscard("Parsed products will be lost")]]
-		static std::pair<std::vector<FinProduct>, bool> parseDefault(ReportParser::Type type);
+		// TODO: add variant, and parse currency in degiro report
+
+		[[nodiscard("Parsed securities will be lost")]]
+		static std::pair<std::vector<Security>, bool> parse(ReportParser::Type type, const fs::path&);
+		[[nodiscard("Parsed securities will be lost")]]
+		static std::pair<std::vector<Security>, bool> parseDefault(ReportParser::Type type);
 
 		virtual ~ReportParser() = default;
 
@@ -46,7 +48,7 @@ namespace lmh {
 	protected:
 
 		// Const methods
-		virtual void readFile(const fs::path& file, std::vector<FinProduct>& products, bool& successful) const = 0;
+		virtual void readFile(const fs::path& file, std::vector<Security>& securities, bool& successful) const = 0;
 		virtual fs::path defaultFilename() const;
 		virtual fs::path defaultExtension() const;
 

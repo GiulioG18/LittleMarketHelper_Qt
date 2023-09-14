@@ -7,10 +7,11 @@
 
 #include <memory>
 
-#include "Utils/Null.h"
 #include "Utils/Assertions.h"
-#include "FinProduct.h"
+#include "Security.h"
 #include "Balance.h"
+
+void gogo();
 
 
 namespace lmh {
@@ -19,7 +20,7 @@ namespace lmh {
 	{
 	public:
 
-		Weight(std::shared_ptr<FinProduct> product, std::shared_ptr<Balance> balance);
+		Weight(std::shared_ptr<Security> security, std::shared_ptr<Balance> balance);
 
 		// Non-const methods
 		virtual void update() override;
@@ -30,9 +31,8 @@ namespace lmh {
 	private:
 
 		float value_;
-		std::shared_ptr<FinProduct> product_;	// Paired product
-		// Observed
-		std::shared_ptr<Balance> balance_;
+		std::shared_ptr<Security> security_;	// Paired security
+		std::shared_ptr<Balance> balance_;		// Observed
 	};
 
 

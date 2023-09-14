@@ -9,77 +9,73 @@
 namespace lmh {
 	
 
-	Portfolio::Portfolio()
+	Portfolio::Portfolio(Currency ccy)
 		:
-		iTradeset_(std::make_shared<Tradeset>()),
-		eTradeset_(std::make_shared<Tradeset>()),
-		balance_(std::make_shared<Balance>(iTradeset_))
+		ccy_(ccy),
+		trades_(std::make_shared<Tradeset>()),
+		balance_(std::make_shared<Balance>(ccy_, trades_))
 	{
 	}
 
-	bool Portfolio::add(const std::shared_ptr<FinProduct>& product)
+	bool Portfolio::add(const std::shared_ptr<Security>& security)
 	{
-		return iTradeset_->insert(std::make_pair(
-			product, 
-			std::make_unique<Weight>(product, balance_))
+		// For now only unique ccy is supported inside a portfolio
+		if (security->ccy() != this->ccy_)
+			return false;
+
+		return trades_->insert(std::make_pair(
+			security,
+			std::make_unique<Weight>(security, balance_))
 		);
 	}
 
-	bool Portfolio::remove(const std::string& name)
+	bool Portfolio::remove(const std::string& isin)
 	{
-		return iTradeset_->erase(name);
+		return trades_->erase(isin);
 	}
 
-	bool Portfolio::exclude(const std::string& name)
+	bool Portfolio::edit(const std::string& isin, EditTrade::Type t, auto newValue)
 	{
-		bool status = true;
-		auto trade = iTradeset_->extract(name);
-		status = trade.has_value();
+		// Check the edit is valid before extracting the trade
+		if (!EditTrade::validateEdit(t, newValue))
+			return false;
 
-		if (status)
+		// Find trade...
+		auto trade = trades_->find(isin);
+		if (trade == trades_->get().end())
+			return false;
+
+		// ...and edit it
+		Security& security = trade->first;
+		switch (t)
 		{
-			// If trade has been excluded, there must be no weight object
-			ASSERT(!trade.value().second,
-				"weight object found in trade outside of portfolio");
-			status = eTradeset_->insert(std::move(trade.value()));
-		}
-
-		return status;
-	}
-
-	bool Portfolio::include(const std::string& name)
-	{
-		bool status = true;
-		auto trade = eTradeset_->extract(name);
-		status = trade.has_value();
-
-		if (status)
+		case lmh::EditTrade::NAME:		security.setName(newValue);			break;
+		case lmh::EditTrade::CURRENCY: 
 		{
-			// Create an ActualWeight for the trade
-			std::unique_ptr<Weight>& weight = trade.value().second;
-			ASSERT(!weight, "there was a weight object inside an excluded trade");
-			weight = std::make_unique<Weight>(trade.value().first, balance_);
-
-			status = iTradeset_->insert(std::move(trade.value()));
+			// For now only unique ccy is supported inside a portfolio
+			if (security.ccy() != this->ccy_)
+				return false; 
+			security.setCcy(newValue);
+			break;
 		}
+		case lmh::EditTrade::QUANTITY:	security.setQuantity(newValue);		break;
+		case lmh::EditTrade::PRICE:		security.setPrice(newValue);		break;
 
-		return status;
+		default: 						FAIL("Invalid logic");				break;
+		}		
+
+		return true;
 	}
 
 	void Portfolio::clear()
 	{
-		iTradeset_->clear();
-		eTradeset_->clear();
+		trades_->clear();
 		balance_->clear();
 	}
 
 	size_t Portfolio::size() const
 	{
-		return iTradeset_->size();
-	}
-	size_t Portfolio::excludedTradesCount() const
-	{
-		return eTradeset_->size();
+		return trades_->size();
 	}
 
 }

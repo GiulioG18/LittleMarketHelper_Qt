@@ -2,7 +2,6 @@
 #include <fstream>
 
 #include "DegiroReportParser.h"
-#include "Utils/Null.h"
 
 
 namespace lmh {
@@ -12,7 +11,7 @@ namespace lmh {
 	{
 	}
 
-	void DegiroReportParser::readFile(const fs::path& file, std::vector<FinProduct>& products, bool& successful) const
+	void DegiroReportParser::readFile(const fs::path& file, std::vector<Security>& security, bool& successful) const
 	{
 		REQUIRE(type_ == ReportParser::Type::DEGIRO, "parser type is not DEGIRO");
 
@@ -50,8 +49,9 @@ namespace lmh {
 		{
 			std::string name = "";
 			std::string isin = "";
-			int quantity = Null<int>();
-			float price = Null<float>();
+			int quantity = 0;
+			float price = 0.0f;
+			Currency ccy;
 
 			size_t sectionStart;
 			size_t sectionEnd;
@@ -60,25 +60,26 @@ namespace lmh {
 				return std::string(line.begin() + sectionStart, line.begin() + sectionEnd);
 			};
 
-			// Name
-			sectionStart = 0;
-			sectionEnd = line.find_first_of(',', sectionStart + 1);
-			name = getSection();
-			if (name.empty())
-				continue;
-
 			// Isin
 			sectionStart = sectionEnd + 1;
 			sectionEnd = line.find_first_of(',', sectionStart + 1);
 			isin = getSection();
-			if (!isin.empty() && isin.length() != 12)
-				isin = "";
+			if (!Security::validateIsin(isin))
+				continue;
+
+			// Name
+			sectionStart = 0;
+			sectionEnd = line.find_first_of(',', sectionStart + 1);
+			name = getSection();
+
+			// Currency
+			// TODO: ADD CURRENCY!!
 
 			// Quantity
 			sectionStart = sectionEnd + 1;
 			sectionEnd = line.find_first_of(',', sectionStart + 1);
 			quantity = std::stol(getSection());
-			if (quantity < 0)
+			if (!Security::validateQuantity(quantity))
 				continue;
 
 			// Price
@@ -86,15 +87,10 @@ namespace lmh {
 			sectionEnd = line.find_first_of('"', sectionStart + 1);
 			std::replace(line.begin() + sectionStart, line.begin() + sectionEnd, ',', '.');
 			price = std::stof(getSection());
-			if (price <= 0)
+			if (!Security::validatePrice(price))
 				continue;
 
-			FinProduct product = MakeFinProduct(name)
-				.withIsin(isin)
-				.withQuantity(quantity)
-				.withPrice(price);
-
-			products.push_back(std::move(product));
+			security.push_back(Security(isin, name, ccy, quantity, price));
 
 			nextLine();
 

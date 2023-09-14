@@ -22,16 +22,9 @@
 #define LOG_LEVEL_WARNING			static_cast<LogLevel>(2)
 #define LOG_LEVEL_ERROR				static_cast<LogLevel>(1)
 
-// (TODO:) Set colors
-#ifdef LOG_SET_NO_COLORS
 #define LOG_INFO_MSG				"[ INFO    ]:	"
 #define LOG_WARNING_MSG				"[ WARNING ]:	"
 #define LOG_ERROR_MSG				"[ ERROR   ]:	"
-#else 
-#define LOG_INFO_MSG				"[ INFO    ]:	"
-#define LOG_WARNING_MSG				"[ WARNING ]:	"
-#define LOG_ERROR_MSG				"[ ERROR   ]:	"
-#endif
 
 // Logging macro meant to be used in code
 #define INFO(x) lmh::Logger::instance().log<LOG_LEVEL_INFO>((x));
@@ -70,6 +63,8 @@ namespace lmh {
 		// Const methods
 		template<LogLevel messageLevel> inline std::string writeLevelSeverity() const;
 		void writeLogHeader() const;
+		// Fancy name: deletes oldest log file if too numerous
+		void ControlLogPopulation() const;
 
 	private:
 
