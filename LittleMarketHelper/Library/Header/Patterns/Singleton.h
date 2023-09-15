@@ -34,7 +34,7 @@ namespace lmh {
 		Singleton(Singleton&&) = delete;					// Disable move operator
 		Singleton& operator=(const Singleton&) = delete;	// Disable copy assignment operator
 		Singleton& operator=(Singleton&&) = delete;			// Disable move assignment operator
-		~Singleton() = default;
+		virtual ~Singleton() = default;
 
 		inline static Type& instance()
 		{

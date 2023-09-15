@@ -10,6 +10,7 @@
 #include "Utils/File.h"
 #include "Weight.h"
 #include "Calibrator.h"
+#include "Utils/Curl.h"
 
 #include <iostream>
 
@@ -68,17 +69,20 @@ int main()
 {
 	try
 	{
-		//gogo();
-
 		lmh::Logger::initialize(fs::current_path(), LOG_LEVEL_MAX);
 		if (!Logger::instance().initialized())
 		{
 			std::cout << "Logger uninitialized!" << std::endl;
 		}
 
-		INFO("this is an info");
-		WARNING("this is a warning");
-		ERROR("this is an error");
+		LMH_INFO("this is an info");
+		LMH_WARNING("this is a warning");
+		LMH_ERROR("this is an error");
+
+		Curl& curl = Curl::instance();
+		curl.initialize();
+		CURLcode c = curl.GETRequest("https://query1.finance.yahoo.com/v8/finance/chart/AAPL");
+		std::cout << curl.explainCode(c) << std::endl;
 
 		const fs::path t = "C:/Users/giuli/OneDrive/Desktop/test.txt";
 		File::writable(t);
@@ -103,14 +107,14 @@ int main()
 		portfolio->remove("123451234511");
 		// When parsing from inside Portfolio we should think 
 		// of catching validate user input exception
-		auto parsingResults = ReportParser::parseDefault(ReportParser::Type::DEGIRO);
+		/*auto parsingResults = ReportParser::parseDefault(ReportParser::Type::DEGIRO);
 		if (parsingResults.second)
 		{
 			for (const auto& sec : parsingResults.first)
 			{
 				portfolio->add(std::make_shared<Security>(sec));
 			}
-		}
+		}*/
 		portfolio->add(security2);
 		std::cout << portfolio->balance()->value() << std::endl;
 
@@ -120,12 +124,12 @@ int main()
 		wm.emplace("AMUNDI ETF MSCI EM"					, 0.15f);
 		wm.emplace("LYXOR STOXX EUROPE 600 (DR) UCIT...", 0.15f);
 		wm.emplace("SPDR RUSSELL 2000 US SMALL CAP U...", 0.05f);
-		cal.runOptimization(wm, 9000.f);
+		/*cal.runOptimization(wm, 9000.f);
 		auto result = cal.result();
 		result.value().cash();
 		result.value().data().at(2).idealQuantity();
 		Calibrator cal2(cal);
-		auto result2 = result;
+		auto result2 = result;*/
 	}
 	catch (std::exception& exception)
 	{

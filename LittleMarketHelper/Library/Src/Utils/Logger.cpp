@@ -5,7 +5,7 @@
 #include "Utils/File.h"
 
 #define MAX_LOG_FILES 5
-
+#include <iostream>
 
 namespace lmh {
 
@@ -21,22 +21,24 @@ namespace lmh {
 	{
 		if (!initialized_) return;
 
-		// Clean oldest Log if there are more than MAX_LOG_FILES
-		ControlLogPopulation();
-
 		if (stream_->is_open())
 		{
-			// Set log file to read-only
+			// TODO: if user modifies the file there could be troubles
+			//		 at the moment i'm not sure how the groups/permissions work
 			fs::permissions(file_, 
-				fs::perms::owner_read | 
-				fs::perms::group_read |
+				fs::perms::owner_all	| 
+				fs::perms::group_read	|
 				fs::perms::others_read, 
 				fs::perm_options::replace);
 
 			stream_->close();
 		}
+
+		// Clean oldest Log if there are more than MAX_LOG_FILES
+		ControlLogPopulation();
 	}
 
+// TODO: REMOVE BOOL AND RETURN CODE!!
 	bool Logger::initialize(const fs::path& folder, LogLevel logLevel)
 	{
 		// Create the logger in memory
@@ -95,6 +97,7 @@ namespace lmh {
 			<< std::endl << std::endl;
 	}
 
+	// TODO: NOT WORKING; CHECK!!
 	void Logger::ControlLogPopulation() const
 	{
 		// Log format is:
@@ -122,8 +125,18 @@ namespace lmh {
 		while (logTimes.size() > MAX_LOG_FILES)
 		{
 			// Remove oldest (smallest time) Log
+			auto oldest = std::begin(logTimes);
+			std::string file = "Log_" + std::to_string(*oldest) + ".txt";
+			logTimes.erase(oldest);
 
-			logTimes.erase(std::begin(logTimes));
+			try
+			{
+				fs::remove(file);			// Remove file from system
+			}
+			catch (std::exception& e)
+			{
+				// TODO: dilemma, who do we tell if can't remove file?
+			}
 		}
 	}
 

@@ -1,49 +1,6 @@
 
 #include "Weight.h"
 
-#ifdef _WIN32
-#pragma comment(lib, "advapi32.lib")
-#pragma comment(lib, "crypt32.Lib")
-#pragma comment(lib, "normaliz.lib")
-#pragma comment(lib, "ws2_32.Lib")
-#pragma comment(lib, "wldap32.Lib")
-#endif
-#include "curl/curl.h"
-#include <iostream>
-void gogo()
-{
-	CURL* curl;
-	CURLcode res;
-
-	// Initialize libcurl
-	curl = curl_easy_init();
-	if (curl)
-	{
-		// Set the API endpoint URL
-		const char* url = "https://query1.finance.yahoo.com/v8/finance/chart/CSSPX.SW";
-		std::string response_data;
-
-		// Configure the libcurl options
-		curl_easy_setopt(curl, CURLOPT_URL, url);
-
-		// Perform the POST request
-		res = curl_easy_perform(curl);
-
-		// Check for errors
-		if (res != CURLE_OK) {
-			std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
-		}
-		else {
-			std::cout << curl_easy_strerror(res) << std::endl;
-		}
-		// Clean up and free resources
-		curl_easy_cleanup(curl);
-	}
-}
-
-
-
-
 
 namespace lmh {
 

@@ -11,8 +11,6 @@
 #include "Security.h"
 #include "Balance.h"
 
-void gogo();
-
 
 namespace lmh {
 

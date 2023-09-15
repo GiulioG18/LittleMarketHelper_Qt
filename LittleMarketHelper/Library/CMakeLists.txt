@@ -83,8 +83,8 @@ Target_Compile_Definitions(LittleMarketHelper
 Target_Include_Directories(LittleMarketHelper PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/Header	
 	$ENV{Boost}
-	PRIVATE $<$<CONFIG:Debug>:$ENV{Curl_debug}/include>
-	PRIVATE $<$<CONFIG:Release>:$ENV{Curl_release}/include>
+	PUBLIC $<$<CONFIG:Debug>:$ENV{Curl_debug}/include>
+	PUBLIC $<$<CONFIG:Release>:$ENV{Curl_release}/include>
 )
 
 Target_Link_Libraries(LittleMarketHelper 

@@ -18,9 +18,8 @@ enum class LmhStatusCode
 	CURRENCY_NOT_ALLOWED,
 	// The trade was not found
 	TRADE_NOT_FOUND,
-	// Invalid value passed for edit operation
+	// Invalid value passed for EDIT operation
 	INVALID_EDIT,
-	//
 
 };
 
