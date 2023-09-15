@@ -31,7 +31,6 @@ namespace lmh {
 	void Balance::clear()
 	{
 		value_ = 0.0f;
-		trades_->clear();
 		notifyObservers();
 	}
 

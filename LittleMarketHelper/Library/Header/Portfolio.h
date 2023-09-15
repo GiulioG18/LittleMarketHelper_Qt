@@ -8,6 +8,7 @@
 
 #include <memory>
 
+#include "Utils/StatusCode.h"
 #include "PortfolioUtilities.h"
 #include "Tradeset.h"
 #include "Balance.h"
@@ -23,9 +24,9 @@ namespace lmh {
 		Portfolio(Currency ccy);
 
 		// Non-const methods
-		bool add(const std::shared_ptr<Security>& security);
-		bool remove(const std::string& isin);
-		bool edit(const std::string& isin, EditTrade::Type t, auto newValue);
+		CODE add(const std::shared_ptr<Security>& security);
+		CODE remove(const std::string& isin);
+		CODE edit(const std::string& isin, EditTrade::Type t, auto newValue);
 		void clear();
 
 		// Const methods

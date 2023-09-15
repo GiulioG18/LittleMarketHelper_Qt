@@ -5,8 +5,8 @@
 
 #pragma once
 
-#if		defined(_DEVELOPMENT)
-#elif	defined(_DISTRIBUTIONS)
+#if		defined(DEVELOPMENT)
+#elif	defined(DEPLOYMENT)
 #else
 static_assert(false, "Please set the appropriate environment");
 #endif

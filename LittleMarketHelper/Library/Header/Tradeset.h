@@ -10,12 +10,14 @@
 
 #include "Patterns/Observable.h"
 #include "Security.h"
+#include "Utils/StatusCode.h"
 
 
 namespace lmh {
 
 	// Forward declarations
 	class Weight;
+	class Portfolio;
 
 
 	class Tradeset :
@@ -23,6 +25,8 @@ namespace lmh {
 		public Observer
 	{
 	public:
+
+		friend class Portfolio;
 
 		using Trade = std::pair<std::shared_ptr<Security>, std::unique_ptr<Weight>>;
 		using Iterator = std::set<Trade>::iterator;
@@ -37,17 +41,20 @@ namespace lmh {
 		Tradeset& operator=(const Tradeset&) = delete;
 		Tradeset& operator=(Tradeset&&) = delete;
 
-		// Non-const methods
-		void update() override;
-		bool insert(Trade&& trade);
-		bool erase(const std::string& isin);
-		std::optional<Trade> extract(const std::string& isin);
-		void clear();
-
 		// Const methods
 		size_t size() const;
 		Iterator find(const std::string& isin) const;
 		inline const std::set<Trade>& get() const;
+
+	private:
+
+		// Non-const methods
+		void update() override;
+		CODE insert(Trade&& trade);
+		CODE erase(const std::string& isin);
+		std::optional<Trade> extract(const std::string& isin);
+		void clear();
+
 		
 	private:
 

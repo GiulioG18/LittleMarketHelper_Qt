@@ -32,7 +32,6 @@ namespace lmh {
 	bool Security::validateIsin(const std::string& isin)
 	{
 		// Could be improved, but for now this is enough
-
 		return isin.length() == 12;
 	}
 

@@ -11,19 +11,21 @@ namespace lmh {
 		notifyObservers();
 	}
 
-	bool Tradeset::insert(Trade&& trade)
+	CODE Tradeset::insert(Trade&& trade)
 	{
-		bool inserted = trades_.insert(std::move(trade)).second;
-		if (inserted)
+		auto result = trades_.insert(std::move(trade));
+		if (result.second)
 		{
-			registerWith(trade.first);
+			registerWith((result.first)->first);
 			notifyObservers();
+
+			return CODE::SUCCESS;
 		}
 
-		return inserted;
+		return CODE::TRADE_NOT_FOUND;
 	}
 
-	bool Tradeset::erase(const std::string& isin)
+	CODE Tradeset::erase(const std::string& isin)
 	{
 		Iterator trade = find(isin);
 		bool found = (trade != trades_.end());
@@ -32,9 +34,11 @@ namespace lmh {
 			unregisterWith(trade->first);
 			trades_.erase(trade);
 			notifyObservers();
+
+			return CODE::SUCCESS;
 		}
 
-		return found;
+		return CODE::TRADE_NOT_FOUND;
 	}
 
 	std::optional<Tradeset::Trade> Tradeset::extract(const std::string& isin)

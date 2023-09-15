@@ -17,11 +17,11 @@ namespace lmh {
 	{
 	}
 
-	bool Portfolio::add(const std::shared_ptr<Security>& security)
+	CODE Portfolio::add(const std::shared_ptr<Security>& security)
 	{
 		// For now only unique ccy is supported inside a portfolio
 		if (security->ccy() != this->ccy_)
-			return false;
+			return CODE::CURRENCY_NOT_ALLOWED;
 
 		return trades_->insert(std::make_pair(
 			security,
@@ -29,21 +29,21 @@ namespace lmh {
 		);
 	}
 
-	bool Portfolio::remove(const std::string& isin)
+	CODE Portfolio::remove(const std::string& isin)
 	{
 		return trades_->erase(isin);
 	}
 
-	bool Portfolio::edit(const std::string& isin, EditTrade::Type t, auto newValue)
+	CODE Portfolio::edit(const std::string& isin, EditTrade::Type t, auto newValue)
 	{
 		// Check the edit is valid before extracting the trade
 		if (!EditTrade::validateEdit(t, newValue))
-			return false;
+			return CODE::INVALID_EDIT;
 
 		// Find trade...
 		auto trade = trades_->find(isin);
 		if (trade == trades_->get().end())
-			return false;
+			return CODE::TRADE_NOT_FOUND;
 
 		// ...and edit it
 		Security& security = trade->first;
@@ -64,7 +64,7 @@ namespace lmh {
 		default: 						FAIL("Invalid logic");				break;
 		}		
 
-		return true;
+		return CODE::SUCCESS;
 	}
 
 	void Portfolio::clear()

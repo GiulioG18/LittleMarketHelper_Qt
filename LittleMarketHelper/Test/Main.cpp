@@ -1,3 +1,4 @@
+#include "Utils/Warnings.h"
 
 #include "Patterns/Observable.h"
 #include "Patterns/LazyObject.h"
@@ -63,12 +64,11 @@ using namespace lmh;
 
 
 
-
 int main()
 {
 	try
 	{
-		gogo();
+		//gogo();
 
 		lmh::Logger::initialize(fs::current_path(), LOG_LEVEL_MAX);
 		if (!Logger::instance().initialized())
@@ -83,28 +83,24 @@ int main()
 		const fs::path t = "C:/Users/giuli/OneDrive/Desktop/test.txt";
 		File::writable(t);
 
-		std::shared_ptr<Security> security = MakeSecurity("gay prod")
-			.withPrice(12.2f)
-			.withQuantity(12);
-		std::shared_ptr<Security> security2 = MakeSecurity("gay prod2")
-			.withPrice(0.2f)
-			.withQuantity(21);
+		std::shared_ptr<Security> security = std::make_shared<Security>(std::string("123451234512"), std::string(), Currency::AUD, 12, 14.222f);
+		std::shared_ptr<Security> security2 = std::make_shared<Security>(std::string("123451234511"), std::string(), Currency::AUD, 2, 1.222f);
 
-		std::unique_ptr<Portfolio> portfolio = std::make_unique<Portfolio>();
+		std::unique_ptr<Portfolio> portfolio = std::make_unique<Portfolio>(Currency::AUD);
 		portfolio->add(security2);
 		std::cout << portfolio->balance()->value() << std::endl;
 		portfolio->add(security);
 		std::cout << portfolio->balance()->value() << std::endl;
-		portfolio->remove("gay prod");
+		portfolio->remove("123451234512");
 		std::cout << portfolio->balance()->value() << std::endl;
-		security2->setPriceTo(1.2f);
+		security2->setPrice(1.2f);
 		std::cout << portfolio->balance()->value() << std::endl;
-		portfolio->remove("gay prod2");
+		portfolio->remove("123451234512");
 		std::cout << portfolio->balance()->value() << std::endl;
 		portfolio->clear();
 		std::cout << portfolio->balance()->value() << std::endl;
-		security2->setPriceTo(1.55f);
-		portfolio->remove("gay prod2");
+		security2->setPrice(1.55f);
+		portfolio->remove("123451234511");
 		// When parsing from inside Portfolio we should think 
 		// of catching validate user input exception
 		auto parsingResults = ReportParser::parseDefault(ReportParser::Type::DEGIRO);
@@ -115,24 +111,8 @@ int main()
 				portfolio->add(std::make_shared<Security>(sec));
 			}
 		}
-		//portfolio->exclude("ISHARES FTSE MIB UCITS ETF EUR (...");
-		//portfolio->add(security2);
-		//std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
-		//portfolio->exclude("gay prod");
-		//std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
-		//portfolio->exclude("gay prod2");
-		//std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
-		//portfolio->exclude("d");
-		//std::cout << portfolio->balance()->value() << std::endl;
-		////portfolio->include("gay prod2");
-		//std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
-		//std::cout << portfolio->balance()->value() << std::endl; 
-		//portfolio->include("gay prod222");
-		//std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
-		//std::cout << portfolio->balance()->value() << std::endl;
-		//portfolio->exclude("ISHARES CORE S&P 500 UCITS ETF ...");
-		//std::cout << "excluded trades: " << portfolio->excludedTradesCount() << std::endl;
-		//std::cout << portfolio->balance()->value() << std::endl;
+		portfolio->add(security2);
+		std::cout << portfolio->balance()->value() << std::endl;
 
 		Calibrator cal{ *portfolio };
 		Calibrator::WeightsMap wm;

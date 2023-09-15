@@ -106,7 +106,7 @@ namespace lmh {
 		return
 			idealQuantity_ >= 0 &&
 			(realWeight_ >= 0 || realWeight_ <= 1) &&
-			!realQuantity_ >= 0;
+			realQuantity_ >= 0;
 	}
 
 	void CalibrationResult::Datum::partialReset()

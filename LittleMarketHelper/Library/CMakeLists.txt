@@ -38,6 +38,7 @@ Set(SRC
 	Src/ExchangeRate.cpp
 	Src/Utils/Errors.cpp
 	Src/Utils/Logger.cpp
+	Src/Utils/Curl.cpp
 	Src/Patterns/Observable.cpp
 )
 
@@ -61,6 +62,9 @@ Set(HEADER
 	Header/Utils/Errors.h
 	Header/Utils/Logger.h
 	Header/Utils/File.h
+	Header/Utils/StatusCode.h
+	Header/Utils/Warnings.h
+	Header/Utils/Curl.h
 	Header/Patterns/LazyObject.h
 	Header/Patterns/Observable.h
 	Header/Patterns/Singleton.h
@@ -71,7 +75,10 @@ Add_Library(LittleMarketHelper STATIC
 	${HEADER}
 )
 
-Target_Compile_Definitions(LittleMarketHelper PRIVATE CURL_STATICLIB)
+Target_Compile_Definitions(LittleMarketHelper 
+	PRIVATE CURL_STATICLIB
+	PRIVATE LMH
+)
 
 Target_Include_Directories(LittleMarketHelper PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/Header	
@@ -93,13 +100,12 @@ Source_Group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${HEADER})
 Set(BUILD_TYPE "DEVELOPMENT" CACHE STRING "Either DEVELOPMENT (Default value) or DEPLOYMENT")
 If(BUILD_TYPE STREQUAL DEVELOPMENT)
 Message(STATUS "Build type: DEVELOPMENT")
-Target_Compile_Definitions(LittleMarketHelper PUBLIC _DEVELOPMENT)
+Target_Compile_Definitions(LittleMarketHelper PUBLIC DEVELOPMENT)
 Elseif(BUILD_TYPE STREQUAL DEPLOYMENT)
 Message(STATUS "Build type: DEPLOYMENT")
-Target_Compile_Definitions(LittleMarketHelper PUBLIC _DEVELOPMENT)
+Target_Compile_Definitions(LittleMarketHelper PUBLIC DEPLOYMENT)
 Else()
 Message(SEND_ERROR "Unknown build type, select either DEVELOPMENT or DEPLOYMENT")
-Target_Compile_Definitions(LittleMarketHelper PUBLIC _)
 Endif()
 
 
