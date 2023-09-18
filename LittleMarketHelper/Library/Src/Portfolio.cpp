@@ -13,15 +13,18 @@ namespace lmh {
 		:
 		ccy_(ccy),
 		trades_(std::make_shared<Tradeset>()),
-		balance_(std::make_shared<Balance>(ccy_, trades_))
+		balance_(std::make_shared<Balance>(ccy_, trades_)),
+		settings_()
 	{
+		// Initialize settings from config file
+		//settings_.multiCcy_ = ; TODO:
 	}
 
-	CODE Portfolio::add(const std::shared_ptr<Security>& security)
+	LmhStatus Portfolio::add(const std::shared_ptr<Security>& security)
 	{
-		// For now only unique ccy is supported inside a portfolio
-		if (security->ccy() != this->ccy_)
-			return CODE::CURRENCY_NOT_ALLOWED;
+		if (!settings_.multiCcy_)
+			if (security->ccy() != this->ccy_)
+				return LmhStatus::CURRENCY_NOT_ALLOWED;
 
 		return trades_->insert(std::make_pair(
 			security,
@@ -29,21 +32,21 @@ namespace lmh {
 		);
 	}
 
-	CODE Portfolio::remove(const std::string& isin)
+	LmhStatus Portfolio::remove(const std::string& isin)
 	{
 		return trades_->erase(isin);
 	}
 
-	CODE Portfolio::edit(const std::string& isin, EditTrade::Type t, auto newValue)
+	LmhStatus Portfolio::edit(const std::string& isin, EditTrade::Type t, auto newValue)
 	{
 		// Check the edit is valid before extracting the trade
 		if (!EditTrade::validateEdit(t, newValue))
-			return CODE::INVALID_EDIT;
+			return LmhStatus::INVALID_EDIT;
 
 		// Find trade...
 		auto trade = trades_->find(isin);
 		if (trade == trades_->get().end())
-			return CODE::TRADE_NOT_FOUND;
+			return LmhStatus::TRADE_NOT_FOUND;
 
 		// ...and edit it
 		Security& security = trade->first;
@@ -64,7 +67,7 @@ namespace lmh {
 		default: 						FAIL("Invalid logic");				break;
 		}		
 
-		return CODE::SUCCESS;
+		return LmhStatus::SUCCESS;
 	}
 
 	void Portfolio::clear()

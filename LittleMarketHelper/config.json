@@ -1,0 +1,44 @@
+{
+  "info": {
+    "version": "",
+    "description": ""
+  },
+  "settings": {
+    "portfolio": {
+      "multiCcy": false
+    }
+  },
+  "logger": {
+    "level": 4,
+    "directory": "D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\Logs",
+    "maxLogFiles": 5
+  },
+  "parser": {
+    "type": {
+      "degiro": {
+        "name": "DEGIRO",
+        "fileName": "Portfolio",
+        "fileExtension": ".csv"
+      }
+    }
+  },
+  "httpRequest": {
+    "get": {
+      "price": {
+        "url": "https://query1.finance.yahoo.com/v8/finance/chart/%%%PLACEHOLDER%%%",
+        "key": "regularMarketPrice"
+      },
+      "exchangeRate": {
+        "url": "",
+        "key": ""
+      }
+    },
+    "post": {
+      "ticker": {
+        "url": "https://api.openfigi.com/v3/mapping",
+        "data": "[{\"idType\":\"ID_ISIN\",\"idValue\":\"%%%PLACEHOLDER%%%\"}]",
+        "key": ""
+      }
+    }
+  }
+}

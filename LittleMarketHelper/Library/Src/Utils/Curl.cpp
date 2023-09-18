@@ -16,19 +16,17 @@ static_assert(false, "I had no clue nor interest in linking these libs for other
 
 
 // Macro to handle Curl errors
-#define CC(x) do {																				\
-  CURLcode code = (x);																			\
-  if (code != CURLE_OK) {																		\
-    return code;																				\
-  }																								\
+#define RETURN_ON_ERROR_CC(x, err) do {	\
+  CURLcode c = (x);						\
+  if (c != CURLE_OK)					\
+  {										\
+    return err;							\
+  }										\
 } while (0)
 
 
 
 namespace lmh {
-
-	// Curl instance
-	CURL* _curl;
 
 	// Define a callback function for writing data
 	size_t writeCallback(void* contents, size_t size, size_t nmemb, std::string* output)
@@ -45,148 +43,106 @@ namespace lmh {
 	{
 		if (initialized_)
 		{
-			curl_easy_cleanup(_curl);
 			curl_global_cleanup();
 		}
 	}
 
-	CURLcode Curl::initialize(long flag)
+	LmhStatus Curl::initialize(long flag)
 	{
-		if (!initialized_)
-		{
-			// Init curl
-			if (flag == -1)
-			{
-				CC(curl_global_init(CURL_GLOBAL_ALL));
-			}
-			else
-			{
-				CC(curl_global_init(flag));
-			}
+		Curl& curl = Curl::instance();
+		if (curl.initialized_)
+			return LmhStatus::CURL_ALREADY_INITIALIZED;
+		
+		// Init curl
+		CURLcode code;
+		if (flag == -1)
+			code = curl_global_init(CURL_GLOBAL_ALL);
+		else
+			code = curl_global_init(flag);
 
-			// init version
-			version_ = curl_version_info(CURLVERSION_NOW);				
+		if (code != CURLE_OK)
+			return LmhStatus::CURL_GLOBAL_INIT_FAILED;
 
-			// Initialize instance
-			_curl = curl_easy_init();
+		// init version
+		curl.version_ = curl_version_info(CURLVERSION_NOW);
 
-			initialized_ = true;
-		}
-
-		return CURLE_OK;
+		// Finalize
+		curl.initialized_ = true;
+		return LmhStatus::SUCCESS;
 	}
 
-	/*Curl::Handle Curl::createhandle()
-	{
-		REQUIRE(Curl::instance().initialized_, "Curl has not been initialized");
-
-		return Handle();
-	}*/
-
-	std::string Curl::explainCode(CURLcode status) const
+	std::string Curl::LmhStatusMessage(CURLcode status) const
 	{
 		return std::string(curl_easy_strerror(status));
 	}
 
-	CURLcode Curl::GETRequest(const std::string& URL)
+	LmhStatus Curl::GETRequest(const std::string& url)
 	{
-		REQUIRE(Curl::instance().initialized_, "Curl has not been initialized");
-		REQUIRE(_curl, "invalid curl handle");
+		if (!initialized_)
+			return LmhStatus::CURL_NOT_INITIALIZED;
 
-		// Set URL 
-		CC(curl_easy_setopt(_curl, CURLOPT_URL, URL.c_str()));
+		// Clear the response
+		response_.clear();
 
-		// Set the callback function for writing received data
-		CC(curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, writeCallback));
-		CC(curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &response_));
+		CURLcode code;
 
-		// Perform the request
-		CC(curl_easy_perform(_curl));
-		return CURLE_OK;
+		CURL* curl;
+		curl = curl_easy_init();
+		if (!curl)
+			return LmhStatus::CURL_HANDLE_INIT_FAILED;
+		
+		// Set url
+		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_URL, url.c_str()), LmhStatus::CURL_URL_SET_FAILED);
+
+		// Set the callback function to receive the response data
+		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback), LmhStatus::CURL_URL_SET_FAILED);
+		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_), LmhStatus::CURL_WRITEDATA_SET_FAILED);
+
+		// Perform the HTTP GET request
+		RETURN_ON_ERROR_CC(curl_easy_perform(curl), LmhStatus::CURL_PERFORM_FAILED);
+
+		// Clean handle and return
+		curl_easy_cleanup(curl);		
+		return LmhStatus::SUCCESS;
 	}
 
-	
+	LmhStatus Curl::POSTRequest(const std::string& url, const std::string& data)
+	{
+		if (!initialized_)
+			return LmhStatus::CURL_NOT_INITIALIZED;
 
+		// Clear the response
+		response_.clear();
 
-	// Handle
+		CURLcode code;
 
-	
+		CURL* curl;
+		curl = curl_easy_init();
+		if (!curl)
+			return LmhStatus::CURL_HANDLE_INIT_FAILED;
 
-	//Curl::Handle::Handle() 
-	//{
-	//	// Initialize curl
-	//	curl_ = std::unique_ptr<CURL, CurlDeleter>(curl_easy_init());
+		// Set url
+		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_URL, url.c_str()), LmhStatus::CURL_URL_SET_FAILED);
 
-	//	// Redirect debugger into logfile
-	//	initLog();
+		// Make it a POST request and set header and data
+		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_POST, 1L), LmhStatus::CURL_POST_SET_FAILED);
+		struct curl_slist* slist = NULL;
+		slist = curl_slist_append(slist, "Content-Type: application/json");
+		slist = curl_slist_append(slist, "Accept: application/json");
+		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist), LmhStatus::CURL_HEADER_SET_FAILED);
+		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str()), LmhStatus::CURL_DATA_SET_FAILED);
 
-	//	// Initialize response
-	//	curl_easy_setopt(curl_.get(), CURLOPT_WRITEDATA, &response_);
-	//}
+		// Set the callback function to receive the response data
+		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback), LmhStatus::CURL_URL_SET_FAILED);
+		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_), LmhStatus::CURL_WRITEDATA_SET_FAILED);
 
-	//CURLcode Curl::Handle::status() const
-	//{
-	//	return CURLE_OK;
-	//}
+		// Perform the HTTP GET request
+		RETURN_ON_ERROR_CC(curl_easy_perform(curl), LmhStatus::CURL_PERFORM_FAILED);
 
-	//CURLcode Curl::Handle::reset()
-	//{
-	//	curl_easy_reset(curl_.get());
-	//	ENSURE(curl_, "invalid curl handle");
-
-	//	CC(initLog());
-
-	//	return CURLE_OK;
-	//}
-
-	//CURLcode Curl::Handle::setOption(CURLoption option, auto parameter)
-	//{
-	//	REQUIRE(curl_, "invalid curl handle");
-	//	CC(curl_easy_setopt(curl_, option, parameter));
-
-	//	return CURLE_OK;
-	//}
-
-	//CURLcode Curl::Handle::GETRequest(const std::string& URL)
-	//{
-	//	REQUIRE(curl_, "invalid curl handle");
-
-	//	// Set URL 
-	//	CC(curl_easy_setopt(curl_.get(), CURLOPT_URL, URL.c_str()));
-
-	//	// Set the callback function for writing received data
-	//	CC(curl_easy_setopt(curl_.get(), CURLOPT_WRITEFUNCTION, WriteCallback));
-	//	CC(curl_easy_setopt(curl_.get(), CURLOPT_WRITEDATA, &response_));
-
-
-	//	// Perform the request
-	//	CC(curl_easy_perform(curl_.get()));
-
-	//	return CURLE_OK;
-	//}
-
-	//CURLcode Curl::Handle::POSTRequest()
-	//{
-	//	REQUIRE(curl_, "invalid curl handle");
-
-	//	return CURLE_OK;
-	//}
-
-	//CURLcode Curl::Handle::initLog()
-	//{
-	//	REQUIRE(curl_, "invalid curl handle");
-	//	Logger& logger = Logger::instance();
-	//	if (logger.initialized())
-	//	{
-	//		if (logger.logLevel() >= LOG_LEVEL_DEBUG)
-	//		{
-	//			CC(curl_easy_setopt(curl_.get(), CURLOPT_STDERR, logger.stream()));
-	//			CC(curl_easy_setopt(curl_.get(), CURLOPT_VERBOSE, 1L));
-	//		}
-	//	}
-
-	//	return CURLE_OK;
-	//}
+		// Clean handle and return
+		curl_easy_cleanup(curl);
+		return LmhStatus::SUCCESS;
+	}
 
 }
 

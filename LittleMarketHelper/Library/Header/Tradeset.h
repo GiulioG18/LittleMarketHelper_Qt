@@ -50,8 +50,8 @@ namespace lmh {
 
 		// Non-const methods
 		void update() override;
-		CODE insert(Trade&& trade);
-		CODE erase(const std::string& isin);
+		LmhStatus insert(Trade&& trade);
+		LmhStatus erase(const std::string& isin);
 		std::optional<Trade> extract(const std::string& isin);
 		void clear();
 

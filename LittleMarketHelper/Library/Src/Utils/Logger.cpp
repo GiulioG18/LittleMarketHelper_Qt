@@ -3,19 +3,9 @@
 
 #include "Utils/Logger.h"
 #include "Utils/File.h"
-
-#define MAX_LOG_FILES 5
-#include <iostream>
+#include "Config.h"
 
 namespace lmh {
-
-	Logger::Logger()
-		: 
-		logLevel_(LOG_LEVEL_DEFAULT),
-		time_(static_cast<time_t>(0)),
-		initialized_(false)
-	{
-	}
 
 	Logger::~Logger()
 	{
@@ -38,23 +28,38 @@ namespace lmh {
 		ControlLogPopulation();
 	}
 
-// TODO: REMOVE BOOL AND RETURN CODE!!
-	bool Logger::initialize(const fs::path& folder, LogLevel logLevel)
+	LmhStatus Logger::initialize(const fs::path& folder, LogLevel logLevel)
 	{
 		// Create the logger in memory
 		Logger& logger = Singleton<Logger>::instance();
 
 		// Assures log is only initialized once.
 		// This is to ensure that the stream is not redirected midway
-		REQUIRE(!logger.initialized_, "logger was already initialized");
+		if (logger.initialized_)
+			return LmhStatus::LOGGER_ALREADY_INITIALIZED;
 
-		// Initialize folder
-		logger.folder_ = folder;
-		if (!File::writable(logger.folder_))
-		{
-			logger.initialized_ = false;
-			return logger.initialized_;
+		// Initialize folder directory
+		if (folder.empty())
+		{			
+			if (!Config::instance().initialized())
+				return LmhStatus::CONFIG_NOT_INITIALIZED;
+
+			// Read the folder from the config file
+			auto dir = Config::instance().get<std::string>("logger.directory");
+			if (!dir.has_value())
+				return LmhStatus::CONFIG_INVALID_PATH;
+
+			logger.folder_ = dir.value();
 		}
+		else
+		{
+			logger.folder_ = folder;
+		}
+
+		if (!fs::is_directory(logger.folder_))
+			return LmhStatus::INVALID_DIRECTORY;
+		if (!File::writable(logger.folder_))		
+			return LmhStatus::NO_WRITE_PERMISSION;
 		
 		// Initialize time
 		logger.time_ = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -68,25 +73,26 @@ namespace lmh {
 
 		// Initialize log level
 		logger.logLevel_ = logLevel;
-		if (logger.logLevel_ > LOG_LEVEL_MAX)
-		{
+		if (logger.logLevel_ > LOG_LEVEL_MAX)		
 			logger.logLevel_ = LOG_LEVEL_DEFAULT;
-		}
-
+		
 		// Initialize stream
 		logger.stream_ = std::make_unique<std::fstream>(logger.file_, std::ios_base::out | std::ios_base::trunc);
 		ASSERT(logger.stream_, "invalid stream");
-		if (logger.stream_->is_open())
-		{
-			logger.writeLogHeader();
-			logger.initialized_ = true;
-		}
-		else
-		{
-			logger.initialized_ = false;
-		}
+		if (!logger.stream_->is_open())			
+			return LmhStatus::FILE_NOT_OPEN;	
 
-		return logger.initialized_;
+		// Initialize max log files from config file
+		auto dir = Config::instance().get<int>("logger.maxLogFiles");
+		if (!dir.has_value())
+			return LmhStatus::CONFIG_INVALID_PATH;
+		logger.maxLogFiles_ = dir.value();
+
+		// Finalize
+		logger.writeLogHeader();
+		logger.initialized_ = true;
+
+		return LmhStatus::SUCCESS;
 	}
 
 	void Logger::writeLogHeader() const
@@ -97,7 +103,6 @@ namespace lmh {
 			<< std::endl << std::endl;
 	}
 
-	// TODO: NOT WORKING; CHECK!!
 	void Logger::ControlLogPopulation() const
 	{
 		// Log format is:
@@ -122,7 +127,7 @@ namespace lmh {
 			logTimes.emplace(timeExtractor(fileName));
 		}
 
-		while (logTimes.size() > MAX_LOG_FILES)
+		while (logTimes.size() > maxLogFiles_)
 		{
 			// Remove oldest (smallest time) Log
 			auto oldest = std::begin(logTimes);
@@ -131,7 +136,7 @@ namespace lmh {
 
 			try
 			{
-				fs::remove(file);			// Remove file from system
+				fs::remove(file);	// Remove file from host env
 			}
 			catch (std::exception& e)
 			{

@@ -22,6 +22,9 @@ Message(SEND_ERROR
 	"Please set environment variable 'Curl_release' pointing to CURL static release build before building")
 Endif()
 
+# Boost setup
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_NO_WARN_NEW_VERSIONS ON)
 
 # Source files
 Set(SRC
@@ -36,6 +39,8 @@ Set(SRC
 	Src/CalibrationResult.cpp
 	Src/Optimizers.cpp
 	Src/ExchangeRate.cpp
+	Src/ConfigRequest.cpp
+	Src/Config.cpp
 	Src/Utils/Errors.cpp
 	Src/Utils/Logger.cpp
 	Src/Utils/Curl.cpp
@@ -57,6 +62,8 @@ Set(HEADER
 	Header/Optimizers.h
 	Header/ExchangeRate.h
 	Header/PortfolioUtilities.h
+	Header/ConfigRequest.h
+	Header/Config.h
 	Header/Utils/Assertions.h
 	Header/Utils/Environment.h
 	Header/Utils/Errors.h
@@ -69,6 +76,8 @@ Set(HEADER
 	Header/Patterns/Observable.h
 	Header/Patterns/Singleton.h
 )
+
+Find_Package(Boost REQUIRED COMPONENTS json)
 
 Add_Library(LittleMarketHelper STATIC
 	${SRC}
@@ -88,8 +97,9 @@ Target_Include_Directories(LittleMarketHelper PUBLIC
 )
 
 Target_Link_Libraries(LittleMarketHelper 
-	debug		$ENV{Curl_debug}/lib/libcurl_a_debug.lib 
-	optimized	$ENV{Curl_release}/lib/libcurl_a.lib 
+	PUBLIC debug $ENV{Curl_debug}/lib/libcurl_a_debug.lib 
+	PUBLIC optimized $ENV{Curl_release}/lib/libcurl_a.lib 
+	PRIVATE Boost::json
 )
 
 # For VS, to maintain the current directory tree inside the Solution Explorer

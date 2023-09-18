@@ -11,7 +11,10 @@
 #include "Weight.h"
 #include "Calibrator.h"
 #include "Utils/Curl.h"
+#include "Config.h"
+#include "ConfigRequest.h"
 
+#include <fstream>
 #include <iostream>
 
 
@@ -20,7 +23,7 @@ using namespace lmh;
 
 // TOOD:
 // 
-// . important solution for ur problems: add error code!
+// . important solution for ur problems: add error LmhStatus!
 // 
 // . write the damn comments
 // 
@@ -51,7 +54,7 @@ using namespace lmh;
 // 
 // . add concept of session
 // 
-// 
+// . create repository and initialize it!
 // 
 // ...... QT........ 
 // 
@@ -63,26 +66,47 @@ using namespace lmh;
 // 
 //
 
-
-
 int main()
 {
 	try
 	{
-		lmh::Logger::initialize(fs::current_path(), LOG_LEVEL_MAX);
-		if (!Logger::instance().initialized())
+		LmhStatus status = LmhStatus::SUCCESS;
+
+		// Init config
+		Config& config = Config::instance();
+		fs::path configFile{ "D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\config.json" };
+		status = config.initialize(configFile);
+		if (status != LmhStatus::SUCCESS)
+		{
+			std::cout << "Config uninitialized!" << std::endl;
+		}
+
+		//std::optional<std::string> ila = config.getString("parser.type.degiro.fileExtension");
+		//std::optional<bool> intinos = config.getBool("settings.portfolio.multiCcy");
+		auto ilassss = config.get<std::string>("parser.type.degiro");
+		auto ilass = config.get<std::string>("parser.type.degiro.fileExtension");
+		
+		// Init logger
+		status = Logger::initialize(/*fs::current_path(), LOG_LEVEL_MAX*/);
+		if (status != LmhStatus::SUCCESS)
 		{
 			std::cout << "Logger uninitialized!" << std::endl;
 		}
-
+		
 		LMH_INFO("this is an info");
 		LMH_WARNING("this is a warning");
 		LMH_ERROR("this is an error");
 
 		Curl& curl = Curl::instance();
 		curl.initialize();
-		CURLcode c = curl.GETRequest("https://query1.finance.yahoo.com/v8/finance/chart/AAPL");
-		std::cout << curl.explainCode(c) << std::endl;
+		auto ic = curl.GETRequest("https://query1.finance.yahoo.com/v8/finance/chart/AAPL");
+		auto ec = curl.GETRequest("https://query1.finance.yahoo.com/v8/finance/chart/AMZN");
+
+		auto as = curl.POSTRequest("https://api.openfigi.com/v3/mapping", "[{\"idType\":\"ID_ISIN\",\"idValue\":\"US4592001014\"}]");
+
+		//std::cout << curl.response() << std::endl;
+
+		auto stringa = ConfigRequest::GET("price", "AMZN", &status);
 
 		const fs::path t = "C:/Users/giuli/OneDrive/Desktop/test.txt";
 		File::writable(t);
@@ -107,7 +131,10 @@ int main()
 		portfolio->remove("123451234511");
 		// When parsing from inside Portfolio we should think 
 		// of catching validate user input exception
-		/*auto parsingResults = ReportParser::parseDefault(ReportParser::Type::DEGIRO);
+		auto output = ReportParser::parseDefault(ReportParser::Type::DEGIRO);
+		auto output1 = ReportParser::parse(ReportParser::Type::DEGIRO, fs::path("C:/Users/giuli/Downloads/Portfolio.csv"));
+
+		/*ReportParser::Output out;
 		if (parsingResults.second)
 		{
 			for (const auto& sec : parsingResults.first)

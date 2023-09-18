@@ -13,6 +13,7 @@
 #include "Utils/Environment.h"
 #include "Utils/Assertions.h"
 #include "Patterns/Singleton.h"
+#include "Utils/StatusCode.h"
 
 
 // Log levels
@@ -28,7 +29,7 @@
 #define LOG_WARNING_MSG				"[ WARNING ]:	"
 #define LOG_ERROR_MSG				"[ ERROR   ]:	"
 
-// Logging macro meant to be used in code
+// Logging macro meant to be used in LmhStatus
 #define LMH_DEBUG(x) lmh::Logger::instance().log<LOG_LEVEL_DEBUG>((x));
 #define LMH_INFO(x) lmh::Logger::instance().log<LOG_LEVEL_INFO>((x));
 #define LMH_WARNING(x) lmh::Logger::instance().log<LOG_LEVEL_WARNING>((x));
@@ -46,13 +47,14 @@ namespace lmh {
 
 	private:
 
-		Logger();
+		Logger() = default;
 		virtual ~Logger();
 
 	public:
 
 		// Non-const methods
-		static bool initialize(const fs::path& folder, LogLevel logLevel = LOG_LEVEL_DEFAULT);
+		// If no folder is specified, then it is read in the config file
+		static LmhStatus initialize(const fs::path& folder = "", LogLevel logLevel = LOG_LEVEL_DEFAULT);
 
 		// Const methods	
 		template<LogLevel messageLevel> inline void log(const std::string& message) const;
@@ -74,11 +76,12 @@ namespace lmh {
 	private:
 
 		std::unique_ptr<std::fstream> stream_;
-		LogLevel logLevel_;
-		time_t time_;
+		LogLevel logLevel_ = LOG_LEVEL_DEFAULT;
+		time_t time_ = static_cast<time_t>(0);
 		fs::path folder_;
 		fs::path file_;
-		bool initialized_;
+		int maxLogFiles_ = 5;
+		bool initialized_ = false;
 	};
 
 

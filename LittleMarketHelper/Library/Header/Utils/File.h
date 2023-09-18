@@ -5,7 +5,9 @@
 #pragma once
 
 #include <filesystem>
+#include <fstream>
 
+#include "Utils/StatusCode.h"
 #include "Utils/Assertions.h"
 
 
@@ -21,6 +23,8 @@ namespace lmh {
 		static inline bool writable(const fs::path& file);
 	};
 
+
+	// Inline definitions
 	inline bool lmh::File::readable(const fs::path& file)
 	{
 		bool status = true;

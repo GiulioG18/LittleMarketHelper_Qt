@@ -24,9 +24,9 @@ namespace lmh {
 		Portfolio(Currency ccy);
 
 		// Non-const methods
-		CODE add(const std::shared_ptr<Security>& security);
-		CODE remove(const std::string& isin);
-		CODE edit(const std::string& isin, EditTrade::Type t, auto newValue);
+		LmhStatus add(const std::shared_ptr<Security>& security);
+		LmhStatus remove(const std::string& isin);
+		LmhStatus edit(const std::string& isin, EditTrade::Type t, auto newValue);
 		void clear();
 
 		// Const methods
@@ -39,10 +39,19 @@ namespace lmh {
 
 	private:
 
+		struct Settings
+		{
+			bool multiCcy_ = false;
+		};
+
 		Currency ccy_;
 		std::shared_ptr<Tradeset> trades_;
 		std::shared_ptr<Balance> balance_;
+		Settings settings_;
 	};
+
+	
+
 
 
 	// Inline definitions

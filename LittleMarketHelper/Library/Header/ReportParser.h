@@ -8,9 +8,11 @@
 #include <set>
 #include <memory>
 #include <utility>
+#include <variant>
 
 #include "Utils/Assertions.h"
 #include "Security.h"
+#include "Utils/StatusCode.h"
 
 
 namespace fs = std::filesystem;
@@ -22,33 +24,31 @@ namespace lmh {
 	{
 	public:
 
-		// Supported parsers
-		enum class Type
-		{
-			DEGIRO
-		};
+		//										Isin		Name
+		using UncompleteSecurity = std::pair<std::string, std::string>;
+		using ParsedSecurities = std::vector<std::variant<Security, ReportParser::UncompleteSecurity>>;
+		
+		struct Output;
 
+		// Supported parsers
+		enum class Type;
 
 	public:
 
-		// TODO: add variant, and parse currency in degiro report
-
-		[[nodiscard("Parsed securities will be lost")]]
-		static std::pair<std::vector<Security>, bool> parse(ReportParser::Type type, const fs::path&);
-		[[nodiscard("Parsed securities will be lost")]]
-		static std::pair<std::vector<Security>, bool> parseDefault(ReportParser::Type type);
-
+		static Output parseDefault(ReportParser::Type type);			// Reads the first report found
+		static Output parse(ReportParser::Type type, const fs::path& report);
 		virtual ~ReportParser() = default;
 
 	protected:
 
-		// Protected constructor
-		ReportParser(ReportParser::Type type);
+		ReportParser();
 
 	protected:
 
+		// Non-const methods
+		virtual LmhStatus readFile(const fs::path& file, Output& output) const = 0;
+
 		// Const methods
-		virtual void readFile(const fs::path& file, std::vector<Security>& securities, bool& successful) const = 0;
 		virtual fs::path defaultFilename() const;
 		virtual fs::path defaultExtension() const;
 
@@ -59,7 +59,32 @@ namespace lmh {
 
 	protected:
 
-		const ReportParser::Type type_;
 		std::set<fs::path> guesses_;
 	};
+
+
+	enum class ReportParser::Type
+	{
+		DEGIRO
+	};
+
+
+	struct ReportParser::Output
+	{
+		ReportParser::Output(ReportParser::Type type)
+			: 
+			type_(type), 
+			found_(0),
+			discarded_(0),
+			statusLmhStatus_(LmhStatus::REPORT_NOT_FOUND)
+		{
+		}
+
+		ReportParser::Type type_;
+		ReportParser::ParsedSecurities parsedSecurities_;
+		int found_;
+		int discarded_;
+		LmhStatus statusLmhStatus_;
+	};
+
 }

@@ -5,6 +5,7 @@
 
 namespace lmh {
 
+    // TODO: this is not nice, figure out what to do
     const char* Error::what() const noexcept
     {
         // Log error before returning

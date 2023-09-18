@@ -2,51 +2,39 @@
 #include <fstream>
 
 #include "DegiroReportParser.h"
+#include "ConfigRequest.h"
 
 
 namespace lmh {
 
-	DegiroReportParser::DegiroReportParser(ReportParser::Type type)
-		: ReportParser(type)
+	LmhStatus DegiroReportParser::readFile(const fs::path& file, Output& output) const
 	{
-	}
-
-	void DegiroReportParser::readFile(const fs::path& file, std::vector<Security>& security, bool& successful) const
-	{
-		REQUIRE(type_ == ReportParser::Type::DEGIRO, "parser type is not DEGIRO");
-
-		std::ifstream stream{ file };
-		std::string line;
-
-		auto nextLine = [&stream, &line]() -> std::string&
-		{
-			std::getline(stream, line);
-			return line;
-		};
+		REQUIRE(output.type_ == ReportParser::Type::DEGIRO, "parser type is not DEGIRO");
 
 		// Check if file is readable
-		successful = stream.is_open();
-		if (!successful)
-			return;
+		std::ifstream stream{ file };
+		bool open = stream.is_open();
+		if (!open)
+			return LmhStatus::FILE_NOT_OPEN;		
 
 		// ...and not empty
-		successful = stream.peek() != std::ifstream::traits_type::eof();
-		if (!successful)
-			return;
+		bool empty = stream.peek() == std::ifstream::traits_type::eof();
+		if (empty)
+			return LmhStatus::FILE_IS_EMPTY;
 
-		// Start parsing file
-		nextLine();
+		// Start parsing
+		std::string line;
 
 		// Skip Header
-		nextLine();
+		std::getline(stream, line);
 
-		// Skip cash lines
-		while (line.substr(0, line.find(' ')) == "CASH")
-			nextLine();
-
-		// Parse financial products
-		do
+		// Try parse securities
+		for (; std::getline(stream, line); )
 		{
+			// Skip cash lines
+			if (line.substr(0, line.find(' ')) == "CASH")
+				continue;
+
 			std::string name = "";
 			std::string isin = "";
 			int quantity = 0;
@@ -60,42 +48,72 @@ namespace lmh {
 				return std::string(line.begin() + sectionStart, line.begin() + sectionEnd);
 			};
 
-			// Isin
-			sectionStart = sectionEnd + 1;
-			sectionEnd = line.find_first_of(',', sectionStart + 1);
-			isin = getSection();
-			if (!Security::validateIsin(isin))
-				continue;
-
 			// Name
 			sectionStart = 0;
 			sectionEnd = line.find_first_of(',', sectionStart + 1);
 			name = getSection();
 
-			// Currency
-			// TODO: ADD CURRENCY!!
+			// Isin
+			sectionStart = sectionEnd + 1;
+			sectionEnd = line.find_first_of(',', sectionStart + 1);
+			isin = getSection();
+			if (!Security::validateIsin(isin))
+			{
+				output.discarded_++;
+				continue;
+			}
 
 			// Quantity
 			sectionStart = sectionEnd + 1;
 			sectionEnd = line.find_first_of(',', sectionStart + 1);
 			quantity = std::stol(getSection());
 			if (!Security::validateQuantity(quantity))
+			{
+				output.parsedSecurities_.push_back(ReportParser::UncompleteSecurity(isin, name));
 				continue;
+			}
 
 			// Price
+			// Move iterators even if we do not parse the DEGIRO price since
+			// it actually refers to the last day closing price...
 			sectionStart = sectionEnd + 2; // + 2 since there is a " character after the ,
 			sectionEnd = line.find_first_of('"', sectionStart + 1);
-			std::replace(line.begin() + sectionStart, line.begin() + sectionEnd, ',', '.');
-			price = std::stof(getSection());
-			if (!Security::validatePrice(price))
+			// Fetch price 			
+			//ConfigRequest tr; // TODO: read URL and NODE for DEGIRO PRICE_REQUEST in the config.json file
+			//LmhStatus status = tr.request(&price);
+			/*if (!Security::validatePrice(price) || status != LmhStatus::SUCCESS)
+			{
+				output.parsedSecurities_.push_back(ReportParser::UncompleteSecurity(isin, name));
 				continue;
+			}*/
 
-			security.push_back(Security(isin, name, ccy, quantity, price));
+			// Currency
+			sectionStart = sectionEnd + 2;	// + 2 since there is a " character before the ,
+			sectionEnd = sectionStart + 3;	// 3 letter ccy
+			std::string ccyStr = getSection();
+			bool validCcy = false;
+			for (const auto& it : ccyStringMap)
+			{
+				if (it.second == ccyStr)
+				{
+					ccy = it.first;
+					validCcy = true;
+					break;
+				}
+			}
 
-			nextLine();
+			if (!validCcy)
+			{
+				output.parsedSecurities_.push_back(ReportParser::UncompleteSecurity(isin, name));
+				continue;
+			}
 
-		} while (!line.empty());
+			// If everything went ok, add the security
+			output.parsedSecurities_.push_back(Security(isin, name, ccy, quantity, price));
+			output.found_++;
+		}		
 
+		return LmhStatus::SUCCESS;
 	}
 
 	fs::path DegiroReportParser::defaultFilename() const
@@ -109,3 +127,7 @@ namespace lmh {
 	}
 
 }
+
+
+
+
