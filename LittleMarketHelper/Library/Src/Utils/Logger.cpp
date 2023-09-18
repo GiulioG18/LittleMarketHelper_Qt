@@ -129,13 +129,13 @@ namespace lmh {
 
 		while (logTimes.size() > maxLogFiles_)
 		{
-			// Remove oldest (smallest time) Log
-			auto oldest = std::begin(logTimes);
-			std::string file = "Log_" + std::to_string(*oldest) + ".txt";
-			logTimes.erase(oldest);
-
 			try
 			{
+				// Remove oldest (smallest time) Log
+				auto oldest = std::begin(logTimes);				
+				std::string file = folder_.string() + "\\Log_" + std::to_string(*oldest) + ".txt";
+				logTimes.erase(oldest);
+			
 				fs::remove(file);	// Remove file from host env
 			}
 			catch (std::exception& e)
