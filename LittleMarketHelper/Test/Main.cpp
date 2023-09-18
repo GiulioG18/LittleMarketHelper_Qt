@@ -13,6 +13,7 @@
 #include "Utils/Curl.h"
 #include "Config.h"
 #include "ConfigRequest.h"
+#include "TickersGenerator.h"
 
 #include <fstream>
 #include <iostream>
@@ -23,21 +24,11 @@ using namespace lmh;
 
 // TOOD:
 // 
-// . important solution for ur problems: add error LmhStatus!
+// . Do not fecth all the historical price when using yf
 // 
 // . write the damn comments
 // 
-// . BUG! adding a trade to the portoflio should also check the Excluded tradeset!
-//
-// . Safely (!!!) query from WEB servers
-// 
-// . create editTrade function inside Portfolio
-// 
-// . create user settings object (currency, ...)
-// 
 // . create repository object (exchange rates map, ...)
-// 
-// . add currency to portfolio and make it observed by it somehow...
 // 
 // . Make Currency inside Portfolio relevant!
 //		- this will be selected by the user and will be relevant for the prices
@@ -56,6 +47,8 @@ using namespace lmh;
 // 
 // . create repository and initialize it!
 // 
+// . create some global initialize function for the app
+// 
 // ...... QT........ 
 // 
 // 
@@ -66,16 +59,28 @@ using namespace lmh;
 // 
 //
 
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
+namespace pt = boost::property_tree;
+
 int main()
 {
 	try
 	{
+
+		pt::ptree configTree;
+		pt::read_json({ "D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\config.json" }, configTree);
+		auto mc = configTree.get_optional < std::string > ("logger.directory");
+		if (mc)
+			std::cout << (mc.value()) << std::endl;
+
 		LmhStatus status = LmhStatus::SUCCESS;
 
 		// Init config
 		Config& config = Config::instance();
 		fs::path configFile{ "D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\config.json" };
-		status = config.initialize(configFile);
+		status = config.initialize(configFile.string());
 		if (status != LmhStatus::SUCCESS)
 		{
 			std::cout << "Config uninitialized!" << std::endl;
@@ -83,8 +88,8 @@ int main()
 
 		//std::optional<std::string> ila = config.getString("parser.type.degiro.fileExtension");
 		//std::optional<bool> intinos = config.getBool("settings.portfolio.multiCcy");
-		auto ilassss = config.get<std::string>("parser.type.degiro");
-		auto ilass = config.get<std::string>("parser.type.degiro.fileExtension");
+		auto ilassss = config.read<std::string>("parser.type.degiro");
+		auto ilass = config.read<std::string>("parser.type.degiro.fileExtension");
 		
 		// Init logger
 		status = Logger::initialize(/*fs::current_path(), LOG_LEVEL_MAX*/);
@@ -101,12 +106,16 @@ int main()
 		curl.initialize();
 		auto ic = curl.GETRequest("https://query1.finance.yahoo.com/v8/finance/chart/AAPL");
 		auto ec = curl.GETRequest("https://query1.finance.yahoo.com/v8/finance/chart/AMZN");
+		//std::cout << curl.response() << std::endl;
 
 		auto as = curl.POSTRequest("https://api.openfigi.com/v3/mapping", "[{\"idType\":\"ID_ISIN\",\"idValue\":\"US4592001014\"}]");
 
-		//std::cout << curl.response() << std::endl;
-
 		auto stringa = ConfigRequest::GET("price", "AMZN", &status);
+		auto stringetto = ConfigRequest::POST("ticker", "IE00B53L4X51", &status);
+
+		FigiAPI figi;
+		if (status == LmhStatus::SUCCESS)
+			status = figi.parse(stringetto);
 
 		const fs::path t = "C:/Users/giuli/OneDrive/Desktop/test.txt";
 		File::writable(t);

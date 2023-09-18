@@ -78,14 +78,6 @@ namespace lmh {
 			// it actually refers to the last day closing price...
 			sectionStart = sectionEnd + 2; // + 2 since there is a " character after the ,
 			sectionEnd = line.find_first_of('"', sectionStart + 1);
-			// Fetch price 			
-			//ConfigRequest tr; // TODO: read URL and NODE for DEGIRO PRICE_REQUEST in the config.json file
-			//LmhStatus status = tr.request(&price);
-			/*if (!Security::validatePrice(price) || status != LmhStatus::SUCCESS)
-			{
-				output.parsedSecurities_.push_back(ReportParser::UncompleteSecurity(isin, name));
-				continue;
-			}*/
 
 			// Currency
 			sectionStart = sectionEnd + 2;	// + 2 since there is a " character before the ,
@@ -107,6 +99,15 @@ namespace lmh {
 				output.parsedSecurities_.push_back(ReportParser::UncompleteSecurity(isin, name));
 				continue;
 			}
+
+			// Request actual price	for this currency
+			//ConfigRequest tr; // TODO: read URL and NODE for DEGIRO PRICE_REQUEST in the config.json file
+			//LmhStatus status = tr.request(&price);
+			/*if (!Security::validatePrice(price) || status != LmhStatus::SUCCESS)
+			{
+				output.parsedSecurities_.push_back(ReportParser::UncompleteSecurity(isin, name));
+				continue;
+			}*/
 
 			// If everything went ok, add the security
 			output.parsedSecurities_.push_back(Security(isin, name, ccy, quantity, price));

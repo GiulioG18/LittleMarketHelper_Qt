@@ -16,8 +16,8 @@ enum class LmhStatus
 	CURRENCY_NOT_ALLOWED,
 	// The trade was not found
 	TRADE_NOT_FOUND,
-	// Invalid value passed for EDIT operation
-	INVALID_EDIT,
+	// Invalid input for current function
+	INVALID_INPUT,
 	// File did not open correctly
 	FILE_NOT_OPEN,
 	// File is empty
@@ -76,7 +76,7 @@ namespace lmh {
 			break;
 		case LmhStatus::TRADE_NOT_FOUND:
 			break;
-		case LmhStatus::INVALID_EDIT:
+		case LmhStatus::INVALID_INPUT:
 			break;
 		case LmhStatus::FILE_NOT_OPEN:
 			break;

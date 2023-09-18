@@ -4,6 +4,7 @@
 #include "Portfolio.h"
 #include "Utils/Assertions.h"
 #include "Weight.h"
+#include "Config.h"
 
 
 namespace lmh {
@@ -17,7 +18,9 @@ namespace lmh {
 		settings_()
 	{
 		// Initialize settings from config file
-		//settings_.multiCcy_ = ; TODO:
+		auto multiCcy = Config::instance().read<bool>("settings.portfolio.multiCcy");
+		ASSERT(multiCcy.has_value(), "missing portfolio settings in config file");
+		settings_.multiCcy_ = multiCcy.value();
 	}
 
 	LmhStatus Portfolio::add(const std::shared_ptr<Security>& security)
@@ -41,7 +44,7 @@ namespace lmh {
 	{
 		// Check the edit is valid before extracting the trade
 		if (!EditTrade::validateEdit(t, newValue))
-			return LmhStatus::INVALID_EDIT;
+			return LmhStatus::INVALID_INPUT;
 
 		// Find trade...
 		auto trade = trades_->find(isin);

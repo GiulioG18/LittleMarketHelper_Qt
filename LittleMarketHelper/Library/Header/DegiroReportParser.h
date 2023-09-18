@@ -22,6 +22,7 @@ namespace lmh {
 		//      - add urls and keys as members, initialize them in the ctor
 		//		  (NB: it reads them from the config file, which MUST first be init when parsing with DEGIRO)
 		//		  (NB2: Curl MUST be initialized before parsing with DEGIRO aswell in order to run requests!)
+		//		- add FigiAPI as member to be reused for all prices
 
 		DegiroReportParser() = default;
 		virtual ~DegiroReportParser() = default;

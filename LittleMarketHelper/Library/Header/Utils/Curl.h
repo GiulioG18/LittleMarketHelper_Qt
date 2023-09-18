@@ -41,7 +41,7 @@ namespace lmh {
 		// Returns string format for CURLcode
 		std::string LmhStatusMessage(CURLcode status) const;
 
-		// Requests
+		// Requests (Note that returning SUCCESS does not imply that the response is good)
 		LmhStatus GETRequest(const std::string& url);
 		LmhStatus POSTRequest(const std::string& url, const std::string& data); // Content-Type: application/json
 

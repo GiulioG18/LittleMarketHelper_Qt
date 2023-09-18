@@ -23,9 +23,6 @@ namespace lmh {
 		// NB2: if *ec is not LmhStatus::SUCCESS, it will return right away with the previous error
 		static std::string GET(const std::string& type, const std::string& urlPlaceholder, LmhStatus* ec);
 		static std::string POST(const std::string& type, const std::string& dataPlaceholder, LmhStatus* ec);
-
-	private:
-
 		// Replace the placeholder delimited by %%% with value
 		// NB: this function expects a single placeholder (ie: "aBc2%%%PLACEHOLDER%%%888R")
 		//     otherwise its behaviour is undefined

@@ -45,7 +45,7 @@ namespace lmh {
 				return LmhStatus::CONFIG_NOT_INITIALIZED;
 
 			// Read the folder from the config file
-			auto dir = Config::instance().get<std::string>("logger.directory");
+			auto dir = Config::instance().read<std::string>("logger.directory");
 			if (!dir.has_value())
 				return LmhStatus::CONFIG_INVALID_PATH;
 
@@ -83,7 +83,7 @@ namespace lmh {
 			return LmhStatus::FILE_NOT_OPEN;	
 
 		// Initialize max log files from config file
-		auto dir = Config::instance().get<int>("logger.maxLogFiles");
+		auto dir = Config::instance().read<int>("logger.maxLogFiles");
 		if (!dir.has_value())
 			return LmhStatus::CONFIG_INVALID_PATH;
 		logger.maxLogFiles_ = dir.value();

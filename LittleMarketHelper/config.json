@@ -26,7 +26,8 @@
     "get": {
       "price": {
         "url": "https://query1.finance.yahoo.com/v8/finance/chart/%%%PLACEHOLDER%%%",
-        "key": "regularMarketPrice"
+        "key1": "regularMarketPrice",
+        "key2": "currency"
       },
       "exchangeRate": {
         "url": "",
