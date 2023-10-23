@@ -37,13 +37,15 @@ namespace lmh {
 		virtual ~Curl();
 		// By default sets the flag to CURL_GLOBAL_ALL 
 		// NB: no options are set during initialization
-		static LmhStatus initialize(long flag = -1);
+		static Status initialize(long flag = -1);
 		// Returns string format for CURLcode
-		std::string LmhStatusMessage(CURLcode status) const;
+		static std::string StatusMessage(CURLcode status);
+		// Check network connectivity
+		static bool checkNetworkConnection();
 
 		// Requests (Note that returning SUCCESS does not imply that the response is good)
-		LmhStatus GETRequest(const std::string& url);
-		LmhStatus POSTRequest(const std::string& url, const std::string& data); // Content-Type: application/json
+		Status GETRequest(const std::string& url);
+		Status POSTRequest(const std::string& url, const std::string& data); // Content-Type: application/json
 
 		// Getters
 		inline curl_version_info_data* version() const;

@@ -7,10 +7,10 @@
 #include <memory>
 #include <map>
 
-#include "Portfolio.h"
-#include "CalibrationResult.h"
-#include "Weight.h"
 #include "Patterns/Observable.h"
+#include "CalibrationResult.h"
+#include "Portfolio.h"
+#include "Weight.h"
 
 
 namespace lmh {
@@ -19,17 +19,16 @@ namespace lmh {
 	{
 	public:
 
-		using WeightsMap = std::map<std::string, float>; // Maps each security to an ideal weight
+		// Maps each security to an ideal weight
+		using WeightsMap = std::map<std::string, double>; 
 
 	public:
 
-		Calibrator(const Portfolio& portfolio);
+		Calibrator(const Portfolio* const portfolio);
 
 		// Non-const method
-		// Input keys must match exactly the portfolio trades name.
-		// If 'investment' is not provided, the balance from the tracked
-		// portfolio object is used instead
-		void runOptimization(WeightsMap wm, float investment = 0.0f);
+		// Input keys must match exactly all portfolio securities
+		void runOptimization(WeightsMap wm, Currency::Type ccy, double investment);
 
 		// Getters
 		inline const std::optional<CalibrationResult>& result() const;
@@ -47,9 +46,9 @@ namespace lmh {
 	private:
 
 		std::optional<CalibrationResult> result_;
-		std::shared_ptr<Tradeset> trades_;
-		// Observed
-		std::shared_ptr<Balance> balance_;
+		const Portfolio* portfolio_;
+		//std::shared_ptr<Tradeset> trades_;
+		//std::shared_ptr<Balance> balance_; // Observed
 	};	
 
 

@@ -28,7 +28,7 @@ namespace lmh {
 		ControlLogPopulation();
 	}
 
-	LmhStatus Logger::initialize(const fs::path& folder, LogLevel logLevel)
+	Status Logger::initialize(LogLevel logLevel)
 	{
 		// Create the logger in memory
 		Logger& logger = Singleton<Logger>::instance();
@@ -36,30 +36,15 @@ namespace lmh {
 		// Assures log is only initialized once.
 		// This is to ensure that the stream is not redirected midway
 		if (logger.initialized_)
-			return LmhStatus::LOGGER_ALREADY_INITIALIZED;
+			return Status::LOGGER_ALREADY_INITIALIZED;
 
 		// Initialize folder directory
-		if (folder.empty())
-		{			
-			if (!Config::instance().initialized())
-				return LmhStatus::CONFIG_NOT_INITIALIZED;
-
-			// Read the folder from the config file
-			auto dir = Config::instance().read<std::string>("logger.directory");
-			if (!dir.has_value())
-				return LmhStatus::CONFIG_INVALID_PATH;
-
-			logger.folder_ = dir.value();
-		}
-		else
-		{
-			logger.folder_ = folder;
-		}
+		logger.folder_ = Config::instance().read<std::string>("logger.directory");
 
 		if (!fs::is_directory(logger.folder_))
-			return LmhStatus::INVALID_DIRECTORY;
+			return Status::INVALID_DIRECTORY;
 		if (!File::writable(logger.folder_))		
-			return LmhStatus::NO_WRITE_PERMISSION;
+			return Status::NO_WRITE_PERMISSION;
 		
 		// Initialize time
 		logger.time_ = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -80,19 +65,16 @@ namespace lmh {
 		logger.stream_ = std::make_unique<std::fstream>(logger.file_, std::ios_base::out | std::ios_base::trunc);
 		ASSERT(logger.stream_, "invalid stream");
 		if (!logger.stream_->is_open())			
-			return LmhStatus::FILE_NOT_OPEN;	
+			return Status::FILE_NOT_OPEN;	
 
 		// Initialize max log files from config file
-		auto dir = Config::instance().read<int>("logger.maxLogFiles");
-		if (!dir.has_value())
-			return LmhStatus::CONFIG_INVALID_PATH;
-		logger.maxLogFiles_ = dir.value();
+		logger.maxLogFiles_ = Config::instance().read<int>("logger.maxLogFiles");
 
 		// Finalize
 		logger.writeLogHeader();
 		logger.initialized_ = true;
 
-		return LmhStatus::SUCCESS;
+		return Status::SUCCESS;
 	}
 
 	void Logger::writeLogHeader() const

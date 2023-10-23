@@ -2,12 +2,10 @@
 
 #include <string>
 
-#include "Currency.h"
-
 
 // To ignore const and ref when comparing types
 template<class T1, class T2>
-bool is_almost_same = std::is_same<const T1&, const T2&>;
+bool is_almost_same_v = std::is_same_v<const T1&, const T2&>;
 
 namespace lmh {
 
@@ -21,17 +19,17 @@ namespace lmh {
 			PRICE
 		};
 
-		static bool validateEdit(EditTrade::Type t, auto value)
+		template<EditTrade::Type t>
+		static bool validateEditType(auto value)
 		{
-			switch (t)
-			{
-			case EditTrade::NAME:		return is_almost_same<decltype(value), std::string>;	break;
-			case EditTrade::CURRENCY:	return is_almost_same<decltype(value), Currency>;		break;
-			case EditTrade::QUANTITY:	return is_almost_same<decltype(value), int>;			break;
-			case EditTrade::PRICE:		return is_almost_same<decltype(value), float>;			break;
-
-			default:					return false;											break;
-			}
+			if		constexpr (t == EditTrade::NAME)
+				return is_almost_same_v<decltype(value), std::string>;
+			else if constexpr (t == EditTrade::QUANTITY)
+				return is_almost_sam_v<decltype(value), int>;
+			else if constexpr (t == EditTrade::PRICE)
+				return is_almost_same_v<decltype(value), double>;
+			else
+				return false;
 		}
 	};	
 

@@ -10,9 +10,9 @@
 #include "Utils/File.h"
 #include "Weight.h"
 #include "Calibrator.h"
-#include "Utils/Curl.h"
+#include "Http/Curl.h"
 #include "Config.h"
-#include "ConfigRequest.h"
+#include "Http/ConfigRequest.h"
 #include "TickersGenerator.h"
 
 #include <fstream>
@@ -49,6 +49,10 @@ using namespace lmh;
 // 
 // . create some global initialize function for the app
 // 
+// . check for all class
+//		- copy/move ctor, copy/move operator
+//		- comments...
+// 
 // ...... QT........ 
 // 
 // 
@@ -68,32 +72,31 @@ int main()
 {
 	try
 	{
-
 		pt::ptree configTree;
 		pt::read_json({ "D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\config.json" }, configTree);
-		auto mc = configTree.get_optional < std::string > ("logger.directory");
+		auto mc = configTree.get_optional<std::string>("logger.directory");
 		if (mc)
 			std::cout << (mc.value()) << std::endl;
 
-		LmhStatus status = LmhStatus::SUCCESS;
+		Status status = Status::SUCCESS;
 
 		// Init config
 		Config& config = Config::instance();
 		fs::path configFile{ "D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\config.json" };
 		status = config.initialize(configFile.string());
-		if (status != LmhStatus::SUCCESS)
+		if (status != Status::SUCCESS)
 		{
 			std::cout << "Config uninitialized!" << std::endl;
 		}
 
 		//std::optional<std::string> ila = config.getString("parser.type.degiro.fileExtension");
 		//std::optional<bool> intinos = config.getBool("settings.portfolio.multiCcy");
-		auto ilassss = config.read<std::string>("parser.type.degiro");
+		auto ilassss = config.read<std::string>("parser.type.degiro.name");
 		auto ilass = config.read<std::string>("parser.type.degiro.fileExtension");
 		
 		// Init logger
-		status = Logger::initialize(/*fs::current_path(), LOG_LEVEL_MAX*/);
-		if (status != LmhStatus::SUCCESS)
+		status = Logger::initialize();
+		if (status != Status::SUCCESS)
 		{
 			std::cout << "Logger uninitialized!" << std::endl;
 		}
@@ -104,40 +107,50 @@ int main()
 
 		Curl& curl = Curl::instance();
 		curl.initialize();
-		auto ic = curl.GETRequest("https://query1.finance.yahoo.com/v8/finance/chart/AAPL");
+		auto ic = curl.GETRequest("https://papi-pornstarsapi.p.rapidapi.com/pornstars/");
 		auto ec = curl.GETRequest("https://query1.finance.yahoo.com/v8/finance/chart/AMZN");
 		//std::cout << curl.response() << std::endl;
 
 		auto as = curl.POSTRequest("https://api.openfigi.com/v3/mapping", "[{\"idType\":\"ID_ISIN\",\"idValue\":\"US4592001014\"}]");
+		/*if (status == Status::SUCCESS)
+			std::cout << curl.response() << std::endl;*/
 
-		auto stringa = ConfigRequest::GET("price", "AMZN", &status);
-		auto stringetto = ConfigRequest::POST("ticker", "IE00B53L4X51", &status);
+		/*auto stringa = ConfigRequest::GET("price", "AMZN", &status);
+		auto stringetto = ConfigRequest::POST("ticker", "IE00B53L4X51", &status);*/
 
-		FigiAPI figi;
-		if (status == LmhStatus::SUCCESS)
-			status = figi.parse(stringetto);
+		/*Figi figi;
+		if (status == Status::SUCCESS)
+			status = figi.parse(stringetto);*/
 
 		const fs::path t = "C:/Users/giuli/OneDrive/Desktop/test.txt";
 		File::writable(t);
 
-		std::shared_ptr<Security> security = std::make_shared<Security>(std::string("123451234512"), std::string(), Currency::AUD, 12, 14.222f);
-		std::shared_ptr<Security> security2 = std::make_shared<Security>(std::string("123451234511"), std::string(), Currency::AUD, 2, 1.222f);
+	/*	auto stringettos = ConfigRequest::GET("exchangeRate", "AUD", &status);
+		if (status == Status::SUCCESS)
+		{
+			std::cout << stringettos << std::endl;
+		}*/
 
-		std::unique_ptr<Portfolio> portfolio = std::make_unique<Portfolio>(Currency::AUD);
-		portfolio->add(security2);
-		std::cout << portfolio->balance()->value() << std::endl;
-		portfolio->add(security);
-		std::cout << portfolio->balance()->value() << std::endl;
-		portfolio->remove("123451234512");
-		std::cout << portfolio->balance()->value() << std::endl;
-		security2->setPrice(1.2f);
-		std::cout << portfolio->balance()->value() << std::endl;
-		portfolio->remove("123451234512");
-		std::cout << portfolio->balance()->value() << std::endl;
-		portfolio->clear();
-		std::cout << portfolio->balance()->value() << std::endl;
-		security2->setPrice(1.55f);
-		portfolio->remove("123451234511");
+		std::shared_ptr<Security> a1 = std::make_shared<Security>(std::string("LU0908500753"), std::string(), 8, Quote(Price(Currency::Type::EUR, 203.85), 0.0));
+		std::shared_ptr<Security> b2 = std::make_shared<Security>(std::string("IE00BJ38QD84"), std::string(), 12, Quote(Price(Currency::Type::AUD, 47.43),  0.0));
+		std::shared_ptr<Security> c3 = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::Type::EUR,424.20), 0.0));
+		Security d4 = Security(std::string("LU1681045370"), std::string(), 420, Quote(Price(Currency::Type::SEK, 4.37), 0.0));
+
+		std::unique_ptr<Portfolio> portfolio = std::make_unique<Portfolio>(Currency::Type::EUR);
+		portfolio->addSecurity(*a1);
+		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		portfolio->addSecurity(*b2);
+		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		portfolio->addSecurity(*c3);
+		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		portfolio->addSecurity(d4);
+		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		portfolio->removeSecurity("123451234512");
+		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		portfolio->removeSecurity("IE00BJ38QD84");
+		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		//portfolio->edit<EditTrade::Type::CURRENCY>("123451234511", Currency::Type::EUR);
+		
 		// When parsing from inside Portfolio we should think 
 		// of catching validate user input exception
 		auto output = ReportParser::parseDefault(ReportParser::Type::DEGIRO);
@@ -151,21 +164,20 @@ int main()
 				portfolio->add(std::make_shared<Security>(sec));
 			}
 		}*/
-		portfolio->add(security2);
-		std::cout << portfolio->balance()->value() << std::endl;
+		std::cout << portfolio->openPosition()->price().value() << std::endl;
 
-		Calibrator cal{ *portfolio };
+		Calibrator cal(portfolio.get());
 		Calibrator::WeightsMap wm;
-		wm.emplace("ISHARES CORE S&P 500 UCITS ETF U...", 0.65f);
-		wm.emplace("AMUNDI ETF MSCI EM"					, 0.15f);
-		wm.emplace("LYXOR STOXX EUROPE 600 (DR) UCIT...", 0.15f);
-		wm.emplace("SPDR RUSSELL 2000 US SMALL CAP U...", 0.05f);
-		/*cal.runOptimization(wm, 9000.f);
+		wm.emplace(a1->isin(), 0.15f);
+		wm.emplace(b2->isin(), 0.05f);
+		wm.emplace(c3->isin(), 0.65f);
+		wm.emplace(d4.isin(), 0.15f);
+		cal.runOptimization(wm, Currency::Type::EUR, 20038.12);
 		auto result = cal.result();
 		result.value().cash();
 		result.value().data().at(2).idealQuantity();
 		Calibrator cal2(cal);
-		auto result2 = result;*/
+		auto result2 = result;
 	}
 	catch (std::exception& exception)
 	{

@@ -6,41 +6,56 @@
 
 #include <string>
 #include <map>
+#include <optional>
 
 #include "Patterns/Observable.h"
 
 
 namespace lmh {
 
-	enum class Currency
+	class Currency
 	{
-		EUR,
-		USD,
-		GBP, GBp,
-		JPY,
-		CHF,
-		AUD,
-		CAD,
-		CNY,
-		HKD,
-		SEK,
-		BZR
+	public:
+
+		enum class Type
+		{
+			EUR,
+			USD,
+			GBP, 
+			GBp,
+			JPY,
+			CHF,
+			AUD,
+			CAD,
+			CNY,
+			HKD,
+			SEK,
+			BZR
+		};
+
+		static inline std::optional<Type> get(const std::string& ccyStr);
+
+	public:
+
+		static const std::map<Type, std::string> _typeMap;
 	};
 
-	const std::map<Currency, std::string> ccyStringMap =
+	// Inline definitions
+
+	inline std::optional<Currency::Type> Currency::get(const std::string& ccyStr)
 	{
-		{Currency::EUR, "EUR"},
-		{Currency::USD, "USD"},
-		{Currency::GBP, "GBP"},
-		{Currency::GBp, "GBp"},
-		{Currency::JPY, "JPY"},
-		{Currency::CHF, "CHF"},
-		{Currency::AUD, "AUD"},
-		{Currency::CAD, "CAD"},
-		{Currency::CNY, "CNY"},
-		{Currency::HKD, "HKD"},
-		{Currency::SEK, "SEK"},
-		{Currency::BZR, "BZR"},
-	};
+		std::optional<Type> ccy = std::nullopt;
+
+		for (const auto& keyValue : _typeMap)
+		{
+			if (keyValue.second == ccyStr)
+			{
+				ccy = keyValue.first;
+				break;
+			}
+		}
+
+		return ccy;
+	}
 
 }

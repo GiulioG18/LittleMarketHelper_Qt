@@ -2,12 +2,13 @@
 #include <fstream>
 
 #include "DegiroReportParser.h"
-#include "ConfigRequest.h"
+#include "Http/Api.h"
 
 
 namespace lmh {
 
-	LmhStatus DegiroReportParser::readFile(const fs::path& file, Output& output) const
+	// TODO: would be safer to create tokens for each column instead of parsing character by character
+	Status DegiroReportParser::readFile(const fs::path& file, Output& output) const
 	{
 		REQUIRE(output.type_ == ReportParser::Type::DEGIRO, "parser type is not DEGIRO");
 
@@ -15,12 +16,12 @@ namespace lmh {
 		std::ifstream stream{ file };
 		bool open = stream.is_open();
 		if (!open)
-			return LmhStatus::FILE_NOT_OPEN;		
+			return Status::FILE_NOT_OPEN;		
 
 		// ...and not empty
 		bool empty = stream.peek() == std::ifstream::traits_type::eof();
 		if (empty)
-			return LmhStatus::FILE_IS_EMPTY;
+			return Status::FILE_IS_EMPTY;
 
 		// Start parsing
 		std::string line;
@@ -38,24 +39,24 @@ namespace lmh {
 			std::string name = "";
 			std::string isin = "";
 			int quantity = 0;
-			float price = 0.0f;
-			Currency ccy;
+			double price = 0.0;
+			Currency::Type ccy;
 
-			size_t sectionStart;
-			size_t sectionEnd;
-			auto getSection = [line, &sectionStart, &sectionEnd]() -> std::string const
+			size_t columnStart;
+			size_t columnEnd;
+			auto getSection = [line, &columnStart, &columnEnd]() -> std::string const
 			{
-				return std::string(line.begin() + sectionStart, line.begin() + sectionEnd);
+				return std::string(line.begin() + columnStart, line.begin() + columnEnd);
 			};
 
 			// Name
-			sectionStart = 0;
-			sectionEnd = line.find_first_of(',', sectionStart + 1);
+			columnStart = 0;
+			columnEnd = line.find_first_of(',', columnStart + 1);
 			name = getSection();
 
 			// Isin
-			sectionStart = sectionEnd + 1;
-			sectionEnd = line.find_first_of(',', sectionStart + 1);
+			columnStart = columnEnd + 1;
+			columnEnd = line.find_first_of(',', columnStart + 1);
 			isin = getSection();
 			if (!Security::validateIsin(isin))
 			{
@@ -64,8 +65,8 @@ namespace lmh {
 			}
 
 			// Quantity
-			sectionStart = sectionEnd + 1;
-			sectionEnd = line.find_first_of(',', sectionStart + 1);
+			columnStart = columnEnd + 1;
+			columnEnd = line.find_first_of(',', columnStart + 1);
 			quantity = std::stol(getSection());
 			if (!Security::validateQuantity(quantity))
 			{
@@ -74,17 +75,17 @@ namespace lmh {
 			}
 
 			// Price
-			// Move iterators even if we do not parse the DEGIRO price since
-			// it actually refers to the last day closing price...
-			sectionStart = sectionEnd + 2; // + 2 since there is a " character after the ,
-			sectionEnd = line.find_first_of('"', sectionStart + 1);
+			// Move section even if we do not parse the DEGIRO price since
+			// it actually refers to the last day closing price
+			columnStart = columnEnd + 2; // + 2 since there is a " character after the ,
+			columnEnd = line.find_first_of('"', columnStart + 1);
 
-			// Currency
-			sectionStart = sectionEnd + 2;	// + 2 since there is a " character before the ,
-			sectionEnd = sectionStart + 3;	// 3 letter ccy
+			// Currency::Type
+			columnStart = columnEnd + 2;	// + 2 since there is a " character before the ,
+			columnEnd = columnStart + 3;	// 3 letter ccy
 			std::string ccyStr = getSection();
 			bool validCcy = false;
-			for (const auto& it : ccyStringMap)
+			for (const auto& it : Currency::_typeMap)
 			{
 				if (it.second == ccyStr)
 				{
@@ -100,21 +101,24 @@ namespace lmh {
 				continue;
 			}
 
-			// Request actual price	for this currency
-			//ConfigRequest tr; // TODO: read URL and NODE for DEGIRO PRICE_REQUEST in the config.json file
-			//LmhStatus status = tr.request(&price);
-			/*if (!Security::validatePrice(price) || status != LmhStatus::SUCCESS)
-			{
-				output.parsedSecurities_.push_back(ReportParser::UncompleteSecurity(isin, name));
-				continue;
-			}*/
+			// DEGIRO does not report neither a valid price nor a ticker for a given security
+			// This means we need to first get the tickers from the isin, and then request
+			// the price from the tickers until we find a good one
+			
+			// Request quote, if not succesful, discard this product			
+			YahooFinanceApi yf;	// TODO: move as member, maybe create also a member function that returns a std::optional<Quote> here
+			std::optional<Quote> q = yf.getQuoteFromIsin(isin);
+			// TODO: make sure that: 
+			// . q has value, otherwise --> uncomplete
+			// . q currency is the same as ccy, otherwise --> uncomplete
+			// . q is valid, otherwise --> uncomplete			
 
-			// If everything went ok, add the security
-			output.parsedSecurities_.push_back(Security(isin, name, ccy, quantity, price));
+			// Everything looks good, construct a security
+			output.parsedSecurities_.push_back(Security(isin, name, quantity, q.value()));
 			output.found_++;
 		}		
 
-		return LmhStatus::SUCCESS;
+		return Status::SUCCESS;
 	}
 
 	fs::path DegiroReportParser::defaultFilename() const

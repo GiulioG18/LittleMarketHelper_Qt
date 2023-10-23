@@ -29,7 +29,7 @@
 #define LOG_WARNING_MSG				"[ WARNING ]:	"
 #define LOG_ERROR_MSG				"[ ERROR   ]:	"
 
-// Logging macro meant to be used in LmhStatus
+// Logging macro meant to be used in Status
 #define LMH_DEBUG(x) lmh::Logger::instance().log<LOG_LEVEL_DEBUG>((x));
 #define LMH_INFO(x) lmh::Logger::instance().log<LOG_LEVEL_INFO>((x));
 #define LMH_WARNING(x) lmh::Logger::instance().log<LOG_LEVEL_WARNING>((x));
@@ -54,7 +54,7 @@ namespace lmh {
 
 		// Non-const methods
 		// If no folder is specified, then it is read in the config file
-		static LmhStatus initialize(const fs::path& folder = "", LogLevel logLevel = LOG_LEVEL_DEFAULT);
+		static Status initialize(LogLevel logLevel = LOG_LEVEL_DEFAULT);
 
 		// Const methods	
 		template<LogLevel messageLevel> inline void log(const std::string& message) const;

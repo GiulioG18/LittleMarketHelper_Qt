@@ -1,87 +1,94 @@
 
-#include <optional>
+#include <numeric>
 
 #include "Portfolio.h"
 #include "Utils/Assertions.h"
-#include "Weight.h"
-#include "Config.h"
+#include "WeightedSecurity.h"
 
 
 namespace lmh {
 	
 
-	Portfolio::Portfolio(Currency ccy)
+	Portfolio::Portfolio(Balance::Ccy ccy)
 		:
-		ccy_(ccy),
-		trades_(std::make_shared<Tradeset>()),
-		balance_(std::make_shared<Balance>(ccy_, trades_)),
-		settings_()
+		openPosition_(std::make_shared<Balance>(ccy))
 	{
-		// Initialize settings from config file
-		auto multiCcy = Config::instance().read<bool>("settings.portfolio.multiCcy");
-		ASSERT(multiCcy.has_value(), "missing portfolio settings in config file");
-		settings_.multiCcy_ = multiCcy.value();
 	}
 
-	LmhStatus Portfolio::add(const std::shared_ptr<Security>& security)
+	Status Portfolio::addCash(const Cash& cash)
 	{
-		if (!settings_.multiCcy_)
-			if (security->ccy() != this->ccy_)
-				return LmhStatus::CURRENCY_NOT_ALLOWED;
-
-		return trades_->insert(std::make_pair(
-			security,
-			std::make_unique<Weight>(security, balance_))
-		);
+		// TODO: implement
+		return Status();
 	}
 
-	LmhStatus Portfolio::remove(const std::string& isin)
+	Status Portfolio::addSecurity(const Security& security)
 	{
-		return trades_->erase(isin);
-	}
+		// Construct a new weighted security tracking the portfolio's open position
+		auto wSecurity = std::make_shared<WSecurity>(security, openPosition_);
 
-	LmhStatus Portfolio::edit(const std::string& isin, EditTrade::Type t, auto newValue)
-	{
-		// Check the edit is valid before extracting the trade
-		if (!EditTrade::validateEdit(t, newValue))
-			return LmhStatus::INVALID_INPUT;
+		// Move it into the portfolio's security set
+		auto insertion = securities_.insert(std::move(wSecurity)); // TODO: check that openPosition is observing wSecurity (the shared ptr is copied...)
+		if (!insertion.second)
+			return Status::TRADE_DUPLICATE_NOT_INSERTED;
 
-		// Find trade...
-		auto trade = trades_->find(isin);
-		if (trade == trades_->get().end())
-			return LmhStatus::TRADE_NOT_FOUND;
-
-		// ...and edit it
-		Security& security = trade->first;
-		switch (t)
+		// Register the open position with this newly created security
+		Status status = openPosition_->registerSecurity(*insertion.first);
+		if (status != Status::SUCCESS)
 		{
-		case lmh::EditTrade::NAME:		security.setName(newValue);			break;
-		case lmh::EditTrade::CURRENCY: 
-		{
-			// For now only unique ccy is supported inside a portfolio
-			if (security.ccy() != this->ccy_)
-				return false; 
-			security.setCcy(newValue);
-			break;
+			auto deletion = securities_.erase(insertion.first);
+			return status;
 		}
-		case lmh::EditTrade::QUANTITY:	security.setQuantity(newValue);		break;
-		case lmh::EditTrade::PRICE:		security.setPrice(newValue);		break;
 
-		default: 						FAIL("Invalid logic");				break;
-		}		
-
-		return LmhStatus::SUCCESS;
+		return validateSecurities();
 	}
 
-	void Portfolio::clear()
+	Status Portfolio::removeSecurity(const std::string& isin)
 	{
-		trades_->clear();
-		balance_->clear();
+		auto it = securities_.find(isin);
+		if (it == securities_.end())
+			return Status::TRADE_NOT_FOUND;
+		securities_.erase(it);
+
+		Status status = openPosition_->unregisterSecurity(isin);
+		ASSERT(status == Status::SUCCESS, "could not remove security from open position");
+
+		return validateSecurities();
+	}
+
+	Status Portfolio::reset(Balance::Ccy ccy)
+	{
+		openPosition_.reset();
+		cash_.clear();
+		securities_.clear();		
+	
+		return Status::SUCCESS;
 	}
 
 	size_t Portfolio::size() const
 	{
-		return trades_->size();
+		return securities_.size();
 	}
 
+	Price Portfolio::value() const
+	{
+		// Prudent check
+		validateSecurities();
+		
+		Price p = openPosition_->price();
+		for (const auto& cash : cash_)
+		{
+			p += cash->price();
+		}
+
+		return p;
+	}
+
+	Status Portfolio::validateSecurities() const
+	{
+		ASSERT(securities_ == openPosition_->securities(), "security sets are not matching");
+		
+		// TODO: make sure sum of weights equals one
+
+		return Status::SUCCESS;
+	}
 }

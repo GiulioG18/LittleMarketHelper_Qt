@@ -25,7 +25,7 @@ namespace lmh {
 	public:
 
 		//										Isin		Name
-		using UncompleteSecurity = std::pair<std::string, std::string>;
+		using UncompleteSecurity = std::pair<std::string, std::string>;	// TODO: make it a class with proper methods (could also avoid variant with polymorphism)
 		using ParsedSecurities = std::vector<std::variant<Security, ReportParser::UncompleteSecurity>>;
 		
 		struct Output;
@@ -35,7 +35,8 @@ namespace lmh {
 
 	public:
 
-		static Output parseDefault(ReportParser::Type type);			// Reads the first report found
+		// The status of the report is written in the output
+		static Output parseDefault(ReportParser::Type type); 
 		static Output parse(ReportParser::Type type, const fs::path& report);
 		virtual ~ReportParser() = default;
 
@@ -46,11 +47,11 @@ namespace lmh {
 	protected:
 
 		// Non-const methods
-		virtual LmhStatus readFile(const fs::path& file, Output& output) const = 0;
+		virtual Status readFile(const fs::path& file, Output& output) const = 0;
 
 		// Const methods
-		virtual fs::path defaultFilename() const;
-		virtual fs::path defaultExtension() const;
+		virtual fs::path defaultFilename() const;	// TODO: read from config file instead of hardcoding it (and then remove virtualness)
+		virtual fs::path defaultExtension() const;	// TODO: read from config file instead of hardcoding it (and then remove virtualness)
 
 	private:
 
@@ -76,7 +77,7 @@ namespace lmh {
 			type_(type), 
 			found_(0),
 			discarded_(0),
-			statusLmhStatus_(LmhStatus::REPORT_NOT_FOUND)
+			status_(Status::REPORT_NOT_FOUND)
 		{
 		}
 
@@ -84,7 +85,7 @@ namespace lmh {
 		ReportParser::ParsedSecurities parsedSecurities_;
 		int found_;
 		int discarded_;
-		LmhStatus statusLmhStatus_;
+		Status status_;
 	};
 
 }

@@ -1,29 +1,30 @@
 
 #include "Utils/Json.h"
+#include "Utils/Assertions.h"
 
 
 namespace lmh {
 
-	LmhStatus Json::parse(const std::string& filename)
+	Status Json::parse(const std::string& filename)
 	{
 		try
 		{
 			pt::read_json(filename, tree_);
 			if (tree_.empty())
-				throw;
+				FAIL("empty tree");
 		}
 		catch (...)
 		{
-			return LmhStatus::INVALID_JSON_FORMAT;
+			return Status::INVALID_JSON_FORMAT;
 		}
 
 		// Assign filename
 		filename_ = filename;
 
-		return LmhStatus::SUCCESS;
+		return Status::SUCCESS;
 	}
 
-	LmhStatus Json::parse(std::stringstream& ss)
+	Status Json::parse(std::stringstream& ss)
 	{
 		try
 		{
@@ -33,18 +34,24 @@ namespace lmh {
 		}
 		catch (...)
 		{
-			return LmhStatus::INVALID_JSON_FORMAT;
+			return Status::INVALID_JSON_FORMAT;
 		}
 
 		// No filename
 		filename_ = "";
 
-		return LmhStatus::SUCCESS;
+		return Status::SUCCESS;
 	}
 
 	bool Json::initialized() const
 	{
 		return !tree_.empty();
+	}
+
+	void Json::clear()
+	{
+		filename_.clear();
+		tree_.clear();
 	}
 
 }

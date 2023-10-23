@@ -24,13 +24,16 @@ namespace lmh {
 
 		Json() = default;
 
-		LmhStatus parse(const std::string& filename);
-		LmhStatus parse(std::stringstream& ss);
+		Status parse(const std::string& filename);
+		Status parse(std::stringstream& ss);
 		bool initialized() const;
+		void clear();
 
 		// Getters
 		inline const pt::ptree& tree() const;
 		inline const fs::path& filename() const;
+
+		inline void printTree(const boost::property_tree::ptree& pt, int level) const;
 
 	private:
 

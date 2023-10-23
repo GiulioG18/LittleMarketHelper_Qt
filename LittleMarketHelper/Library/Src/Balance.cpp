@@ -1,37 +1,61 @@
 
+#include <algorithm>
+
 #include "Balance.h"
 #include "Utils/Assertions.h"
-#include "Tradeset.h"
+#include "WeightedSecurity.h"
 
 
 namespace lmh {
 
-	Balance::Balance(Currency ccy, std::shared_ptr<Tradeset> trades)
-		: value_(0.0f), ccy_(ccy), trades_(std::move(trades))
-	{
-		REQUIRE(trades_->get().empty(), 
-			"Balance object must linked to an initially empty Tradeset");
-		REQUIRE(trades_, "invalid trades");
-		registerWith(trades_);			
+	Balance::Balance(Ccy ccy)
+		: price_(ccy, 0.0)
+	{	
 	}
 
 	void Balance::update()
 	{
-		value_ = 0.0f;
-		for (const auto& trade : trades_->get())
-		{
-			// For now only single currency is supported 
-			ASSERT(trade.first->ccy() == this->ccy_, "only single ccy is supported");
-			value_ += trade.first->openPosition();
-		}
+		price_.set(0.0);
+
+		std::for_each(std::begin(securities_), std::end(securities_), 
+			[this](auto& security)
+			{
+				ASSERT(security, "invalid security");
+				price_ += security->marketValue();
+			}
+		);
 
 		notifyObservers();		
 	}
 
-	void Balance::clear()
+	Status lmh::Balance::registerSecurity(std::shared_ptr<WSecurity> security)
 	{
-		value_ = 0.0f;
-		notifyObservers();
+		REQUIRE(security, "invalid security");
+
+		auto insertion = securities_.insert(std::move(security));
+		if (!insertion.second)
+			return Status::TRADE_DUPLICATE_NOT_INSERTED;
+
+		registerWith(*insertion.first);
+
+		// Force price recalculation
+		update();
+
+		return Status::SUCCESS;
 	}
 
+	Status lmh::Balance::unregisterSecurity(const std::string& isin)
+	{
+		auto it = securities_.find(isin);
+		if (it == securities_.end())
+			return Status::TRADE_NOT_FOUND;
+
+		unregisterWith(*it);
+		securities_.erase(it);
+
+		// Force price recalculation
+		update();
+
+		return Status::SUCCESS;
+	}
 }

@@ -27,7 +27,7 @@ namespace lmh {
 		ASSERT(parser, "invalid parser");
 
 		fs::path file = parser->defaultFilename();
-		file += parser->defaultExtension();			// Add file default extension to file name
+		file += parser->defaultExtension();			
 		if (file.has_filename())
 		{
 			// Default file is provided for this parser. Try 
@@ -46,8 +46,8 @@ namespace lmh {
 
 				if (fs::is_regular_file(absolutePath))
 				{
-					output.statusLmhStatus_ = parser->readFile(absolutePath, output);
-					if (output.statusLmhStatus_ == LmhStatus::SUCCESS)
+					output.status_ = parser->readFile(absolutePath, output);
+					if (output.status_ == Status::SUCCESS)
 						break;
 				}
 			}
@@ -66,7 +66,7 @@ namespace lmh {
 
 		if (fs::is_regular_file(report))
 		{
-			output.statusLmhStatus_ = parser->readFile(report, output);
+			output.status_ = parser->readFile(report, output);
 		}
 		
 		return output;

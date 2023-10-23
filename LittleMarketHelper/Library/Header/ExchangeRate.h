@@ -15,7 +15,7 @@ namespace lmh {
 
 	private:
 
-		float_n rate_;
+		double_n rate_;
 		Currency x_;
 		Currency y_;
 	};

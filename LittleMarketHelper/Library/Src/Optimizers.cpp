@@ -37,13 +37,13 @@ namespace lmh {
 		//	return EXIT_FAILURE;
 
 		//// Create constants
-		//const float balance = 1200.0f;
-		//const float p1 = 100.0f;
-		//const float p2 = 25.0f;
-		//const float w1 = 0.3f;
-		//const float w2 = 0.7f;
-		//const float a1 = w1 * static_cast<float>(balance);
-		//const float a2 = w2 * static_cast<float>(balance);
+		//const double balance = 1200.0;
+		//const double p1 = 100.0;
+		//const double p2 = 25.0f;
+		//const double w1 = 0.3f;
+		//const double w2 = 0.7f;
+		//const double a1 = w1 * static_cast<double>(balance);
+		//const double a2 = w2 * static_cast<double>(balance);
 
 		//// Create variables
 		//MPVariable* const Q1 = solver->MakeIntVar(0.0, balance / p1, "Q1");
@@ -86,13 +86,13 @@ namespace lmh {
 	void Floored::optimize()
 	{
 		// This algorithm computes the ideal quantity by simply
-		// flooring the floating computation.
+		// flooring the doubleing computation.
 		// This solution has seemingly adequate results but tends
 		// to underuse the investment available
 
-		const float& investment = result_.investment();
-		float& cash = result_.cash_;
-		float& openPosition = result_.openPosition_;
+		const double& investment = result_.investment();
+		double& cash = result_.cash_;
+		double& openPosition = result_.openPosition_;
 
 		// Fill ideal quantities
 		std::for_each(std::begin(result_.data_), std::end(result_.data_),
@@ -103,7 +103,7 @@ namespace lmh {
 		);
 
 		// Fill real quantities
-		openPosition = 0.0f;
+		openPosition = 0.0;
 		std::for_each(std::begin(result_.data_), std::end(result_.data_),
 			[&openPosition, investment](auto& d)
 			{
@@ -121,7 +121,7 @@ namespace lmh {
 				openPosition += d.realQuantity_ * d.price_;
 			}
 		);
-		REQUIRE(openPosition > 0.0f, "open position is not positive");
+		REQUIRE(openPosition > 0.0, "open position is not positive");
 
 		// Fill real weights
 		std::for_each(std::begin(result_.data_), std::end(result_.data_),

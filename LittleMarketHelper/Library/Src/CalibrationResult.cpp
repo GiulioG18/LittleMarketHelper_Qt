@@ -1,37 +1,43 @@
 
 #include <algorithm>
 
-#include "CalibrationResult.h"
-#include "Security.h"
 #include "Utils/Assertions.h"
+#include "CalibrationResult.h"
 
 
 namespace lmh {
 
-	bool CalibrationResult::initialize(const WeightsMap& wm, float investment, Tradeset* tradeset)
+	CalibrationResult::CalibrationResult(Currency::Type ccy)
+		: 
+		ccy_(ccy),
+		investment_(0.0),
+		openPosition_(0.0),
+		cash_(0.0),
+		initialized_(false)
+	{
+	}
+
+	bool CalibrationResult::initialize(const WeightsMap& wm, double investment, const std::set<std::shared_ptr<WSecurity>, WSecurity::Comp>& securities)
 	{
 		if (initialized_)
 			return true;
 
-		// Initialize data
-		if (wm.empty())
-			return false;
 		data_.reserve(wm.size());
 		for (const auto& isinWeight : wm)
 		{
 			const std::string& isin = isinWeight.first;
-			const float& weight = isinWeight.second;
+			const double& weight = isinWeight.second;
 
 			// Extract price
-			const auto& it = tradeset->find(isin);
-			ASSERT(it != tradeset->get().end(), "trades-inputs mismatch");
-			float price = it->first->price();
-			ASSERT(Security::validatePrice(price), "not valid price");
+			const auto& it = securities.find(isin);
+			ASSERT(it != securities.end(), "security-input mismatch");			
+			double price = it->get()->quote().price().value();
+			ASSERT(price > 0.0, "invalid price");
 
 			// Create datum from weight map entry
 			data_.emplace_back(
 				isin, price, weight,
-				0, 0.0f, 0
+				0, 0.0, 0
 			);
 		}
 
@@ -39,7 +45,7 @@ namespace lmh {
 		investment_ = investment;
 
 		initialized_ = true;
-		return true;
+		return initialized_;
 	}
 
 	void CalibrationResult::partialReset()
@@ -55,28 +61,36 @@ namespace lmh {
 		);
 
 		// Reset cash, open position
-		cash_ = openPosition_ = 0.0f;
+		cash_ = openPosition_ = 0.0;
 	}
 
+	// TODO: review this function. it seems that if no optimization is run
+	// then the Data validation is still successful.. is this behaviour wanted?
 	bool CalibrationResult::validate() const
 	{
 		ASSERT(initialized_, "un-initialized results");
 
-		// Data
+		// Data validation
 		bool validated = true;
-		std::for_each(std::begin(data_), std::end(data_), 
-			[&validated](const CalibrationResult::Datum& d)
+		double realSum = 0.0;
+		double idealSum = 0.0;
+		for (const auto& datum : data_)
+		{
+			if (!datum.validate())
 			{
-				if (!d.validate())
-					validated = false;
+				validated = false;
+				break;
 			}
-		);
-		if (!validated)
+
+			idealSum += datum.idealWeight();
+			realSum += datum.realWeight();
+		}
+		if (!validated || idealSum - 1.0 > DBL_EPSILON || realSum - 1.0 > DBL_EPSILON)
 			return false;
 
-		// Investment, cash, open position
-		ENSURE(openPosition_ == investment_ - cash_,
-			"open position is incorrect");
+		// Investment, cash, open position validation
+		if (openPosition_ != investment_ - cash_) // TODO: floating point comparison should use closeEnough
+			return false;
 		if (investment_ < 0 ||
 			cash_ < 0 || 
 			openPosition_ < 0)
@@ -89,10 +103,10 @@ namespace lmh {
 
 	CalibrationResult::Datum::Datum(
 		std::string name,
-		float price,
-		float idealWeight,
+		double price,
+		double idealWeight,
 		int idealQuantity,
-		float realWeight,
+		double realWeight,
 		int realQuantity)
 		:
 		name_(name), price_(price),
@@ -105,14 +119,14 @@ namespace lmh {
 	{
 		return
 			idealQuantity_ >= 0 &&
-			(realWeight_ >= 0 || realWeight_ <= 1) &&
+			(realWeight_ >= 0.0 || realWeight_ <= 1.0) &&
 			realQuantity_ >= 0;
 	}
 
 	void CalibrationResult::Datum::partialReset()
 	{
 		idealQuantity_ = 0;
-		realWeight_ = 0.0f;
+		realWeight_ = 0.0;
 		realQuantity_ = 0;
 	}
 

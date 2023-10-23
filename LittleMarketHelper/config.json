@@ -5,7 +5,17 @@
   },
   "settings": {
     "portfolio": {
-      "multiCcy": false
+      "allowMultiCurrency": false
+    },
+    "quote": {
+      "prudentCheck": {
+        "active": false,
+        "acceptanceThresholdPerc": false,
+        "hoursBeforeExpiry": 2
+      }
+    },
+    "exchangeRate": {
+      "baseCurrency": "EUR"
     }
   },
   "logger": {
@@ -23,23 +33,57 @@
     }
   },
   "httpRequest": {
-    "get": {
-      "price": {
+    "quoteByFullTicker": {
+      "yahooFinance": [
+        {
+          "method": "get",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/%%%PLACEHOLDER%%%",
+          "key": {
+            "price": "regularMarketPrice",
+            "ccy": "currency",
+            "timestamp": "regularMarketTime"
+          }
+        },
+        {
+          "method": "get",
+          "url": "https://query1.finance.yahoo.com/v7/finance/chart/%%%PLACEHOLDER%%%",
+          "key": {
+            "price": "regularMarketPrice",
+            "ccy": "currency",
+            "timestamp": "regularMarketTime"
+          }
+        }
+      ]
+    },
+    "exchangeRate": {
+      "er": {
+        "method": "get",
         "url": "https://query1.finance.yahoo.com/v8/finance/chart/%%%PLACEHOLDER%%%",
-        "key1": "regularMarketPrice",
-        "key2": "currency"
+        "key": {
+
+        }
       },
-      "exchangeRate": {
-        "url": "",
-        "key": ""
+      "ahmed": {
+        "method": "get",
+        "url": "https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/%%%PLACEHOLDER%%%.json",
+        "key": {
+
+        }
       }
     },
-    "post": {
-      "ticker": {
+    "tickerByIsin": {
+      "openFigi": {
+        "method": "post",
         "url": "https://api.openfigi.com/v3/mapping",
         "data": "[{\"idType\":\"ID_ISIN\",\"idValue\":\"%%%PLACEHOLDER%%%\"}]",
-        "key": ""
+        "key": {
+          "ticker": "ticker",
+          "exchange": "exchCode"
+        }
       }
+    },
+    "connectionTest": {
+      "url": "www.google.com"
     }
   }
 }

@@ -30,18 +30,20 @@ Set(SRC
 	Src/ReportParser.cpp
 	Src/DegiroReportParser.cpp
 	Src/Weight.cpp
-	Src/Tradeset.cpp
+	Src/WeightedSecurity.cpp
 	Src/Calibrator.cpp
 	Src/CalibrationResult.cpp
 	Src/Optimizers.cpp
 	Src/ExchangeRate.cpp
-	Src/ConfigRequest.cpp
 	Src/TickersGenerator.cpp
+	Src/Currency.cpp
 	Src/Utils/Errors.cpp
 	Src/Utils/Logger.cpp
-	Src/Utils/Curl.cpp
 	Src/Utils/Json.cpp
-	Src/Patterns/Observable.cpp
+	Src/Patterns/Observable.cpp	
+	Src/Http/Curl.cpp
+	Src/Http/ConfigRequest.cpp
+	Src/Http/Api.cpp
 )
 
 # Header files
@@ -52,16 +54,18 @@ Set(HEADER
 	Header/Security.h
 	Header/Portfolio.h
 	Header/ReportParser.h
-	Header/Tradeset.h
+	Header/WeightedSecurity.h
 	Header/Weight.h
 	Header/Calibrator.h
 	Header/CalibrationResult.h
 	Header/Optimizers.h
 	Header/ExchangeRate.h
 	Header/PortfolioUtilities.h
-	Header/ConfigRequest.h
 	Header/Config.h
 	Header/TickersGenerator.h
+	Header/Quote.h
+	Header/Price.h
+	Header/Cash.h
 	Header/Utils/Assertions.h
 	Header/Utils/Environment.h
 	Header/Utils/Errors.h
@@ -69,11 +73,14 @@ Set(HEADER
 	Header/Utils/File.h
 	Header/Utils/StatusCode.h
 	Header/Utils/Warnings.h
-	Header/Utils/Curl.h
 	Header/Utils/Json.h
+	Header/Utils/Cache.h
 	Header/Patterns/LazyObject.h
 	Header/Patterns/Observable.h
 	Header/Patterns/Singleton.h
+	Header/Http/Curl.h
+	Header/Http/ConfigRequest.h
+	Header/Http/Api.h
 )
 
 Add_Library(LittleMarketHelper STATIC

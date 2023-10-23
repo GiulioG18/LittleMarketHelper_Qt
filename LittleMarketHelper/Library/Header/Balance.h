@@ -1,19 +1,19 @@
 // ========================================================================
-//		Portfolio balance
+//		Generic balance
 // ========================================================================
 
 #pragma once
 
 #include <memory>
 
-#include "Currency.h"
 #include "Patterns/Observable.h"
+#include "Utils/StatusCode.h"
+#include "Currency.h"
+#include "WeightedSecurity.h"
+#include "Price.h"
 
 
 namespace lmh {
-
-	// Forward declarations
-	class Tradeset;
 
 
 	class Balance : 
@@ -22,25 +22,33 @@ namespace lmh {
 	{
 	public:
 
-		Balance(Currency ccy, std::shared_ptr<Tradeset> trades);
+		using Ccy = Currency::Type;
+		using SecurityPtrSet = std::set<std::shared_ptr<WSecurity>, WSecurity::Comp>;
+
+	public:
+
+		Balance(Ccy ccy);
 
 		// Non-const methods
 		void update() override;
-		void clear();
 
 		// Const methods
-		inline float value() const;
+		Status registerSecurity(std::shared_ptr<WSecurity> security);
+		Status unregisterSecurity(const std::string& isin);
+
+		// Getters
+		inline const Price& price() const;
+		inline const SecurityPtrSet& securities() const;
 
 	private:
 
-		float value_;
-		Currency ccy_;		
-		std::shared_ptr<Tradeset> trades_;	// Observed
+		Price price_;
+		SecurityPtrSet securities_; // Observed
 	};
 
 
 	// Inline definitions
-
-	inline float Balance::value() const { return value_; }
+	inline const Price& Balance::price() const { return price_; }
+	inline const Balance::SecurityPtrSet& Balance::securities() const { return securities_; }
 
 }

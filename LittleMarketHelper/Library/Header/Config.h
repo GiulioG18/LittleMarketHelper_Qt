@@ -8,6 +8,7 @@
 
 #include <string>
 
+#include "Utils/Assertions.h"
 #include "Patterns/Singleton.h"
 #include "Utils/StatusCode.h"
 #include "Utils/Json.h"
@@ -17,6 +18,10 @@ namespace pt = boost::property_tree;
 namespace fs = std::filesystem;
 
 namespace lmh {
+
+
+	// Configuration file for LMH
+	// NB: MUST be initialized (only once) at application start!!
 
 	class Config : public Singleton<Config>
 	{
@@ -28,11 +33,12 @@ namespace lmh {
 
 	public:
 
-		inline static LmhStatus initialize(const std::string& filename);
-		inline bool initialized() const;
+		inline static Status initialize(const std::string& filename);
 
-		template<typename Type>
-		std::optional<Type> read(const std::string& path) const;
+		// Assumes a const config file (it will throw if read value is not convertible into Type)
+		template<typename Type>	static Type read(const std::string& path);
+		static auto getChild(const std::string& path);
+		
 
 	private:
 
@@ -42,39 +48,44 @@ namespace lmh {
 
 	// Inline definitions
 
-	inline bool Config::initialized() const { return json_.initialized(); }
-
-	inline LmhStatus Config::initialize(const std::string& filename)
+	inline Status Config::initialize(const std::string& filename)
 	{
 		Config& c = Config::instance();
 
 		// Check if already initialized
-		if (c.initialized())
-			return LmhStatus::CONFIG_ALREADY_INITIALIZED;
+		if (c.json_.initialized())
+			return Status::CONFIG_ALREADY_INITIALIZED;
 
 		// Open file
 		const std::ifstream stream(filename);
 		if (!stream.is_open())
-			return LmhStatus::FILE_NOT_OPEN;
+			return Status::FILE_NOT_OPEN;
 
 		// try to parse it
 		return c.json_.parse(filename);
 	}
 
+	inline auto Config::getChild(const std::string& path)
+	{
+		return Config::instance().json_.tree().get_child(path);
+	}
+
 
 	// Template definitions
-
 	template<typename Type>
-	inline std::optional<Type> Config::read(const std::string& path) const
+	inline Type Config::read(const std::string& path)
 	{
+		Config& c = Config::instance();
+
+		REQUIRE(c.json_.initialized(), "config file not initialized");
+
 		try
 		{
-			Type value = json_.tree().get<Type>(path);
-			return std::make_optional(value);
+			return c.json_.tree().get<Type>(path);
 		}
 		catch (...)
 		{
-			return std::nullopt;
+			FAIL("can't read config file value");
 		}
 	}
 

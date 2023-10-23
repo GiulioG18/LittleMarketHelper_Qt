@@ -24,8 +24,12 @@ namespace lmh {
 		using ObserverSet = std::set<Observer*>;
 		using Iterator = ObserverSet::iterator;
 
+		// NB: observables should be instantiated as shared_ptr to be aligned with
+		//     observer's registerWith method signature
+
 	public:
 
+		// Move semantics are disabled
 		Observable() = default;
 		// NB: the observer set is not copied: observers must
 		// explicitely register with the copy
@@ -57,7 +61,8 @@ namespace lmh {
 		using Iterator = ObservableType::iterator;
 
 	public:
-
+		
+		// Move semantics are disabled
 		Observer() = default;
 		Observer(const Observer& other);
 		Observer& operator=(const Observer& other);

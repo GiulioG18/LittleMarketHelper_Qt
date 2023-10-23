@@ -17,7 +17,7 @@ namespace lmh{
 
 	// This class generates a map of ticker and exchange codes
 	// from a response of a FIGI request
-	class FigiAPI
+	class Figi
 	{
 	public:
 
@@ -26,9 +26,9 @@ namespace lmh{
 
 	public:
 
-		FigiAPI() = default;
+		Figi() = default;
 
-		LmhStatus generateTickers();
+		Status generateTickers();
 
 		// Getters
 		inline std::string response() const;
@@ -36,7 +36,7 @@ namespace lmh{
 
 	public:
 
-		LmhStatus parse(const std::string& response);
+		Status parse(const std::string& response);
 
 	private:
 
@@ -47,7 +47,7 @@ namespace lmh{
 
 
 	// Inline definitions
-	inline std::string FigiAPI::response() const { return response_; };
-	inline FigiAPI::TickersMap FigiAPI::tickers() const { return tickers_; };
+	inline std::string Figi::response() const { return response_; };
+	inline Figi::TickersMap Figi::tickers() const { return tickers_; };
 
 }
