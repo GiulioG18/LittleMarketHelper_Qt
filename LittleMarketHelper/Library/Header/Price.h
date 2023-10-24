@@ -7,7 +7,6 @@
 #include "Utils/Assertions.h"
 #include "Currency.h"
 
-// TODO: move definitions
 // TODO: naming is a bit inconsistent throughout the whole library...
 
 namespace lmh {

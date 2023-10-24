@@ -7,7 +7,7 @@
 
 namespace lmh {
 
-	// Helper function for binary operators among Price objects
+	// Helper function for binary operators between 2 Prices
 	template<typename Op>
 	Price binaryPriceOp(const Price& first, const Price& second)
 	{
@@ -21,7 +21,7 @@ namespace lmh {
 		else
 		{
 			// Translate the second price into the first currency
-			Price secondConverted = ExchangeRateRepository::get().convertPrice(second, first.ccy());
+			Price secondConverted = ExchangeRateRepository::get().convert(second, first.ccy());
 			v = op(first.value(), secondConverted.value());
 		}
 
@@ -39,6 +39,9 @@ namespace lmh {
 		return { price.ccy(), op(price.value(), d) };
 	}
 
+
+	// Price
+
 	Price::Price(Ccy ccy, double value)
 		: ccy_(ccy), value_(value)
 	{
@@ -54,7 +57,6 @@ namespace lmh {
 			value_ = amount;
 	}
 
-	// Operators [ MAY THROW ]
 	Price Price::operator+(const Price& other) const
 	{
 		return binaryPriceOp<std::plus<double>>(*this, other);
@@ -87,15 +89,16 @@ namespace lmh {
 
 	Price& Price::operator+=(const Price& other)
 	{
+		// TODO: modify the Price-Price binary fun helper to be used also in these operators
 		if (this->ccy_ == other.ccy_)
 		{
 			this->value_ += other.value_;
 		}
 		else
 		{
-			// Translate the second price into the first currency
-			/*double eq = ExchangeRateRepository::convertPrice(other, this->ccy());
-			this->value_ += eq;*/
+			// Translate the other price into this price's currency			
+			Price otherConverted = ExchangeRateRepository::get().convert(other, this->ccy());
+			this->value_ += otherConverted.value();
 		}
 
 		ENSURE(this->value_ >= 0, "invalid value");

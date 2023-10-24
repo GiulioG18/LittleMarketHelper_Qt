@@ -38,6 +38,7 @@ Set(SRC
 	Src/TickersGenerator.cpp
 	Src/Currency.cpp
 	Src/Price.cpp
+	Src/Quote.cpp
 	Src/Utils/Errors.cpp
 	Src/Utils/Logger.cpp
 	Src/Utils/Json.cpp

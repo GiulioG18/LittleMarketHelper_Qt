@@ -28,7 +28,7 @@ namespace lmh {
 		// TODO: register exchange rates
 	}
 
-	Price ExchangeRateRepository::convertPrice(const Price& price, Currency::Type ccy)
+	Price ExchangeRateRepository::convert(const Price& price, Currency::Type ccy)
 	{
 		double out = 0.0;
 		const Currency::Type& xxx = price.ccy();

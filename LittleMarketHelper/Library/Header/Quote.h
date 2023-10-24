@@ -6,50 +6,35 @@
 #pragma once
 
 #include "Utils/Assertions.h"
-#include "Http/ConfigRequest.h"
 #include "Price.h"
 
-// TODO: move definitions to cpp file
 
 namespace lmh {
-
-	// Forward declarations
-	class Security;
-
 
 	class Quote 
 	{
 	public:
 
 		// Constructor [ MAY THROW ]
-		Quote(const Price& price, double timestamp)
-			:
-			price_(price),
-			timestamp_(timestamp)
-		{
-		}		
+		Quote(const Price& price, double timestamp);
 
 		// Setters [ MAY THROW ]
-		inline void setValue(double amount)
-		{
-			price_.set(amount);
-		}
+		inline void setValue(double amount);
 
 		// Getters
-		inline const Price& price() const
-		{
-			return price_;
-		}
-
-		inline double timestamp() const
-		{
-			return timestamp_;
-		}
+		inline const Price& price() const;
+		inline double timestamp() const;
 
 	private:
 
 		Price price_;
 		double timestamp_; // Const // TODO: Find appropriate type
 	};
+
+
+	// Inline definitions
+	inline void Quote::setValue(double amount) { price_.set(amount); }
+	inline const Price& Quote::price() const { return price_; }
+	inline double Quote::timestamp() const { return timestamp_; }
 
 }

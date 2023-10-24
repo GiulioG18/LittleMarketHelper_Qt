@@ -50,7 +50,7 @@ namespace lmh {
 
 		ExchangeRateRepository();
 
-		Price convertPrice(const Price& price, Currency::Type ccy);
+		Price convert(const Price& price, Currency::Type ccy);
 		std::string denomination(Currency::Type xxx, Currency::Type yyy) const;
 		bool isAvailable(Currency::Type xxx) const;
 
