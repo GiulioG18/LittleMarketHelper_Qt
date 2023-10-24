@@ -30,18 +30,18 @@ namespace lmh {
 		}		
 
 		// Setters [ MAY THROW ]
-		void setValue(double amount)
+		inline void setValue(double amount)
 		{
 			price_.set(amount);
 		}
 
 		// Getters
-		const Price& price() const
+		inline const Price& price() const
 		{
 			return price_;
 		}
 
-		double timestamp() const
+		inline double timestamp() const
 		{
 			return timestamp_;
 		}

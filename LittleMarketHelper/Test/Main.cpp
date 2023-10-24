@@ -14,6 +14,7 @@
 #include "Config.h"
 #include "Http/ConfigRequest.h"
 #include "TickersGenerator.h"
+#include "Cash.h"
 
 #include <fstream>
 #include <iostream>
@@ -48,6 +49,10 @@ using namespace lmh;
 // . create repository and initialize it!
 // 
 // . create some global initialize function for the app
+//		- Config
+//		- Curl
+//		- ExchangeRateRepository
+//		- Logger
 // 
 // . check for all class
 //		- copy/move ctor, copy/move operator
@@ -81,7 +86,7 @@ int main()
 		Status status = Status::SUCCESS;
 
 		// Init config
-		Config& config = Config::instance();
+		Config& config = Config::get();
 		fs::path configFile{ "D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\config.json" };
 		status = config.initialize(configFile.string());
 		if (status != Status::SUCCESS)
@@ -105,7 +110,7 @@ int main()
 		LMH_WARNING("this is a warning");
 		LMH_ERROR("this is an error");
 
-		Curl& curl = Curl::instance();
+		Curl& curl = Curl::get();
 		curl.initialize();
 		auto ic = curl.GETRequest("https://papi-pornstarsapi.p.rapidapi.com/pornstars/");
 		auto ec = curl.GETRequest("https://query1.finance.yahoo.com/v8/finance/chart/AMZN");
@@ -150,6 +155,25 @@ int main()
 		portfolio->removeSecurity("IE00BJ38QD84");
 		std::cout << portfolio->openPosition()->price().value() << std::endl;
 		//portfolio->edit<EditTrade::Type::CURRENCY>("123451234511", Currency::Type::EUR);
+
+
+		auto cash0 = std::make_shared<Cash>(Currency::Type::EUR, 999.99);
+		auto cash1 = std::make_shared<Cash>(Currency::Type::EUR, 0.0);
+		auto cash2 = std::make_shared<Cash>(Currency::Type::CHF, 140000.3);
+		auto cashWrong = std::make_shared<Cash>(Currency::Type::CHF, 124);
+
+		portfolio->addCash(*cash0);
+		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		std::cout << portfolio->value().value() << std::endl;
+		portfolio->addCash(*cash1);
+		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		std::cout << portfolio->value().value() << std::endl;
+		portfolio->addCash(*cash2);
+		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		std::cout << portfolio->value().value() << std::endl;
+		portfolio->addCash(*cashWrong);
+		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		std::cout << portfolio->value().value() << std::endl;
 		
 		// When parsing from inside Portfolio we should think 
 		// of catching validate user input exception

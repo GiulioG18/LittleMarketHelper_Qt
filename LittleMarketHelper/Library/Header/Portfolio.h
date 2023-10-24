@@ -22,7 +22,7 @@ namespace lmh {
 	{
 	public:
 
-		using CashPtrSet = std::set<std::shared_ptr<Cash>, Cash::Comp>;
+		using CashSet = std::set<Cash, Cash::Comp>;
 		using SecurityPtrSet = std::set<std::shared_ptr<WSecurity>, WSecurity::Comp>;
 
 	public:
@@ -31,6 +31,7 @@ namespace lmh {
 
 		// Non-const methods
 		Status addCash(const Cash& cash);
+		Status removeCash(Currency::Type ccy);
 		Status addSecurity(const Security& security);
 		Status removeSecurity(const std::string& isin);
 		Status reset(Balance::Ccy ccy);
@@ -43,7 +44,7 @@ namespace lmh {
 
 		// Getters
 		inline const std::shared_ptr<Balance>& openPosition() const;
-		inline const CashPtrSet& cash() const;
+		inline const CashSet& cash() const;
 		inline const SecurityPtrSet& securities() const;
 
 	private:
@@ -55,14 +56,14 @@ namespace lmh {
 	private:
 
 		std::shared_ptr<Balance> openPosition_;
-		CashPtrSet cash_;
+		CashSet cash_;
 		SecurityPtrSet securities_;
 	};
 
 
 	// Inline definitions
 	inline const std::shared_ptr<Balance>& Portfolio::openPosition() const { return openPosition_; }
-	inline const Portfolio::CashPtrSet& Portfolio::cash() const { return cash_; }
+	inline const Portfolio::CashSet& Portfolio::cash() const { return cash_; }
 	inline const Portfolio::SecurityPtrSet& Portfolio::securities() const { return securities_; }
 
 

@@ -50,7 +50,7 @@ namespace lmh {
 
 	inline Status Config::initialize(const std::string& filename)
 	{
-		Config& c = Config::instance();
+		Config& c = Config::get();
 
 		// Check if already initialized
 		if (c.json_.initialized())
@@ -67,7 +67,7 @@ namespace lmh {
 
 	inline auto Config::getChild(const std::string& path)
 	{
-		return Config::instance().json_.tree().get_child(path);
+		return Config::get().json_.tree().get_child(path);
 	}
 
 
@@ -75,7 +75,7 @@ namespace lmh {
 	template<typename Type>
 	inline Type Config::read(const std::string& path)
 	{
-		Config& c = Config::instance();
+		Config& c = Config::get();
 
 		REQUIRE(c.json_.initialized(), "config file not initialized");
 

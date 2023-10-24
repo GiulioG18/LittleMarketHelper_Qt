@@ -4,9 +4,6 @@
     "description": ""
   },
   "settings": {
-    "portfolio": {
-      "allowMultiCurrency": false
-    },
     "quote": {
       "prudentCheck": {
         "active": false,

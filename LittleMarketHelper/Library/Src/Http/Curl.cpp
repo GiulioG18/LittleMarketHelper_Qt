@@ -50,7 +50,7 @@ namespace lmh {
 
 	Status Curl::initialize(long flag) // TODO: check what happens when there is no connection
 	{
-		Curl& curl = Curl::instance();
+		Curl& curl = Curl::get();
 		if (curl.initialized_)
 			return Status::CURL_ALREADY_INITIALIZED;
 		
@@ -79,7 +79,7 @@ namespace lmh {
 
 	bool Curl::checkNetworkConnection()
 	{
-		Curl& c = Curl::instance();
+		Curl& c = Curl::get();
 
 		if (!c.initialized())
 			return false;

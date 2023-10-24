@@ -17,8 +17,22 @@ namespace lmh {
 
 	Status Portfolio::addCash(const Cash& cash)
 	{
-		// TODO: implement
-		return Status();
+		auto insertion = cash_.insert(cash);
+		if (!insertion.second)
+			return Status::CASH_DUPLICATE_NOT_INSERTED;
+		
+		return Status::SUCCESS;
+	}
+
+	Status Portfolio::removeCash(Currency::Type ccy)
+	{
+		auto it = cash_.find(ccy);
+		if (it == cash_.end())
+			return Status::CASH_NOT_FOUND;
+
+		cash_.erase(it);
+
+		return Status::SUCCESS;
 	}
 
 	Status Portfolio::addSecurity(const Security& security)
@@ -27,7 +41,7 @@ namespace lmh {
 		auto wSecurity = std::make_shared<WSecurity>(security, openPosition_);
 
 		// Move it into the portfolio's security set
-		auto insertion = securities_.insert(std::move(wSecurity)); // TODO: check that openPosition is observing wSecurity (the shared ptr is copied...)
+		auto insertion = securities_.insert(std::move(wSecurity));
 		if (!insertion.second)
 			return Status::TRADE_DUPLICATE_NOT_INSERTED;
 
@@ -77,7 +91,7 @@ namespace lmh {
 		Price p = openPosition_->price();
 		for (const auto& cash : cash_)
 		{
-			p += cash->price();
+			p += cash.price();
 		}
 
 		return p;

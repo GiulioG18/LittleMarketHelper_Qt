@@ -36,9 +36,9 @@ namespace lmh {
 		// Transparent comparator
 		using is_transparent = void;
 
-		bool operator()(const std::shared_ptr<WSecurity> first,		const std::shared_ptr<WSecurity>& second)	const;
-		bool operator()(const std::string& first,					const std::shared_ptr<WSecurity>& second)	const;
-		bool operator()(const std::shared_ptr<WSecurity>& first,	const std::string& second)					const;
+		bool operator()(const std::shared_ptr<WSecurity>	first,	const std::shared_ptr<WSecurity>&	second)	const;
+		bool operator()(const std::string&					first,	const std::shared_ptr<WSecurity>&	second)	const;
+		bool operator()(const std::shared_ptr<WSecurity>&	first,	const std::string&					second)	const;
 	};
 
 

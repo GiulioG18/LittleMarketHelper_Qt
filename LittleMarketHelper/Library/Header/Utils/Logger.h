@@ -30,10 +30,10 @@
 #define LOG_ERROR_MSG				"[ ERROR   ]:	"
 
 // Logging macro meant to be used in Status
-#define LMH_DEBUG(x) lmh::Logger::instance().log<LOG_LEVEL_DEBUG>((x));
-#define LMH_INFO(x) lmh::Logger::instance().log<LOG_LEVEL_INFO>((x));
-#define LMH_WARNING(x) lmh::Logger::instance().log<LOG_LEVEL_WARNING>((x));
-#define LMH_ERROR(x) lmh::Logger::instance().log<LOG_LEVEL_ERROR>((x));
+#define LMH_DEBUG(x) lmh::Logger::get().log<LOG_LEVEL_DEBUG>((x));
+#define LMH_INFO(x) lmh::Logger::get().log<LOG_LEVEL_INFO>((x));
+#define LMH_WARNING(x) lmh::Logger::get().log<LOG_LEVEL_WARNING>((x));
+#define LMH_ERROR(x) lmh::Logger::get().log<LOG_LEVEL_ERROR>((x));
 
 using LogLevel = unsigned int;
 namespace fs = std::filesystem;

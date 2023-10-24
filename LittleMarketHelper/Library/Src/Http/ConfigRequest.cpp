@@ -32,13 +32,13 @@ namespace lmh {
 			if (stats_.method_ == "get")
 			{
 				replacePlaceholder(stats_.url_, filler);
-				status = Curl::instance().GETRequest(stats_.url_);
+				status = Curl::get().GETRequest(stats_.url_);
 			}
 			else if (stats_.method_ == "post")
 			{
 				std::string data = api.second.get<std::string>("data");
 				replacePlaceholder(data, filler);
-				status = Curl::instance().POSTRequest(stats_.url_, data);
+				status = Curl::get().POSTRequest(stats_.url_, data);
 			}
 			else
 				FAIL("unknown method");
@@ -48,7 +48,7 @@ namespace lmh {
 
 			// Check response format is valid JSON
 			std::stringstream ss;
-			ss << Curl::instance().response();
+			ss << Curl::get().response();
 			status = response_.parse(ss);
 			if (status != Status::SUCCESS)	// TODO: create macro to do something on return on error
 				break;
@@ -97,12 +97,12 @@ namespace lmh {
 	std::string ConfigRequest::GET(const std::string& type, const std::string& urlPlaceholder, Status* ec)
 	{
 		// Config must be initialized
-		Config& config = Config::instance();
+		Config& config = Config::get();
 		if (!config.initialized())
 			*ec = Status::CONFIG_NOT_INITIALIZED;
 
 		// Curl must be initialized
-		Curl& curl = Curl::instance();
+		Curl& curl = Curl::get();
 		if (!curl.initialized())
 			*ec = Status::CURL_NOT_INITIALIZED;
 
@@ -130,12 +130,12 @@ namespace lmh {
 	std::string ConfigRequest::POST(const std::string& what, const std::string& dataPlaceholder, Status* ec)
 	{
 		// Config must be initialized
-		Config& config = Config::instance();
+		Config& config = Config::get();
 		if (!config.initialized())
 			*ec = Status::CONFIG_NOT_INITIALIZED;
 
 		// Curl must be initialized
-		Curl& curl = Curl::instance();
+		Curl& curl = Curl::get();
 		if (!curl.initialized())
 			*ec = Status::CURL_NOT_INITIALIZED;
 

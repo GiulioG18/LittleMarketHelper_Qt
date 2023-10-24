@@ -4,20 +4,41 @@
 
 namespace lmh {
 
-	const std::map<Currency::Type, std::string> Currency::_typeMap =
+	static const std::map<Currency::Type, std::string> _currencyStringMap =
 	{
-		{Type::EUR, "EUR"},
-		{Type::USD, "USD"},
-		{Type::GBP, "GBP"},
-		{Type::GBp, "GBp"},
-		{Type::JPY, "JPY"},
-		{Type::CHF, "CHF"},
-		{Type::AUD, "AUD"},
-		{Type::CAD, "CAD"},
-		{Type::CNY, "CNY"},
-		{Type::HKD, "HKD"},
-		{Type::SEK, "SEK"},
-		{Type::BZR, "BZR"},
+		{Currency::Type::EUR, "EUR"},
+		{Currency::Type::USD, "USD"},
+		{Currency::Type::GBP, "GBP"},
+		{Currency::Type::GBp, "GBp"},
+		{Currency::Type::JPY, "JPY"},
+		{Currency::Type::CHF, "CHF"},
+		{Currency::Type::AUD, "AUD"},
+		{Currency::Type::CAD, "CAD"},
+		{Currency::Type::CNY, "CNY"},
+		{Currency::Type::HKD, "HKD"},
+		{Currency::Type::SEK, "SEK"},
+		{Currency::Type::BZR, "BZR"},
 	};
+
+	std::optional<Currency::Type> Currency::fromString(const std::string& ccyStr)
+	{
+		std::optional<Type> ccy = std::nullopt;
+
+		for (const auto& keyValue : _currencyStringMap)
+		{
+			if (keyValue.second == ccyStr)
+			{
+				ccy = keyValue.first;
+				break;
+			}
+		}
+
+		return ccy;
+	}
+
+	std::string Currency::toString(Type ccy)
+	{
+		return _currencyStringMap.at(ccy);
+	}
 
 }

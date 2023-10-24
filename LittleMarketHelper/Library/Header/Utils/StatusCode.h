@@ -18,8 +18,12 @@ namespace lmh {
 		CURRENCY_NOT_ALLOWED,
 		// The trade was not found
 		TRADE_NOT_FOUND,
+		// Cash was not found
+		CASH_NOT_FOUND,
 		// The trade was a duplicate
 		TRADE_DUPLICATE_NOT_INSERTED,
+		// Cash with same currency already exists
+		CASH_DUPLICATE_NOT_INSERTED,
 		// Invalid input for current function
 		INVALID_INPUT,
 		// File did not open correctly

@@ -37,6 +37,7 @@ Set(SRC
 	Src/ExchangeRate.cpp
 	Src/TickersGenerator.cpp
 	Src/Currency.cpp
+	Src/Price.cpp
 	Src/Utils/Errors.cpp
 	Src/Utils/Logger.cpp
 	Src/Utils/Json.cpp

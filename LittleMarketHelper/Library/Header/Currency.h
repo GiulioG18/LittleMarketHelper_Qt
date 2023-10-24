@@ -33,29 +33,8 @@ namespace lmh {
 			BZR
 		};
 
-		static inline std::optional<Type> get(const std::string& ccyStr);
-
-	public:
-
-		static const std::map<Type, std::string> _typeMap;
+		static std::optional<Type> fromString(const std::string& ccyStr);
+		static std::string toString(Type ccy);
 	};
-
-	// Inline definitions
-
-	inline std::optional<Currency::Type> Currency::get(const std::string& ccyStr)
-	{
-		std::optional<Type> ccy = std::nullopt;
-
-		for (const auto& keyValue : _typeMap)
-		{
-			if (keyValue.second == ccyStr)
-			{
-				ccy = keyValue.first;
-				break;
-			}
-		}
-
-		return ccy;
-	}
 
 }

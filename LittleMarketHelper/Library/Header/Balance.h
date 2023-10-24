@@ -42,6 +42,10 @@ namespace lmh {
 
 	private:
 
+		void computePrice();
+
+	private:
+
 		Price price_;
 		SecurityPtrSet securities_; // Observed
 	};

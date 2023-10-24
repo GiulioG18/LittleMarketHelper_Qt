@@ -11,5 +11,5 @@ namespace lmh {
 
 
 	// Static definitions
-	//auto OpenFigiApi::figiRequests_ = std::make_unique<FIFOCache<std::string, Json>>();
+	//auto OpenFigiApi::figiRequests_ = std::make_unique<FifoCache<std::string, Json>>();
 }

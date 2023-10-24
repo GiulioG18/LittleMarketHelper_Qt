@@ -36,7 +36,7 @@ namespace lmh {
 		Singleton& operator=(Singleton&&) = delete;			// Disable move assignment operator
 		virtual ~Singleton() = default;
 
-		inline static Type& instance()
+		inline static Type& get()
 		{
 			static Type instance;
 			return instance;

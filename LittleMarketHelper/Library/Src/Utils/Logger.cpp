@@ -31,7 +31,7 @@ namespace lmh {
 	Status Logger::initialize(LogLevel logLevel)
 	{
 		// Create the logger in memory
-		Logger& logger = Singleton<Logger>::instance();
+		Logger& logger = Singleton<Logger>::get();
 
 		// Assures log is only initialized once.
 		// This is to ensure that the stream is not redirected midway
@@ -39,7 +39,7 @@ namespace lmh {
 			return Status::LOGGER_ALREADY_INITIALIZED;
 
 		// Initialize folder directory
-		logger.folder_ = Config::instance().read<std::string>("logger.directory");
+		logger.folder_ = Config::get().read<std::string>("logger.directory");
 
 		if (!fs::is_directory(logger.folder_))
 			return Status::INVALID_DIRECTORY;
@@ -68,7 +68,7 @@ namespace lmh {
 			return Status::FILE_NOT_OPEN;	
 
 		// Initialize max log files from config file
-		logger.maxLogFiles_ = Config::instance().read<int>("logger.maxLogFiles");
+		logger.maxLogFiles_ = Config::get().read<int>("logger.maxLogFiles");
 
 		// Finalize
 		logger.writeLogHeader();

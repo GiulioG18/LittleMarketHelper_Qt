@@ -85,18 +85,18 @@ namespace lmh {
 			//std::string figiUrl = Config::read<std::string>("httpRequest.tickerByIsin.openFigi.url");
 			//std::string figiData = Config::read<std::string>("httpRequest.tickerByIsin.openFigi.data");
 			//ConfigRequest::replacePlaceholder(figiData, isin);
-			//*status = Curl::instance().POSTRequest(figiUrl, figiData);
+			//*status = Curl::get().POSTRequest(figiUrl, figiData);
 			//if (*status != Status::SUCCESS)
 			//	return std::nullopt;
 
 			//// Check response format is valid JSON (remove outer square brackets first)
 			//Json response;
 			//std::stringstream ss;
-			//ss << Curl::instance().response();
+			//ss << Curl::get().response();
 			//*status = response.parse(ss);
 			//if (*status != Status::SUCCESS)
 			//	return std::nullopt;
-			////std::cout << Curl::instance().response() << std::endl;
+			////std::cout << Curl::get().response() << std::endl;
 
 			//// Scan JSON for either data or error node
 			//pt::ptree::value_type actual = response.tree().get_

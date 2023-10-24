@@ -84,18 +84,12 @@ namespace lmh {
 			columnStart = columnEnd + 2;	// + 2 since there is a " character before the ,
 			columnEnd = columnStart + 3;	// 3 letter ccy
 			std::string ccyStr = getSection();
-			bool validCcy = false;
-			for (const auto& it : Currency::_typeMap)
+			auto optCcy = Currency::fromString(ccyStr);
+			if (optCcy.has_value())
 			{
-				if (it.second == ccyStr)
-				{
-					ccy = it.first;
-					validCcy = true;
-					break;
-				}
-			}
-
-			if (!validCcy)
+				ccy = optCcy.value();
+			}		
+			else
 			{
 				output.parsedSecurities_.push_back(ReportParser::UncompleteSecurity(isin, name));
 				continue;

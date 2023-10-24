@@ -15,16 +15,7 @@ namespace lmh {
 
 	void Balance::update()
 	{
-		price_.set(0.0);
-
-		std::for_each(std::begin(securities_), std::end(securities_), 
-			[this](auto& security)
-			{
-				ASSERT(security, "invalid security");
-				price_ += security->marketValue();
-			}
-		);
-
+		computePrice();
 		notifyObservers();		
 	}
 
@@ -38,8 +29,7 @@ namespace lmh {
 
 		registerWith(*insertion.first);
 
-		// Force price recalculation
-		update();
+		computePrice(); // Calls notifyObservers();
 
 		return Status::SUCCESS;
 	}
@@ -52,10 +42,24 @@ namespace lmh {
 
 		unregisterWith(*it);
 		securities_.erase(it);
-
-		// Force price recalculation
-		update();
+		
+		computePrice(); // Calls notifyObservers();
 
 		return Status::SUCCESS;
+	}
+
+	void Balance::computePrice()
+	{
+		price_.set(0.0);
+
+		std::for_each(std::begin(securities_), std::end(securities_),
+			[this](auto& security)
+			{
+				ASSERT(security, "invalid security");
+				price_ += security->marketValue();
+			}
+		);
+
+		notifyObservers();
 	}
 }

@@ -4,36 +4,50 @@
 
 #pragma once
 
-#include "Patterns/Observable.h"
 #include "Currency.h"
-
-// TODO: move implementation outside
+#include "Price.h"
 
 
 namespace lmh {
 
-	class Cash : public Observable
+	class Cash
 	{
 	public:
 
 		using Ccy = Currency::Type;
 
-		// This comparison functor serves to not allow multiple cash objects with same 
-		// currency but different values inside a set
-		struct Comp
-		{
-			bool operator()(const std::shared_ptr<Cash>& first, const std::shared_ptr<Cash>& second) const
-			{
-				return first->price_.ccy() < second->price_.ccy();
-			}
-		};
+		struct Comp;
+
+	public:
+
+		// Constructor [ MAY THROW ]
+		Cash(Ccy ccy, double value);
 
 		// Getters
-		inline const Price& price() { return price_; }
+		inline const Price& price() const;
+
+		// Setters
+		inline void setValue(double amount);
 
 	private:
 
 		Price price_;
 	};
 
+	// This comparison functor serves to not allow multiple cash objects with same 
+	// currency but different values inside a set of Cash pointers
+	struct Cash::Comp
+	{
+		// Transparent comparator
+		using is_transparent = void;
+
+		bool operator()(const Cash& first,	const Cash& second) const;
+		bool operator()(const Ccy&	first,	const Cash& second) const;
+		bool operator()(const Cash& first,  const Ccy&	second) const;
+	};
+
+
+	// Inline definitions
+	inline const Price& Cash::price() const { return price_; }
+	inline void Cash::setValue(double amount) { price_.set(amount); }
 }
