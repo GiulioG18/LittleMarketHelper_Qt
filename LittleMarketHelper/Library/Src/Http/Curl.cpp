@@ -18,9 +18,10 @@ static_assert(false, "I had no clue nor interest in linking these libs for other
 
 // Macro to handle Curl errors
 #define RETURN_ON_ERROR_CC(x, err) do {	\
-  CURLcode c = (x);						\
-  if (c != CURLE_OK)					\
+  lastCode_ = (x);						\
+  if (lastCode_ != CURLE_OK)			\
   {										\
+	curl_easy_cleanup(curl);			\
     return err;							\
   }										\
 } while (0)
@@ -48,7 +49,7 @@ namespace lmh {
 		}
 	}
 
-	Status Curl::initialize(long flag) // TODO: check what happens when there is no connection
+	Status Curl::initialize(long flag)
 	{
 		Curl& curl = Curl::get();
 		if (curl.initialized_)
@@ -67,31 +68,34 @@ namespace lmh {
 		// init version
 		curl.version_ = curl_version_info(CURLVERSION_NOW);
 
-
 		// Finalize
 		curl.initialized_ = true;
 		return Status::SUCCESS;
 	}
 
-	std::string Curl::StatusMessage(CURLcode status)
+	std::string Curl::StatusMessage()
 	{
-		return std::string(curl_easy_strerror(status));
+		return std::string(curl_easy_strerror(lastCode_));
 	}
 
-	bool Curl::checkNetworkConnection()
+	Status Curl::checkNetworkConnection()
 	{
 		Curl& c = Curl::get();
 
-		if (!c.initialized())
-			return false;
+		if (!initialized_)
+			return Status::CURL_NOT_INITIALIZED;
 
 		// TODO: use checkConnection api
 		//c.GETRequest(Config::read<std::string>("httpRequest.connectionTest.url"));
-		// TODO: check c.response() to validate or not
+		// TODO: check status--> 		easy_perform returned	CURLE_COULDNT_RESOLVE_HOST (6)	CURLcode
+
 		
-		return false;
+		return Status::SUCCESS;
 	}
 
+	// TODO: really should avoid init a new curl easy handle every single time.
+	//		 gotta make it work by just setting it up once and reusing it with the common options like writefunction and timeout, 
+	//		 while cleaning the rest by setting them to NULL
 	Status Curl::GETRequest(const std::string& url)
 	{
 		if (!initialized_)
@@ -99,8 +103,6 @@ namespace lmh {
 
 		// Clear the response
 		response_.clear();
-
-		CURLcode code;
 
 		CURL* curl;
 		curl = curl_easy_init();
@@ -111,8 +113,11 @@ namespace lmh {
 		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_URL, url.c_str()), Status::CURL_URL_SET_FAILED);
 
 		// Set the callback function to receive the response data
-		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback), Status::CURL_URL_SET_FAILED);
+		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback), Status::CURL_OPT_SET_FAILED);
 		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_), Status::CURL_WRITEDATA_SET_FAILED);
+
+		// Set maximum time to complete the operation to 5 seconds
+		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L), Status::CURL_OPT_SET_FAILED);
 
 		// Perform the HTTP GET request
 		RETURN_ON_ERROR_CC(curl_easy_perform(curl), Status::CURL_PERFORM_FAILED);
@@ -129,8 +134,6 @@ namespace lmh {
 
 		// Clear the response
 		response_.clear();
-
-		CURLcode code;
 
 		CURL* curl;
 		curl = curl_easy_init();
@@ -151,6 +154,9 @@ namespace lmh {
 		// Set the callback function to receive the response data
 		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback), Status::CURL_URL_SET_FAILED);
 		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_), Status::CURL_WRITEDATA_SET_FAILED);
+
+		// Set maximum time to complete the operation to 5 seconds
+		RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L), Status::CURL_OPT_SET_FAILED);
 
 		// Perform the HTTP GET request
 		RETURN_ON_ERROR_CC(curl_easy_perform(curl), Status::CURL_PERFORM_FAILED);

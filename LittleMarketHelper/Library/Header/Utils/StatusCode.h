@@ -60,6 +60,8 @@ namespace lmh {
 		CURL_WRITEFUNCTION_SET_FAILED,
 		// Curl Write data setopt was not successful
 		CURL_WRITEDATA_SET_FAILED,
+		// Curl setopt failed
+		CURL_OPT_SET_FAILED,
 		// Curl perform was not succesfull
 		CURL_PERFORM_FAILED,
 		// Config has not been initialized

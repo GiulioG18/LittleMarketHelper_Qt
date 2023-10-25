@@ -8,6 +8,7 @@
 
 namespace lmh {
 
+	/*
 	ConfigRequest::ConfigRequest(const std::string& type)
 		:
 		path_("httpRequest." + type)
@@ -93,7 +94,6 @@ namespace lmh {
 	}
 
 
-	/*
 	std::string ConfigRequest::GET(const std::string& type, const std::string& urlPlaceholder, Status* ec)
 	{
 		// Config must be initialized

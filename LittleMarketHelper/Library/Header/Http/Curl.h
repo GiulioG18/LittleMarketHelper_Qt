@@ -39,9 +39,9 @@ namespace lmh {
 		// NB: no options are set during initialization
 		static Status initialize(long flag = -1);
 		// Returns string format for CURLcode
-		static std::string StatusMessage(CURLcode status);
+		std::string StatusMessage();
 		// Check network connectivity
-		static bool checkNetworkConnection();
+		Status checkNetworkConnection();
 
 		// Requests (Note that returning SUCCESS does not imply that the response is good)
 		Status GETRequest(const std::string& url);
@@ -56,7 +56,8 @@ namespace lmh {
 
 		bool initialized_ = false;
 		curl_version_info_data* version_ = nullptr;
-		std::string response_;
+		std::string response_ = "";
+		CURLcode lastCode_ = CURLcode::CURLE_OK;
 	};
 
 

@@ -113,6 +113,7 @@ int main()
 		Curl& curl = Curl::get();
 		curl.initialize();
 		auto ic = curl.GETRequest("https://papi-pornstarsapi.p.rapidapi.com/pornstars/");
+		std::cout << curl.StatusMessage() << std::endl;
 		auto ec = curl.GETRequest("https://query1.finance.yahoo.com/v8/finance/chart/AMZN");
 		auto oc = curl.GETRequest("https://catfact.ninja/fact");
 		std::cout << curl.response() << std::endl;
