@@ -40,15 +40,6 @@
             "ccy": "currency",
             "timestamp": "regularMarketTime"
           }
-        },
-        {
-          "method": "get",
-          "url": "https://query1.finance.yahoo.com/v7/finance/chart/%%%PLACEHOLDER%%%",
-          "key": {
-            "price": "regularMarketPrice",
-            "ccy": "currency",
-            "timestamp": "regularMarketTime"
-          }
         }
       ]
     },
@@ -80,7 +71,8 @@
       }
     },
     "connectionTest": {
-      "url": "www.google.com"
+      "url": "https://catfact.ninja/fact",
+      "key": "fact"
+      }
     }
-  }
 }

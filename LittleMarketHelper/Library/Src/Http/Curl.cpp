@@ -67,6 +67,7 @@ namespace lmh {
 		// init version
 		curl.version_ = curl_version_info(CURLVERSION_NOW);
 
+
 		// Finalize
 		curl.initialized_ = true;
 		return Status::SUCCESS;
@@ -84,7 +85,8 @@ namespace lmh {
 		if (!c.initialized())
 			return false;
 
-		c.GETRequest(Config::read<std::string>("httpRequest.connectionTest.url"));
+		// TODO: use checkConnection api
+		//c.GETRequest(Config::read<std::string>("httpRequest.connectionTest.url"));
 		// TODO: check c.response() to validate or not
 		
 		return false;

@@ -68,6 +68,8 @@ namespace lmh {
 		CONFIG_ALREADY_INITIALIZED,
 		// Path to value is not valid
 		CONFIG_INVALID_PATH,
+		// Invalid method
+		API_INVALID_METHOD,
 		// Logger has already been initialized in this session
 		LOGGER_ALREADY_INITIALIZED,
 	};

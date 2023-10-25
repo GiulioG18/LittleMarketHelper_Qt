@@ -15,8 +15,7 @@ namespace lmh {
 
 	void Balance::update()
 	{
-		computePrice();
-		notifyObservers();		
+		computeBalance(); // Calls notifyObservers();
 	}
 
 	Status lmh::Balance::registerSecurity(std::shared_ptr<WSecurity> security)
@@ -29,7 +28,7 @@ namespace lmh {
 
 		registerWith(*insertion.first);
 
-		computePrice(); // Calls notifyObservers();
+		computeBalance(); // Calls notifyObservers();
 
 		return Status::SUCCESS;
 	}
@@ -43,12 +42,12 @@ namespace lmh {
 		unregisterWith(*it);
 		securities_.erase(it);
 		
-		computePrice(); // Calls notifyObservers();
+		computeBalance(); // Calls notifyObservers();
 
 		return Status::SUCCESS;
 	}
 
-	void Balance::computePrice()
+	void Balance::computeBalance()
 	{
 		price_.set(0.0);
 

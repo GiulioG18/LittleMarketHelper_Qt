@@ -42,7 +42,7 @@ namespace lmh {
 
 	private:
 
-		void computePrice();
+		void computeBalance();
 
 	private:
 

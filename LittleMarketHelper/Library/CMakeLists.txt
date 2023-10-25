@@ -40,6 +40,7 @@ Set(SRC
 	Src/Price.cpp
 	Src/Quote.cpp
 	Src/Cash.cpp
+	Src/Config.cpp
 	Src/Utils/Errors.cpp
 	Src/Utils/Logger.cpp
 	Src/Utils/Json.cpp

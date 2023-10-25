@@ -14,6 +14,7 @@
 
 namespace lmh {
 
+	// TODO: REMOVE?
 	// Helper class to launch HTTP requests based on config file
 	// Both Curl and Config objects must be initialized
 

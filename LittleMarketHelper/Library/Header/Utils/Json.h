@@ -33,7 +33,7 @@ namespace lmh {
 		inline const pt::ptree& tree() const;
 		inline const fs::path& filename() const;
 
-		inline void printTree(const boost::property_tree::ptree& pt, int level) const;
+		//inline void printTree(const boost::property_tree::ptree& pt, int level) const;
 
 	private:
 

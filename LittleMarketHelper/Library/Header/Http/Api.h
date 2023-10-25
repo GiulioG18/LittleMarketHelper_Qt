@@ -5,18 +5,16 @@
 
 #pragma once
 
-#include <optional>
 #include <chrono>
-#include <vector>
+#include <memory>
+#include <set>
 
-#include "Quote.h"
-#include "Config.h"
-#include "Utils/Cache.h"
+#include "Http/Curl.h"
+#include "Utils/Json.h"
+#include "Utils/StatusCode.h"
 
 
 namespace lmh {
-
-	// TODO: move implementation to cpp file
 
 	// TODO: implement fallback mechanism
 	
@@ -24,6 +22,110 @@ namespace lmh {
 	// they need to inherit from some sort of "fillable" class 
 	// the classes perform a check on the validity of the object
 
+	namespace http {
+
+		// Base 
+
+		class Api
+		{
+		public:
+
+			struct Stats;
+
+		public:
+
+			virtual ~Api() = default;
+
+			// Perform request and writes results 
+			// NB: response could be empty or invalid
+			Status send();
+
+		protected:
+
+			Api() = default;
+
+			// Write string response into Json
+			virtual Status writeJson();
+
+		private:
+
+			Status sendGetRequest();
+			Status sendPostRequest();
+			void replacePlaceholder(std::string& s, const std::string& value) const;
+
+		protected:
+
+			std::string name_;
+			std::string method_;
+			std::string url_;
+			std::string data_;
+			std::string filler_;
+			std::set<std::string> keys_;
+			std::string response_;
+			Json json_;
+			std::unique_ptr<Stats> lastStats_;
+		};
+
+
+		// Api stats
+		struct Api::Stats
+		{
+			Stats()
+			{
+				clear();
+			}
+
+			void clear();
+
+			size_t bytes_;	// Downloaded bytes
+			std::chrono::duration<double> time_;
+		};
+
+
+		// Connection test
+		class ConnectionTest : public Api
+		{
+		public:
+
+			ConnectionTest();
+			virtual ~ConnectionTest() = default;
+			
+		};
+
+
+		// Get lmh::Quote
+		class Quote : public Api
+		{
+		public:
+
+			Quote();
+			virtual ~Quote() = default;
+
+		};
+
+
+		// Get lmh::ExchangeRate
+		class ExchangeRate : public Api
+		{
+		public:
+
+			ExchangeRate();
+			virtual ~ExchangeRate() = default;
+		};
+
+
+		// Get a security's ticker (std::string) from an Isin (std::string)
+		class Ticker : public Api
+		{
+		public:
+
+			Ticker();
+			virtual ~Ticker() = default;
+		};
+
+	}
+
+	/*
 	class HttpApi
 	{
 	public:
@@ -123,5 +225,5 @@ namespace lmh {
 			return getQuoteFromTicker(ticker.value());
 		}
 	};
-
+	*/
 }

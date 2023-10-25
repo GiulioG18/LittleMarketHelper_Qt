@@ -7,7 +7,7 @@
 
 namespace lmh {
 
-	// TODO: would be safer to create tokens for each column instead of parsing character by character
+	// TODO: could we make it more generic?
 	Status DegiroReportParser::readFile(const fs::path& file, Output& output) const
 	{
 		REQUIRE(output.type_ == ReportParser::Type::DEGIRO, "parser type is not DEGIRO");
@@ -94,7 +94,8 @@ namespace lmh {
 				output.parsedSecurities_.push_back(ReportParser::UncompleteSecurity(isin, name));
 				continue;
 			}
-
+			// Value
+			/*
 			// DEGIRO does not report neither a valid price nor a ticker for a given security
 			// This means we need to first get the tickers from the isin, and then request
 			// the price from the tickers until we find a good one
@@ -109,7 +110,8 @@ namespace lmh {
 
 			// Everything looks good, construct a security
 			output.parsedSecurities_.push_back(Security(isin, name, quantity, q.value()));
-			output.found_++;
+			output.found_++
+			*/
 		}		
 
 		return Status::SUCCESS;

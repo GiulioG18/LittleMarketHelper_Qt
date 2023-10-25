@@ -96,8 +96,8 @@ int main()
 
 		//std::optional<std::string> ila = config.getString("parser.type.degiro.fileExtension");
 		//std::optional<bool> intinos = config.getBool("settings.portfolio.multiCcy");
-		auto ilassss = config.read<std::string>("parser.type.degiro.name");
-		auto ilass = config.read<std::string>("parser.type.degiro.fileExtension");
+		auto ilassss = config.properties().get<std::string>("parser.type.degiro.name");
+		auto ilass = config.properties().get<std::string>("parser.type.degiro.fileExtension");
 		
 		// Init logger
 		status = Logger::initialize();
@@ -114,7 +114,8 @@ int main()
 		curl.initialize();
 		auto ic = curl.GETRequest("https://papi-pornstarsapi.p.rapidapi.com/pornstars/");
 		auto ec = curl.GETRequest("https://query1.finance.yahoo.com/v8/finance/chart/AMZN");
-		//std::cout << curl.response() << std::endl;
+		auto oc = curl.GETRequest("https://catfact.ninja/fact");
+		std::cout << curl.response() << std::endl;
 
 		auto as = curl.POSTRequest("https://api.openfigi.com/v3/mapping", "[{\"idType\":\"ID_ISIN\",\"idValue\":\"US4592001014\"}]");
 		/*if (status == Status::SUCCESS)
@@ -134,6 +135,20 @@ int main()
 		if (status == Status::SUCCESS)
 		{
 			std::cout << stringettos << std::endl;
+		}*/
+
+		// When parsing from inside Portfolio we should think 
+		// of catching validate user input exception
+		auto output = ReportParser::parseDefault(ReportParser::Type::DEGIRO);
+		auto output1 = ReportParser::parse(ReportParser::Type::DEGIRO, fs::path("C:/Users/giuli/Downloads/Portfolio.csv"));
+
+		/*ReportParser::Output out;
+		if (parsingResults.second)
+		{
+			for (const auto& sec : parsingResults.first)
+			{
+				portfolio->add(std::make_shared<Security>(sec));
+			}
 		}*/
 
 		std::shared_ptr<Security> a1 = std::make_shared<Security>(std::string("LU0908500753"), std::string(), 8, Quote(Price(Currency::Type::EUR, 203.85), 0.0));
@@ -174,21 +189,6 @@ int main()
 		portfolio->addCash(*cashWrong);
 		std::cout << portfolio->openPosition()->price().value() << std::endl;
 		std::cout << portfolio->value().value() << std::endl;
-		
-		// When parsing from inside Portfolio we should think 
-		// of catching validate user input exception
-		auto output = ReportParser::parseDefault(ReportParser::Type::DEGIRO);
-		auto output1 = ReportParser::parse(ReportParser::Type::DEGIRO, fs::path("C:/Users/giuli/Downloads/Portfolio.csv"));
-
-		/*ReportParser::Output out;
-		if (parsingResults.second)
-		{
-			for (const auto& sec : parsingResults.first)
-			{
-				portfolio->add(std::make_shared<Security>(sec));
-			}
-		}*/
-		std::cout << portfolio->openPosition()->price().value() << std::endl;
 
 		Calibrator cal(portfolio.get());
 		Calibrator::WeightsMap wm;

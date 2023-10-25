@@ -45,7 +45,7 @@ namespace lmh {
 	public:
 
 		// TODO: create an interface for the user (even just a utility class with static functions, currency class would work with a diff name that i always wanted...) 
-		//		 and keep the repo hidden to the user
+		//		 and keep the repo hidden to the user (Forex ???)
 		// TODO: should have a function that put()s in the cache the most common ER in a single request
 
 		ExchangeRateRepository();
