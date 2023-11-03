@@ -44,20 +44,9 @@
       ]
     },
     "exchangeRate": {
-      "er": {
-        "method": "get",
-        "url": "https://query1.finance.yahoo.com/v8/finance/chart/%%%PLACEHOLDER%%%",
-        "key": {
-
-        }
-      },
-      "ahmed": {
-        "method": "get",
-        "url": "https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/%%%PLACEHOLDER%%%.json",
-        "key": {
-
-        }
-      }
+      "method": "get",
+      "url": "https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/eur.json",
+      "key": "eur"
     },
     "tickerByIsin": {
       "openFigi": {
@@ -71,8 +60,9 @@
       }
     },
     "connectionTest": {
+      "method": "get",
       "url": "https://catfact.ninja/fact",
       "key": "fact"
-      }
     }
+  }
 }

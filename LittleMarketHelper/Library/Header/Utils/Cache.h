@@ -19,28 +19,32 @@ namespace lmh {
 	{
 	public:
 
-		using KeyValue = std::pair<Key, Value>;
-		using ValueStored = std::shared_ptr<Value>;
-		using ValueReturned = std::shared_ptr<const Value>;
+		using ValuePtr = std::shared_ptr<Value>;
+		using ConstValuePtr = std::shared_ptr<const Value>;
+		using Iterator = std::unordered_map<Key, ValuePtr>::iterator;
 
 	public:
 
-		Cache(size_t maxSize = std::numeric_limits<size_t>().max);
+		Cache(size_t maxSize);
+		virtual ~Cache() = default;
 
-		virtual bool has(const Key& key) const;
+		// Returns a pointer pointing to an element in the cache, if not found, returns nullptr
+		ConstValuePtr get(const Key& key) const;
+		// Inserts (or updates if already there) an element in the cache
+		template<typename K, typename V> 
+		void put(K&& key, V&& value);
 
-		// [ MAY THROW ]
-		virtual ValueReturned get(const Key& key) const = 0;
-		//virtual bool put(KeyValue keyValue) = 0;
+
+		bool has(const Key& key) const;
 
 	private:
 
-		void makeSpace();
+		virtual void replacementPolicy(const Iterator& element, bool inserted) = 0;
 
 	protected:
 
-		std::unordered_map<Key, ValueStored> cached_;
-		const size_t size_;
+		std::unordered_map<Key, ValuePtr> cached_;
+		const size_t maxSize_;
 	};
 
 
@@ -50,10 +54,18 @@ namespace lmh {
 	{
 	public:
 
-		FifoCache(size_t size);
-	
-		virtual Cache<Key, Value>::ValueReturned get(const Key& key) const override;
-		//virtual bool put(Cache<Key, Value>::KeyValue keyValue) override;
+		using ValuePtr = Cache<Key, Value>::ValuePtr;
+		using ConstValuePtr = Cache<Key, Value>::ConstValuePtr;
+		using Iterator = Cache<Key, Value>::Iterator;
+
+	public:
+		
+		FifoCache(size_t maxSize = std::numeric_limits<size_t>().max());
+		virtual ~FifoCache() = default;
+
+	private:
+
+		virtual void replacementPolicy(const Iterator& element, bool inserted) override;
 
 	private:
 
@@ -61,14 +73,38 @@ namespace lmh {
 	};
 
 
+
+
+
 	// Implementation
 
 	// Base
 
 	template<typename Key, typename Value>
-	inline Cache<Key, Value>::Cache(size_t size)
-		: size_(size)
+	inline Cache<Key, Value>::Cache(size_t maxSize)
+		: maxSize_(maxSize)
 	{
+	}
+
+	template<typename Key, typename Value>
+	inline Cache<Key, Value>::ConstValuePtr Cache<Key, Value>::get(const Key& key) const
+	{
+		auto it = cached_.find(key);
+		if (it == cached_.end())
+			return nullptr;
+
+		return it->second;
+	}
+
+	template<typename Key, typename Value>
+	template<typename K, typename V> void Cache<Key, Value>::put(K&& key, V&& value)
+	{
+		auto insertion = cached_.insert_or_assign(
+			std::forward<K>(key),
+			std::make_shared<Value>(std::forward<V>(value))
+			);
+
+		replacementPolicy(insertion.first, insertion.second);
 	}
 
 	template<typename Key, typename Value>
@@ -77,49 +113,28 @@ namespace lmh {
 		return cached_.contains(key);
 	}
 
-	template<typename Key, typename Value>
-	inline void Cache<Key, Value>::makeSpace()
-	{
-		if (cached_.size() >= size_)
-		{
-			// TODO: impl
-		}
-	}
-
 
 	// Fifo
 
 	template<typename Key, typename Value>
-	inline FifoCache<Key, Value>::FifoCache(size_t size)
-		: Cache<Key, Value>(size)
+	inline FifoCache<Key, Value>::FifoCache(size_t maxSize)
+		: Cache<Key, Value>(maxSize)
 	{
 	}
 
 	template<typename Key, typename Value>
-	inline Cache<Key, Value>::ValueReturned FifoCache<Key, Value>::get(const Key& key) const
+	inline void FifoCache<Key, Value>::replacementPolicy(const FifoCache<Key, Value>::Iterator& element, bool inserted)
 	{
-		auto it = Cache<Key, Value>::cached_.find(key);
-		if (it == Cache<Key, Value>::cached_.end())
-			return nullptr;
-			
-		return it->second;
+		// TODO: impl
+		
+		// If cache is full, evict element
+		if (Cache<Key, Value>::cached_.size() >= Cache<Key, Value>::maxSize_)
+		{
+			// TODO: impl
+			// Should remove an element from the queue but also from the cache map
+		}
+
+		// Add key to queue
 	}
-
-	//template<typename Key, typename Value>
-	//inline bool FifoCache<Key, Value>::put(Cache<Key, Value>::KeyValue keyValue)
-	//{
-	//	// There is already a key with that name
-	//	if (Cache<Key, Value>::has(keyValue.first))
-	//	{
-
-	//	}
-
-	//	// 1. [HAS FUNC] check if key is in the queue. if so, update the value in the cache
-	//	// 2. else...[MAKE SPACE FUNC --->] check size, if full, delete oldest (check keys queue) element (from both cache and queue)
-	//	// 3. add key to queue, and the pair to the cache
-	//	// 3. return true if element was added, false if the element has not been added
-
-	//	return true;
-	//}
 
 }

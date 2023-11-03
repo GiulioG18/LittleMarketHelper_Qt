@@ -21,10 +21,12 @@ namespace lmh {
 		return c.json_.parse(filename);
 	}
 
-	const pt::ptree& Config::properties() const
+	const pt::ptree& Config::properties()
 	{
-		REQUIRE(json_.initialized(), "config not initilized at startup");
-		return json_.tree();
+		Config& c = Config::get();
+
+		REQUIRE(c.json_.initialized(), "config not initilized at startup");
+		return c.json_.tree();
 	}
 
 }

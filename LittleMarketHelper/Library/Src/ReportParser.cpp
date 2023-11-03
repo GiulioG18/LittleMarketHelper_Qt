@@ -65,9 +65,7 @@ namespace lmh {
 		ASSERT(parser, "invalid parser");
 
 		if (fs::is_regular_file(report))
-		{
 			output.status_ = parser->readFile(report, output);
-		}
 		
 		return output;
 	}

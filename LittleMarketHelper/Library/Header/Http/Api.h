@@ -7,6 +7,7 @@
 
 #include <chrono>
 #include <memory>
+#include <list>
 #include <set>
 
 #include "Http/Curl.h"
@@ -16,16 +17,18 @@
 
 namespace lmh {
 
-	// TODO: implement fallback mechanism
-	
-	// TODO: Create url and data class 
-	// they need to inherit from some sort of "fillable" class 
-	// the classes perform a check on the validity of the object
+	// Forward declarations
+	class ExchangeRate;
 
+	// Fallback mechanism is not implemented.
+	// Each class is a wrapper around an API defined in the configuration file.
+	// To achieve more flexibility, url and data and other options can be defined in the configuration file,
+	// but this does not solve the issue: what do we do if the API is not working anymore?
+	
 	namespace http {
 
-		// Base 
 
+		// Base 
 		class Api
 		{
 		public:
@@ -36,7 +39,7 @@ namespace lmh {
 
 			virtual ~Api() = default;
 
-			// Perform request and writes results 
+			// Perform request and writes response 
 			// NB: response could be empty or invalid
 			Status send();
 
@@ -60,20 +63,16 @@ namespace lmh {
 			std::string url_;
 			std::string data_;
 			std::string filler_;
-			std::set<std::string> keys_;
+			std::list<std::string> keys_;
 			std::string response_;
 			Json json_;
 			std::unique_ptr<Stats> lastStats_;
 		};
 
-
 		// Api stats
 		struct Api::Stats
 		{
-			Stats()
-			{
-				clear();
-			}
+			Stats() { clear(); }
 
 			void clear();
 
@@ -89,7 +88,9 @@ namespace lmh {
 
 			ConnectionTest();
 			virtual ~ConnectionTest() = default;
-			
+
+			// Returns true if there is a valid network connection
+			bool run();			
 		};
 
 
@@ -111,6 +112,9 @@ namespace lmh {
 
 			ExchangeRate();
 			virtual ~ExchangeRate() = default;
+
+			// Returns a list of rates
+			std::set<lmh::ExchangeRate> run();
 		};
 
 

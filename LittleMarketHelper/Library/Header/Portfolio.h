@@ -55,6 +55,8 @@ namespace lmh {
 
 	private:
 
+		// TODO: add timepoint
+		// TODO: add user (maybe not here)
 		std::shared_ptr<Balance> openPosition_;
 		CashSet cash_;
 		SecurityPtrSet securities_;

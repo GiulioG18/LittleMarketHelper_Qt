@@ -32,7 +32,7 @@ namespace lmh {
 		static Status initialize(const std::string& filename);
 
 		// Read only access to the Config ptree
-		const pt::ptree& properties() const;
+		static const pt::ptree& properties();
 
 	private:
 

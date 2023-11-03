@@ -46,7 +46,7 @@ namespace lmh {
 		: ccy_(ccy), value_(value)
 	{
 		REQUIRE(value_ >= 0, "invalid value");
-		// TODO: REQUIRE that the ccy is available
+		// TODO: REQUIRE-> check that the ccy is available
 	}
 
 	void Price::set(double amount)

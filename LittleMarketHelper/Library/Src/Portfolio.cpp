@@ -37,11 +37,8 @@ namespace lmh {
 
 	Status Portfolio::addSecurity(const Security& security)
 	{
-		// Construct a new weighted security tracking the portfolio's open position
-		auto wSecurity = std::make_shared<WSecurity>(security, openPosition_);
-
-		// Move it into the portfolio's security set
-		auto insertion = securities_.insert(std::move(wSecurity));
+		// Move new weighted security it into the portfolio
+		auto insertion = securities_.insert(std::make_shared<WSecurity>(security, openPosition_));
 		if (!insertion.second)
 			return Status::TRADE_DUPLICATE_NOT_INSERTED;
 

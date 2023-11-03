@@ -21,8 +21,7 @@ namespace lmh {
 		{
 			EUR,
 			USD,
-			GBP, 
-			GBp,
+			GBP,
 			JPY,
 			CHF,
 			AUD,
@@ -35,6 +34,7 @@ namespace lmh {
 
 		static std::optional<Type> fromString(const std::string& ccyStr);
 		static std::string toString(Type ccy);
+		static const std::map<Currency::Type, std::string>& map();
 	};
 
 }

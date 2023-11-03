@@ -9,6 +9,7 @@ namespace lmh {
 
 	CalibrationResult::CalibrationResult(Currency::Type ccy)
 		: 
+		data_(),
 		ccy_(ccy),
 		investment_(0.0),
 		openPosition_(0.0),
@@ -31,7 +32,7 @@ namespace lmh {
 			// Extract price
 			const auto& it = securities.find(isin);
 			ASSERT(it != securities.end(), "security-input mismatch");			
-			double price = it->get()->quote().price().value();
+			double price = it->get()->quote().price().value(); // TODO: error! convert all security prices into a base (euro) currency
 			ASSERT(price > 0.0, "invalid price");
 
 			// Create datum from weight map entry
@@ -102,14 +103,14 @@ namespace lmh {
 
 
 	CalibrationResult::Datum::Datum(
-		std::string name,
+		std::string isin,
 		double price,
 		double idealWeight,
 		int idealQuantity,
 		double realWeight,
 		int realQuantity)
 		:
-		name_(name), price_(price),
+		isin_(isin), price_(price),
 		idealWeight_(idealWeight), idealQuantity_(idealQuantity),
 		realWeight_(realWeight), realQuantity_(realQuantity)
 	{

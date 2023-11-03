@@ -15,6 +15,7 @@
 #include "Http/ConfigRequest.h"
 #include "TickersGenerator.h"
 #include "Cash.h"
+#include "ExchangeRate.h"
 
 #include <fstream>
 #include <iostream>
@@ -23,11 +24,11 @@
 using namespace lmh;
 
 
-// TOOD:
+// TODO:
 // 
 // . Do not fecth all the historical price when using yf
 // 
-// . write the damn comments
+// . write the damn comments (see doxygen todo)
 // 
 // . create repository object (exchange rates map, ...)
 // 
@@ -58,6 +59,18 @@ using namespace lmh;
 //		- copy/move ctor, copy/move operator
 //		- comments...
 // 
+// . Add some sort of userdata to store user specific data such as:
+//		- full ticker (very important! it would avoid the figiAPI request since we expect that most products are recurrent 
+//		- Portfolio history
+// 
+// . Pass string around using std::string_view
+// 
+// . Create doc with doxygen
+// 
+// . IMPORTANT: make sure that all polymorphic classes have a virtual dtor
+// 
+// . replace int types with intX_t
+// 
 // ...... QT........ 
 // 
 // 
@@ -77,6 +90,7 @@ int main()
 {
 	try
 	{
+
 		pt::ptree configTree;
 		pt::read_json({ "D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\config.json" }, configTree);
 		auto mc = configTree.get_optional<std::string>("logger.directory");
@@ -119,6 +133,11 @@ int main()
 		std::cout << curl.response() << std::endl;
 
 		auto as = curl.POSTRequest("https://api.openfigi.com/v3/mapping", "[{\"idType\":\"ID_ISIN\",\"idValue\":\"US4592001014\"}]");
+
+
+
+
+		ExchangeRateRepository::get();
 		/*if (status == Status::SUCCESS)
 			std::cout << curl.response() << std::endl;*/
 

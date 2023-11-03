@@ -4,12 +4,11 @@
 
 namespace lmh {
 
-	static const std::map<Currency::Type, std::string> _currencyStringMap =
+	const std::map<Currency::Type, std::string> _currencyStringMap =
 	{
 		{Currency::Type::EUR, "EUR"},
 		{Currency::Type::USD, "USD"},
 		{Currency::Type::GBP, "GBP"},
-		{Currency::Type::GBp, "GBp"},
 		{Currency::Type::JPY, "JPY"},
 		{Currency::Type::CHF, "CHF"},
 		{Currency::Type::AUD, "AUD"},
@@ -39,6 +38,11 @@ namespace lmh {
 	std::string Currency::toString(Type ccy)
 	{
 		return _currencyStringMap.at(ccy);
+	}
+
+	const std::map<Currency::Type, std::string>& lmh::Currency::map()
+	{
+		return _currencyStringMap;
 	}
 
 }

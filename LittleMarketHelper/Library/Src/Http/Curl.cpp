@@ -13,8 +13,7 @@ static_assert(false, "I had no clue nor interest in linking these libs for other
 
 #include "Http/Curl.h"
 #include "Utils/Logger.h"
-#include "Config.h"
-
+#include "Http/Api.h"
 
 // Macro to handle Curl errors
 #define RETURN_ON_ERROR_CC(x, err) do {	\
@@ -70,7 +69,13 @@ namespace lmh {
 
 		// Finalize
 		curl.initialized_ = true;
-		return Status::SUCCESS;
+
+		// Verify that there is a valid internet connection
+		Status status = curl.checkNetworkConnection();
+		if (status != Status::SUCCESS)
+			curl.initialized_ = false;
+
+		return status;
 	}
 
 	std::string Curl::StatusMessage()
@@ -80,17 +85,15 @@ namespace lmh {
 
 	Status Curl::checkNetworkConnection()
 	{
-		Curl& c = Curl::get();
-
 		if (!initialized_)
 			return Status::CURL_NOT_INITIALIZED;
 
-		// TODO: use checkConnection api
-		//c.GETRequest(Config::read<std::string>("httpRequest.connectionTest.url"));
-		// TODO: check status--> 		easy_perform returned	CURLE_COULDNT_RESOLVE_HOST (6)	CURLcode
+		Status status;
+		http::ConnectionTest().run() ?
+			status = Status::SUCCESS :
+			status = Status::NO_NETWORK_CONNECTION;
 
-		
-		return Status::SUCCESS;
+		return status;
 	}
 
 	// TODO: really should avoid init a new curl easy handle every single time.

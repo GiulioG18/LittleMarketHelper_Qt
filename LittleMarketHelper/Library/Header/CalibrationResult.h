@@ -83,7 +83,7 @@ namespace lmh {
 	public:
 
 		Datum(
-			std::string name,
+			std::string isin,
 			double price,
 			double idealWeight,
 			int idealQuantity,
@@ -91,7 +91,7 @@ namespace lmh {
 			int realQuantity);
 
 		// Getters
-		inline std::string name() const;
+		inline std::string isin() const;
 		inline double price() const;
 		inline double idealWeight() const;
 		inline int idealQuantity() const;
@@ -110,8 +110,8 @@ namespace lmh {
 	private:
 
 		// Input
-		const std::string	name_;
-		const double		price_;
+		const std::string	isin_;
+		const double		price_;	// Base currency (balance currency) translated value
 		const double		idealWeight_;
 		// Output
 		int				idealQuantity_;
@@ -121,7 +121,7 @@ namespace lmh {
 
 
 	// Inline definitions
-	inline std::string CalibrationResult::Datum::name() const { return name_; };
+	inline std::string CalibrationResult::Datum::isin() const { return isin_; };
 	inline double CalibrationResult::Datum::price() const { return price_; };
 	inline double CalibrationResult::Datum::idealWeight() const { return idealWeight_; };
 	inline int CalibrationResult::Datum::idealQuantity() const { return idealQuantity_; };

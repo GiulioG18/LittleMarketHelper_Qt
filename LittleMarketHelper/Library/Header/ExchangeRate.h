@@ -9,7 +9,7 @@
 #include "Patterns/Singleton.h"
 #include "Utils/Cache.h"
 #include "Currency.h"
-#include "Price.h"
+#include "Quote.h"
 
 
 namespace lmh {
@@ -18,21 +18,24 @@ namespace lmh {
 	{
 	public:
 
-		ExchangeRate(Currency::Type xxx, Currency::Type yyy);
+		// [ MAY THROW ]
+		ExchangeRate(std::string denomination, const Quote& rate);
+		// [ MAY THROW ]
+		ExchangeRate(Currency::Type xxx, Currency::Type yyy, const Quote& rate);
 
 		// Getters
 		inline Currency::Type xxx() const;
 		inline Currency::Type yyy() const;
-		inline const std::unique_ptr<double>& rate() const;
+		inline const Quote& rate() const;
+
+		bool operator<(const ExchangeRate& other) const;
 
 	private:
 
-		// Setters // TODO: remove
-		inline void setRate(double r);
-
+		std::string denomination_;
 		Currency::Type xxx_;
 		Currency::Type yyy_;
-		std::unique_ptr<double> rate_;
+		Quote rate_; // Quote::price_ refers to the non-base ccy
 	};
 
 
@@ -46,29 +49,29 @@ namespace lmh {
 
 		// TODO: create an interface for the user (even just a utility class with static functions, currency class would work with a diff name that i always wanted...) 
 		//		 and keep the repo hidden to the user (Forex ???)
-		// TODO: should have a function that put()s in the cache the most common ER in a single request
 
 		ExchangeRateRepository();
 
 		Price convert(const Price& price, Currency::Type ccy);
-		std::string denomination(Currency::Type xxx, Currency::Type yyy) const;
 		bool isAvailable(Currency::Type xxx) const;
 
 	private:
 
+		// TODO: right now it handles only cases where xxx is EUR
+		// [ MAY THROW ]
 		double getConversionRate(Currency::Type xxx, Currency::Type yyy) const;
 
 	private:
 
 		std::set<Currency::Type> availableCcys_;
 		CachedRates rates_;
+		CachedRates invertedRates_; // Value points to the original rate
 	};
 
 
 	// Inline definitions
 	inline Currency::Type ExchangeRate::xxx() const { return xxx_; }
 	inline Currency::Type ExchangeRate::yyy() const { return yyy_; }
-	inline const std::unique_ptr<double>& ExchangeRate::rate() const { return rate_; }
-	inline void ExchangeRate::setRate(double r) { REQUIRE(r > 0, "exchange rate provided is not positive");  *rate_ = r; }
+	inline const Quote& ExchangeRate::rate() const { return rate_; }
 
 }

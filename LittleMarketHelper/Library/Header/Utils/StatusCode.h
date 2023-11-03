@@ -74,6 +74,8 @@ namespace lmh {
 		API_INVALID_METHOD,
 		// Logger has already been initialized in this session
 		LOGGER_ALREADY_INITIALIZED,
+		// No network connection
+		NO_NETWORK_CONNECTION,
 	};
 
 	inline std::string StatusToString(Status Status)

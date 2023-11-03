@@ -1,7 +1,12 @@
 
+#include <boost/algorithm/string.hpp>
+
 #include "Http/Api.h"
+#include "Config.h"
+#include "ExchangeRate.h"
 
 
+#include <iostream>
 namespace lmh {
 
 	namespace http {
@@ -26,36 +31,16 @@ namespace lmh {
 				status = Status::API_INVALID_METHOD;
 
 			if (status != Status::SUCCESS)
-				status;
+				return status;
 
 			// Write stats
 			// TODO: impl
 
 			// Write response
+			std::cout << curl.response() << std::endl;
 			response_ = curl.response();
 			return Status::SUCCESS;
 		}
-
-		/*Api::Api(
-			const std::string& name,
-			const std::string& method,
-			const std::string& url,
-			const std::string& data,
-			const std::string& filler,
-			std::set<std::string>&& keys
-		)
-			:
-			name_(name),
-			method_(method),
-			url_(url),
-			data_(data),
-			filler_(filler),
-			keys_(keys),
-			response_(""),
-			json_(Json()),
-			lastStats_(nullptr)
-		{
-		}*/
 											
 		Status Api::writeJson()
 		{
@@ -70,7 +55,6 @@ namespace lmh {
 
 			// Validate input
 			REQUIRE(!url_.empty(), "empty url");
-			REQUIRE(!filler_.empty(), "empty filler for GET request");
 
 			replacePlaceholder(url_, filler_);
 			return Curl::get().GETRequest(url_);
@@ -91,12 +75,13 @@ namespace lmh {
 
 		void Api::replacePlaceholder(std::string& s, const std::string& value) const
 		{
-			auto pos = s.find("%%%PLACEHOLDER%%%");
+			std::string placeholder = std::string("%%%PLACEHOLDER%%%");
+
+			auto pos = s.find(placeholder);
 			if (pos == std::string::npos)
 				return;
 
-			// Replace it (%%%PLACEHOLDER%%% is 17 letters)
-			s.replace(pos, 17, value);
+			s.replace(pos, placeholder.length(), value);
 		}
 
 
@@ -111,10 +96,89 @@ namespace lmh {
 
 		// Quote
 
+		ConnectionTest::ConnectionTest()
+		{
+			std::string basePath = std::string("httpRequest.connectionTest.");
+			
+			method_ = Config::properties().get<std::string>(basePath + "method");
+			url_ = Config::properties().get<std::string>(basePath + "url");
+			data_ = ""; 
+			filler_ = "";
+			keys_.push_back(Config::properties().get<std::string>(basePath + "key"));
+		}
+
+		bool ConnectionTest::run()
+		{
+			// Run http request
+			Status status = Api::send();
+			if (status != Status::SUCCESS)
+				return false;
+			
+			// Parse result into Json file
+			status = Api::writeJson();
+			if (status != Status::SUCCESS)
+				return false;
+
+			// Evaluate result
+			auto msg = json_.tree().get_optional<std::string>(keys_.front());
+			return msg.has_value(); // NB: a very cool message is lost here
+		}
+
 		Quote::Quote()
 		{
 			std::string path = "httpRequest.quoteByFullTicker.yahooFinance";
 		}
 
-	}
+		
+
+		ExchangeRate::ExchangeRate()
+		{
+			std::string basePath = std::string("httpRequest.exchangeRate.");
+
+			method_ = Config::properties().get<std::string>(basePath + "method");
+			url_ = Config::properties().get<std::string>(basePath + "url");
+			data_ = "";
+			filler_ = "";
+			keys_.push_back(Config::properties().get<std::string>(basePath + "key"));
+		}
+
+		std::set<lmh::ExchangeRate> ExchangeRate::run()
+		{
+			// TODO: should check if the date it is recent enough
+			
+			std::set<lmh::ExchangeRate> out;
+
+			// Run http request
+			Status status = Api::send();
+			if (status != Status::SUCCESS)
+				return out;
+
+			// Parse result into Json file
+			status = Api::writeJson();
+			if (status != Status::SUCCESS)
+				return out;
+
+			// Request rates for most common currencies
+			std::string key = keys_.front();
+			Currency::Type xxx = Currency::Type::EUR; // TODO: should we not hard code the base ccy?
+			for (const auto& pair : Currency::map())
+			{			
+				Currency::Type yyy = pair.first;
+				std::string ccy = pair.second;
+				boost::algorithm::to_lower(ccy);
+				auto rate = json_.tree().get_optional<double>(key + "." + ccy);
+				if (rate.has_value())
+				{
+					// Construct rate
+					lmh::ExchangeRate er(xxx, yyy, lmh::Quote({ yyy, rate.value()}, 0.0)); // TODO: once timestamp is properly impl, impl 
+
+					// Move it into output set
+					out.insert(std::move(er));
+				}
+			}
+
+			return out;
+		}
+
+}
 }
