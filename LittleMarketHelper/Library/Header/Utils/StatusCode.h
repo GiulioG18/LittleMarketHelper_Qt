@@ -76,6 +76,8 @@ namespace lmh {
 		LOGGER_ALREADY_INITIALIZED,
 		// No network connection
 		NO_NETWORK_CONNECTION,
+		// Exchange rate repository has already been initialized in this session
+		ER_REPO_ALREADY_INITIALIZED,
 	};
 
 	inline std::string StatusToString(Status Status)

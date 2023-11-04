@@ -39,6 +39,8 @@ using namespace lmh;
 // 
 // . add credentials for users
 // 
+// . check again every throwing function, should make a distinction between ASSERT's and assert...
+// 
 // . User takes snapshots of portfolio that gets saved (somewhere... maybe free Database?)
 // 
 // . add stats for user investment history (IRR, holding history, holding's IRR, ...)
@@ -109,7 +111,7 @@ int main()
 		}
 
 		//std::optional<std::string> ila = config.getString("parser.type.degiro.fileExtension");
-		//std::optional<bool> intinos = config.getBool("settings.portfolio.multiCcy");
+		//std::optional<bool> intinos = config.getBool("settings.portfolio.multiCurrency");
 		auto ilassss = config.properties().get<std::string>("parser.type.degiro.name");
 		auto ilass = config.properties().get<std::string>("parser.type.degiro.fileExtension");
 		
@@ -137,7 +139,7 @@ int main()
 
 
 
-		ExchangeRateRepository::get();
+		ExchangeRateRepository::initialize(Currency::EUR);
 		/*if (status == Status::SUCCESS)
 			std::cout << curl.response() << std::endl;*/
 
@@ -171,12 +173,12 @@ int main()
 			}
 		}*/
 
-		std::shared_ptr<Security> a1 = std::make_shared<Security>(std::string("LU0908500753"), std::string(), 8, Quote(Price(Currency::Type::EUR, 203.85), 0.0));
-		std::shared_ptr<Security> b2 = std::make_shared<Security>(std::string("IE00BJ38QD84"), std::string(), 12, Quote(Price(Currency::Type::AUD, 47.43),  0.0));
-		std::shared_ptr<Security> c3 = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::Type::EUR,424.20), 0.0));
-		Security d4 = Security(std::string("LU1681045370"), std::string(), 420, Quote(Price(Currency::Type::SEK, 4.37), 0.0));
+		std::shared_ptr<Security> a1 = std::make_shared<Security>(std::string("LU0908500753"), std::string(), 8, Quote(Price(Currency::EUR, 203.85), 0.0));
+		std::shared_ptr<Security> b2 = std::make_shared<Security>(std::string("IE00BJ38QD84"), std::string(), 12, Quote(Price(Currency::AUD, 47.43),  0.0));
+		std::shared_ptr<Security> c3 = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::EUR,424.20), 0.0));
+		Security d4 = Security(std::string("LU1681045370"), std::string(), 420, Quote(Price(Currency::SEK, 4.37), 0.0));
 
-		std::unique_ptr<Portfolio> portfolio = std::make_unique<Portfolio>(Currency::Type::EUR);
+		std::unique_ptr<Portfolio> portfolio = std::make_unique<Portfolio>(Currency::EUR);
 		portfolio->addSecurity(*a1);
 		std::cout << portfolio->openPosition()->price().value() << std::endl;
 		portfolio->addSecurity(*b2);
@@ -189,13 +191,13 @@ int main()
 		std::cout << portfolio->openPosition()->price().value() << std::endl;
 		portfolio->removeSecurity("IE00BJ38QD84");
 		std::cout << portfolio->openPosition()->price().value() << std::endl;
-		//portfolio->edit<EditTrade::Type::CURRENCY>("123451234511", Currency::Type::EUR);
+		//portfolio->edit<EditTrade::Type::CURRENCY>("123451234511", Currency::EUR);
 
 
-		auto cash0 = std::make_shared<Cash>(Currency::Type::EUR, 999.99);
-		auto cash1 = std::make_shared<Cash>(Currency::Type::EUR, 0.0);
-		auto cash2 = std::make_shared<Cash>(Currency::Type::CHF, 140000.3);
-		auto cashWrong = std::make_shared<Cash>(Currency::Type::CHF, 124);
+		auto cash0 = std::make_shared<Cash>(Currency::EUR, 999.99);
+		auto cash1 = std::make_shared<Cash>(Currency::EUR, 0.0);
+		auto cash2 = std::make_shared<Cash>(Currency::CHF, 140000.3);
+		auto cashWrong = std::make_shared<Cash>(Currency::CHF, 124);
 
 		portfolio->addCash(*cash0);
 		std::cout << portfolio->openPosition()->price().value() << std::endl;
@@ -216,7 +218,7 @@ int main()
 		wm.emplace(b2->isin(), 0.05f);
 		wm.emplace(c3->isin(), 0.65f);
 		wm.emplace(d4.isin(), 0.15f);
-		cal.runOptimization(wm, Currency::Type::EUR, 20038.12);
+		cal.runOptimization(wm, Currency::EUR, 20038.12);
 		auto result = cal.result();
 		result.value().cash();
 		result.value().data().at(2).idealQuantity();

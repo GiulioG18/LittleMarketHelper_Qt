@@ -15,16 +15,12 @@ namespace lmh {
 	{
 	public:
 
-		using Ccy = Currency::Type;
-
-	public:
-
 		// Constructor [ MAY THROW ]
-		Price(Ccy ccy, double value);
+		Price(Currency currency, double value);
 
 		// Getters
 		inline double value() const;
-		inline Ccy ccy() const;
+		inline Currency currency() const;
 
 		// Setters [ MAY THROW ]
 		void set(double amount);
@@ -41,13 +37,13 @@ namespace lmh {
 
 	private:
 
-		Ccy ccy_; // Const
+		Currency currency_;
 		double value_;
 	};
 
 
 	// Inline definitions
 	inline double Price::value() const { return value_; }
-	inline Price::Ccy Price::ccy() const { return ccy_; }
+	inline Currency Price::currency() const { return currency_; }
 
 }

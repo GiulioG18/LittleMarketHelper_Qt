@@ -22,12 +22,11 @@ namespace lmh {
 	{
 	public:
 
-		using Ccy = Currency::Type;
 		using SecurityPtrSet = std::set<std::shared_ptr<WSecurity>, WSecurity::Comp>;
 
 	public:
 
-		Balance(Ccy ccy);
+		Balance(Currency Currency);
 
 		// Non-const methods
 		void update() override;

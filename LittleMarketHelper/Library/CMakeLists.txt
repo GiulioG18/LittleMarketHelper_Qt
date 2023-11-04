@@ -41,6 +41,7 @@ Set(SRC
 	Src/Quote.cpp
 	Src/Cash.cpp
 	Src/Config.cpp
+	Src/Forex.cpp
 	Src/Utils/Errors.cpp
 	Src/Utils/Logger.cpp
 	Src/Utils/Json.cpp
@@ -70,6 +71,7 @@ Set(HEADER
 	Header/Quote.h
 	Header/Price.h
 	Header/Cash.h
+	Header/Forex.h
 	Header/Utils/Assertions.h
 	Header/Utils/Environment.h
 	Header/Utils/Errors.h

@@ -4,23 +4,23 @@
 
 namespace lmh {
 
-	Cash::Cash(Ccy ccy, double value)
-		: price_(ccy, value)
+	Cash::Cash(Currency currency, double value)
+		: price_(currency, value)
 	{
 	}
 
 	bool Cash::Comp::operator()(const Cash& first, const Cash& second) const
 	{
-		return first.price().ccy() < second.price().ccy();
+		return first.price().currency() < second.price().currency();
 	}
 
-	bool Cash::Comp::operator()(const Ccy& first, const Cash& second) const
+	bool Cash::Comp::operator()(const Currency& first, const Cash& second) const
 	{
-		return first < second.price().ccy();
+		return first < second.price().currency();
 	}
 
-	bool Cash::Comp::operator()(const Cash& first, const Ccy& second) const
+	bool Cash::Comp::operator()(const Cash& first, const Currency& second) const
 	{
-		return first.price().ccy() < second;
+		return first.price().currency() < second;
 	}
 }

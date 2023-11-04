@@ -6,7 +6,6 @@
 #include "ExchangeRate.h"
 
 
-#include <iostream>
 namespace lmh {
 
 	namespace http {
@@ -37,7 +36,6 @@ namespace lmh {
 			// TODO: impl
 
 			// Write response
-			std::cout << curl.response() << std::endl;
 			response_ = curl.response();
 			return Status::SUCCESS;
 		}
@@ -160,13 +158,13 @@ namespace lmh {
 
 			// Request rates for most common currencies
 			std::string key = keys_.front();
-			Currency::Type xxx = Currency::Type::EUR; // TODO: should we not hard code the base ccy?
-			for (const auto& pair : Currency::map())
+			Currency xxx = Currency::EUR; // TODO: should we not hard code the base Currency?
+			for (const auto& pair : ccy::map())
 			{			
-				Currency::Type yyy = pair.first;
-				std::string ccy = pair.second;
-				boost::algorithm::to_lower(ccy);
-				auto rate = json_.tree().get_optional<double>(key + "." + ccy);
+				Currency yyy = pair.first;
+				std::string currency = pair.second;
+				boost::algorithm::to_lower(currency);
+				auto rate = json_.tree().get_optional<double>(key + "." + currency);
 				if (rate.has_value())
 				{
 					// Construct rate

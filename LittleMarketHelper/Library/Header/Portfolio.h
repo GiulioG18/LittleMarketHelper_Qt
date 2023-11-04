@@ -27,14 +27,14 @@ namespace lmh {
 
 	public:
 
-		Portfolio(Balance::Ccy ccy);
+		Portfolio(Currency currency);
 
 		// Non-const methods
 		Status addCash(const Cash& cash);
-		Status removeCash(Currency::Type ccy);
+		Status removeCash(Currency currency);
 		Status addSecurity(const Security& security);
 		Status removeSecurity(const std::string& isin);
-		Status reset(Balance::Ccy ccy);
+		Status reset(Currency currency);
 		/*template<EditTrade::Type editType, typename Type>
 		Status edit(const std::string& isin, Type newValue);*/
 

@@ -7,10 +7,10 @@
 
 namespace lmh {
 
-	CalibrationResult::CalibrationResult(Currency::Type ccy)
+	CalibrationResult::CalibrationResult(Currency currency)
 		: 
 		data_(),
-		ccy_(ccy),
+		currency_(currency),
 		investment_(0.0),
 		openPosition_(0.0),
 		cash_(0.0),
@@ -86,7 +86,9 @@ namespace lmh {
 			idealSum += datum.idealWeight();
 			realSum += datum.realWeight();
 		}
-		if (!validated || idealSum - 1.0 > DBL_EPSILON || realSum - 1.0 > DBL_EPSILON)
+		if (!validated || 
+			fabs(idealSum - 1.0) > DBL_EPSILON || 
+			fabs(realSum - 1.0) > DBL_EPSILON)
 			return false;
 
 		// Investment, cash, open position validation

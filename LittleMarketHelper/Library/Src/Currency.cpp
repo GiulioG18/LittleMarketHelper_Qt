@@ -4,45 +4,49 @@
 
 namespace lmh {
 
-	const std::map<Currency::Type, std::string> _currencyStringMap =
-	{
-		{Currency::Type::EUR, "EUR"},
-		{Currency::Type::USD, "USD"},
-		{Currency::Type::GBP, "GBP"},
-		{Currency::Type::JPY, "JPY"},
-		{Currency::Type::CHF, "CHF"},
-		{Currency::Type::AUD, "AUD"},
-		{Currency::Type::CAD, "CAD"},
-		{Currency::Type::CNY, "CNY"},
-		{Currency::Type::HKD, "HKD"},
-		{Currency::Type::SEK, "SEK"},
-		{Currency::Type::BZR, "BZR"},
-	};
+	namespace ccy {
 
-	std::optional<Currency::Type> Currency::fromString(const std::string& ccyStr)
-	{
-		std::optional<Type> ccy = std::nullopt;
-
-		for (const auto& keyValue : _currencyStringMap)
+		const std::map<Currency, std::string> _currencies =
 		{
-			if (keyValue.second == ccyStr)
+			{Currency::EUR, "EUR"},
+			{Currency::USD, "USD"},
+			{Currency::GBP, "GBP"},
+			{Currency::JPY, "JPY"},
+			{Currency::CHF, "CHF"},
+			{Currency::AUD, "AUD"},
+			{Currency::CAD, "CAD"},
+			{Currency::CNY, "CNY"},
+			{Currency::HKD, "HKD"},
+			{Currency::SEK, "SEK"},
+			{Currency::BZR, "BZR"},
+		};
+
+		std::optional<Currency> stoc(const std::string& currencyStr)
+		{
+			std::optional<Currency> currency = std::nullopt;
+
+			for (const auto& keyValue : _currencies)
 			{
-				ccy = keyValue.first;
-				break;
+				if (keyValue.second == currencyStr)
+				{
+					currency = keyValue.first;
+					break;
+				}
 			}
+
+			return currency;
 		}
 
-		return ccy;
-	}
+		std::string ctos(Currency currency)
+		{
+			return _currencies.at(currency);
+		}
 
-	std::string Currency::toString(Type ccy)
-	{
-		return _currencyStringMap.at(ccy);
-	}
+		const std::map<Currency, std::string>& map()
+		{
+			return _currencies;
+		}
 
-	const std::map<Currency::Type, std::string>& lmh::Currency::map()
-	{
-		return _currencyStringMap;
-	}
+	}	
 
 }

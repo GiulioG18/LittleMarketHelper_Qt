@@ -1,5 +1,6 @@
 
 #include <numeric>
+#include <algorithm>
 
 #include "Portfolio.h"
 #include "Utils/Assertions.h"
@@ -9,9 +10,8 @@
 namespace lmh {
 	
 
-	Portfolio::Portfolio(Balance::Ccy ccy)
-		:
-		openPosition_(std::make_shared<Balance>(ccy))
+	Portfolio::Portfolio(Currency currency)
+		: openPosition_(std::make_shared<Balance>(currency))
 	{
 	}
 
@@ -24,9 +24,9 @@ namespace lmh {
 		return Status::SUCCESS;
 	}
 
-	Status Portfolio::removeCash(Currency::Type ccy)
+	Status Portfolio::removeCash(Currency currency)
 	{
-		auto it = cash_.find(ccy);
+		auto it = cash_.find(currency);
 		if (it == cash_.end())
 			return Status::CASH_NOT_FOUND;
 
@@ -66,7 +66,7 @@ namespace lmh {
 		return validateSecurities();
 	}
 
-	Status Portfolio::reset(Balance::Ccy ccy)
+	Status Portfolio::reset(Currency currency)
 	{
 		openPosition_.reset();
 		cash_.clear();
@@ -98,7 +98,16 @@ namespace lmh {
 	{
 		ASSERT(securities_ == openPosition_->securities(), "security sets are not matching");
 		
-		// TODO: make sure sum of weights equals one
+		// Sum of all security weights is 1.0
+		double weights = 0.0;
+		std::for_each(std::begin(securities_), std::end(securities_),
+			[&weights](auto& security)
+			{
+				ASSERT(security, "invalid security");
+				weights += security->weight().value();
+			}
+		);
+		ASSERT(fabs(weights - 1) < 1.0, "weight sum is not 1.0");
 
 		return Status::SUCCESS;
 	}

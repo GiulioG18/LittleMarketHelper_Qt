@@ -40,7 +40,7 @@ namespace lmh {
 			std::string isin = "";
 			int quantity = 0;
 			double price = 0.0;
-			Currency::Type ccy;
+			Currency currency;
 
 			size_t columnStart;
 			size_t columnEnd;
@@ -80,14 +80,14 @@ namespace lmh {
 			columnStart = columnEnd + 2; // + 2 since there is a " character after the ,
 			columnEnd = line.find_first_of('"', columnStart + 1);
 
-			// Currency::Type
+			// Currency
 			columnStart = columnEnd + 2;	// + 2 since there is a " character before the ,
-			columnEnd = columnStart + 3;	// 3 letter ccy
-			std::string ccyStr = getSection();
-			auto optCcy = Currency::fromString(ccyStr);
-			if (optCcy.has_value())
+			columnEnd = columnStart + 3;	// 3 letter currency
+			std::string currencyStr = getSection();
+			auto optCurrency = ccy::stoc(currencyStr);
+			if (optCurrency.has_value())
 			{
-				ccy = optCcy.value();
+				currency = optCurrency.value();
 			}		
 			else
 			{
@@ -105,7 +105,7 @@ namespace lmh {
 			std::optional<Quote> q = yf.getQuoteFromIsin(isin);
 			// TODO: make sure that: 
 			// . q has value, otherwise --> uncomplete
-			// . q currency is the same as ccy, otherwise --> uncomplete
+			// . q currency is the same as currency, otherwise --> uncomplete
 			// . q is valid, otherwise --> uncomplete			
 
 			// Everything looks good, construct a security

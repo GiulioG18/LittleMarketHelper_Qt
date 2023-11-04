@@ -28,7 +28,7 @@ namespace lmh {
 
 		// Non-const method
 		// Input keys must match exactly all portfolio securities
-		void runOptimization(WeightsMap wm, Currency::Type ccy, double investment);
+		void runOptimization(WeightsMap wm, Currency Currency, double investment);
 
 		// Getters
 		inline const std::optional<CalibrationResult>& result() const;

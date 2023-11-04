@@ -1,5 +1,5 @@
 // ========================================================================
-//		Currencies available
+//		Currencies
 // ========================================================================
 
 #pragma once
@@ -13,28 +13,31 @@
 
 namespace lmh {
 
-	class Currency
+	enum class Currency
 	{
-	public:
-
-		enum class Type
-		{
-			EUR,
-			USD,
-			GBP,
-			JPY,
-			CHF,
-			AUD,
-			CAD,
-			CNY,
-			HKD,
-			SEK,
-			BZR
-		};
-
-		static std::optional<Type> fromString(const std::string& ccyStr);
-		static std::string toString(Type ccy);
-		static const std::map<Currency::Type, std::string>& map();
+		EUR,
+		USD,
+		GBP,
+		JPY,
+		CHF,
+		AUD,
+		CAD,
+		CNY,
+		HKD,
+		SEK,
+		BZR
 	};
+
+	namespace ccy {
+
+		// Utilities
+
+		// Get string from currency
+		std::string	ctos(Currency currency);
+		// Get currency from string (returns std::nullopt if there is no matching currency)
+		std::optional<Currency> stoc(const std::string& currencyStr);
+		// Returns a map of all currencies
+		const std::map<Currency, std::string>& map();
+	}
 
 }

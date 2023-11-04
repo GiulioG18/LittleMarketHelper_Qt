@@ -18,7 +18,7 @@ namespace lmh {
 		registerWith(portfolio->openPosition());
 	}
 
-	void Calibrator::runOptimization(WeightsMap wm, Currency::Type ccy, double investment)
+	void Calibrator::runOptimization(WeightsMap wm, Currency currency, double investment)
 	{
 		// Clear old output
 		clearResult();
@@ -27,7 +27,7 @@ namespace lmh {
 		if (!validateWeightsMap(wm) || investment <= 0.0)
 			return;
 
-		CalibrationResult result(ccy);
+		CalibrationResult result(currency);
 		bool successful = result.initialize(
 			wm, 
 			investment,

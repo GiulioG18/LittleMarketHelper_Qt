@@ -8,8 +8,8 @@
 
 namespace lmh {
 
-	Balance::Balance(Ccy ccy)
-		: price_(ccy, 0.0)
+	Balance::Balance(Currency currency)
+		: price_(currency, 0.0)
 	{	
 	}
 
@@ -50,7 +50,6 @@ namespace lmh {
 	void Balance::computeBalance()
 	{
 		price_.set(0.0);
-
 		std::for_each(std::begin(securities_), std::end(securities_),
 			[this](auto& security)
 			{

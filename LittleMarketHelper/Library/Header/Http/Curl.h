@@ -14,7 +14,7 @@
 #include "Utils/Assertions.h"
 #include "curl/curl.h"
 
-// TODO: wrap Http stuff inside its own http namespace
+// TODO: wrap Http stuff inside its own lmh::http namespace
 
 namespace lmh {
 

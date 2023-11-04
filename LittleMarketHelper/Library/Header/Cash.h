@@ -14,14 +14,12 @@ namespace lmh {
 	{
 	public:
 
-		using Ccy = Currency::Type;
-
 		struct Comp;
 
 	public:
 
 		// Constructor [ MAY THROW ]
-		Cash(Ccy ccy, double value);
+		Cash(Currency Currency, double value);
 
 		// Getters
 		inline const Price& price() const;
@@ -42,8 +40,8 @@ namespace lmh {
 		using is_transparent = void;
 
 		bool operator()(const Cash& first,	const Cash& second) const;
-		bool operator()(const Ccy&	first,	const Cash& second) const;
-		bool operator()(const Cash& first,  const Ccy&	second) const;
+		bool operator()(const Currency&	first,	const Cash& second) const;
+		bool operator()(const Cash& first,  const Currency&	second) const;
 	};
 
 

@@ -33,7 +33,7 @@ namespace lmh {
 
 	public:
 
-		CalibrationResult(Currency::Type ccy);
+		CalibrationResult(Currency Currency);
 
 		// Non-const methods
 		// Assumes that all the inputs are validated before, otherwise its behaviour is undefined
@@ -55,7 +55,7 @@ namespace lmh {
 		struct Datum;
 
 		std::vector<Datum> data_;
-		Currency::Type ccy_;
+		Currency currency_;
 		double investment_;
 		double openPosition_;	
 		double cash_; // Investment - open position

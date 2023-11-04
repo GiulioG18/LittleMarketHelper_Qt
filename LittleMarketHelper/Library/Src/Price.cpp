@@ -14,19 +14,19 @@ namespace lmh {
 		Op op;
 		double v;
 
-		if (first.ccy() == second.ccy())
+		if (first.currency() == second.currency())
 		{
 			v = op(first.value(), second.value());
 		}
 		else
 		{
 			// Translate the second price into the first currency
-			Price secondConverted = ExchangeRateRepository::get().convert(second, first.ccy());
+			Price secondConverted = Forex::convert(second, first.currency());
 			v = op(first.value(), secondConverted.value());
 		}
 
 		ENSURE(v >= 0, "invalid value");
-		return { first.ccy(), v };
+		return { first.currency(), v };
 	}
 
 	// Helper function for binary operators with scalars
@@ -36,17 +36,17 @@ namespace lmh {
 		REQUIRE(d >= 0, "invalid amount");
 
 		Op op;
-		return { price.ccy(), op(price.value(), d) };
+		return { price.currency(), op(price.value(), d) };
 	}
 
 
 	// Price
 
-	Price::Price(Ccy ccy, double value)
-		: ccy_(ccy), value_(value)
+	Price::Price(Currency currency, double value)
+		: currency_(currency), value_(value)
 	{
 		REQUIRE(value_ >= 0, "invalid value");
-		// TODO: REQUIRE-> check that the ccy is available
+		// TODO: REQUIRE-> check that the Currency is available
 	}
 
 	void Price::set(double amount)
@@ -90,14 +90,14 @@ namespace lmh {
 	Price& Price::operator+=(const Price& other)
 	{
 		// TODO: modify the Price-Price binary fun helper to be used also in these operators
-		if (this->ccy_ == other.ccy_)
+		if (this->currency_ == other.currency_)
 		{
 			this->value_ += other.value_;
 		}
 		else
 		{
 			// Translate the other price into this price's currency			
-			Price otherConverted = ExchangeRateRepository::get().convert(other, this->ccy());
+			Price otherConverted = Forex::convert(other, this->currency());
 			this->value_ += otherConverted.value();
 		}
 
