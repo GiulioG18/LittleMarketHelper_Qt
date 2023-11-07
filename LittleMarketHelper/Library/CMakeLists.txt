@@ -28,7 +28,6 @@ Set(SRC
 	Src/Security.cpp
 	Src/Balance.cpp
 	Src/ReportParser.cpp
-	Src/DegiroReportParser.cpp
 	Src/Weight.cpp
 	Src/WeightedSecurity.cpp
 	Src/Calibrator.cpp
@@ -45,9 +44,9 @@ Set(SRC
 	Src/Utils/Errors.cpp
 	Src/Utils/Logger.cpp
 	Src/Utils/Json.cpp
+	Src/Utils/Chrono.cpp
 	Src/Patterns/Observable.cpp	
 	Src/Http/Curl.cpp
-	Src/Http/ConfigRequest.cpp
 	Src/Http/Api.cpp
 )
 
@@ -55,7 +54,6 @@ Set(SRC
 Set(HEADER
 	Header/Balance.h
 	Header/Currency.h
-	Header/DegiroReportParser.h
 	Header/Security.h
 	Header/Portfolio.h
 	Header/ReportParser.h
@@ -72,6 +70,7 @@ Set(HEADER
 	Header/Price.h
 	Header/Cash.h
 	Header/Forex.h
+	Header/Lmh.h
 	Header/Utils/Assertions.h
 	Header/Utils/Environment.h
 	Header/Utils/Errors.h
@@ -81,11 +80,11 @@ Set(HEADER
 	Header/Utils/Warnings.h
 	Header/Utils/Json.h
 	Header/Utils/Cache.h
+	Header/Utils/Chrono.h
 	Header/Patterns/LazyObject.h
 	Header/Patterns/Observable.h
 	Header/Patterns/Singleton.h
 	Header/Http/Curl.h
-	Header/Http/ConfigRequest.h
 	Header/Http/Api.h
 )
 

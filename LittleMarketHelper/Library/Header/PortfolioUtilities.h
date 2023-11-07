@@ -9,24 +9,23 @@ bool is_almost_same_v = std::is_same_v<const T1&, const T2&>;
 
 namespace lmh {
 
-	struct EditTrade
+	struct Edit
 	{
 		enum Type
 		{
 			NAME,
-			CURRENCY,
 			QUANTITY,
 			PRICE
 		};
 
-		template<EditTrade::Type t>
-		static bool validateEditType(auto value)
+		template<Edit::Type t>
+		inline static bool validateEditType(auto value)
 		{
-			if		constexpr (t == EditTrade::NAME)
+			if		constexpr (t == Edit::NAME)
 				return is_almost_same_v<decltype(value), std::string>;
-			else if constexpr (t == EditTrade::QUANTITY)
-				return is_almost_sam_v<decltype(value), int>;
-			else if constexpr (t == EditTrade::PRICE)
+			else if constexpr (t == Edit::QUANTITY)
+				return is_almost_same_v<decltype(value), uint32_t>;
+			else if constexpr (t == Edit::PRICE)
 				return is_almost_same_v<decltype(value), double>;
 			else
 				return false;

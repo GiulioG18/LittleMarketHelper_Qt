@@ -7,25 +7,24 @@ namespace lmh {
 
 	// ExchangeRate
 
-	ExchangeRate::ExchangeRate(std::string denomination, const Quote& rate)
-		: denomination_(denomination), quote_(rate)
+	ExchangeRate::ExchangeRate(std::string denomination, double value)
+		: denomination_(denomination), value_(value)
 	{
 		// TODO: impl
 		FAIL("not implemented");
 		REQUIRE(xxx_ != yyy_, "same currency provided for exchange rate currencies");
 	}
 
-	ExchangeRate::ExchangeRate(Currency xxx, Currency yyy, const Quote& rate)
+	ExchangeRate::ExchangeRate(Currency xxx, Currency yyy, double value)
 		:
 		xxx_(xxx),
 		yyy_(yyy),
-		quote_(rate),
+		value_(value),
 		denomination_(Forex::denomination(xxx, yyy))
 	{
-		REQUIRE(quote_.price().value() > 0, "exchange rate provided is not positive");
-		REQUIRE(quote_.price().currency() == yyy_, "quote currency does not match YYY");
+		REQUIRE(value_ > 0, "exchange rate provided is not positive");
 		if (xxx_ == yyy_) 
-			REQUIRE(quote_.price().value() == 1.0, "same currency exchange rate is not 1");
+			REQUIRE(value_ == 1.0, "same currency exchange rate is not 1");
 	}
 
 	bool ExchangeRate::operator<(const ExchangeRate& other) const
@@ -55,7 +54,7 @@ namespace lmh {
 				continue;
 
 			// Skip non-positive rate
-			if (rate.quote().price().value() <= 0.0)
+			if (rate.value() <= 0.0)
 				continue;
 
 			// Insert rate into maps

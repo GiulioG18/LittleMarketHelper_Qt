@@ -77,7 +77,7 @@ namespace lmh {
 
 		std::unique_ptr<std::fstream> stream_;
 		LogLevel logLevel_ = LOG_LEVEL_DEFAULT;
-		time_t time_ = static_cast<time_t>(0);
+		std::time_t time_ = static_cast<time_t>(0);
 		fs::path folder_;
 		fs::path file_;
 		int maxLogFiles_ = 5;

@@ -14,6 +14,7 @@
 #include "Balance.h"
 #include "Cash.h"
 #include "WeightedSecurity.h"
+#include "PortfolioUtilities.h"
 
 
 namespace lmh {
@@ -35,8 +36,8 @@ namespace lmh {
 		Status addSecurity(const Security& security);
 		Status removeSecurity(const std::string& isin);
 		Status reset(Currency currency);
-		/*template<EditTrade::Type editType, typename Type>
-		Status edit(const std::string& isin, Type newValue);*/
+		template<Edit::Type et, typename Type>
+		Status edit(const std::string& isin, Type newValue);
 
 		// Const methods
 		size_t size() const;
@@ -55,8 +56,6 @@ namespace lmh {
 
 	private:
 
-		// TODO: add timepoint
-		// TODO: add user (maybe not here)
 		std::shared_ptr<Balance> openPosition_;
 		CashSet cash_;
 		SecurityPtrSet securities_;
@@ -68,41 +67,38 @@ namespace lmh {
 	inline const Portfolio::CashSet& Portfolio::cash() const { return cash_; }
 	inline const Portfolio::SecurityPtrSet& Portfolio::securities() const { return securities_; }
 
-
 	// Template definitions
-	// TODO: simplify this and take it out of here...
-	//template<EditTrade::Type editType, typename Type>
-	//Status Portfolio::edit(const std::string& isin, Type newValue)
-	//{
-	//	// set() functions may throw...
-	//	try
-	//	{
-	//		// Check the edit is valid before extracting the trade
-	//		if (!EditTrade::validateEditType<editType>(newValue))
-	//			FAIL("invalid edit");
 
-	//		// Find trade...
-	//		auto trade = trades_->find(isin);
-	//		if (trade == trades_->get().end())
-	//			return Status::TRADE_NOT_FOUND;
+	template<Edit::Type et, typename Type>
+	Status Portfolio::edit(const std::string& isin, Type newValue)
+	{
+		try
+		{
+			// Check the edit is valid before extracting the trade
+			if (!Edit::validateEditType<et>(newValue))
+				FAIL("invalid edit");
 
-	//		// ...and edit it
-	//		auto& security = trade->first;
-	//		if		constexpr (editType == EditTrade::NAME)
-	//			security->setName(newValue);
-	//		else if constexpr (editType == EditTrade::QUANTITY)
-	//			security->setQuantity(newValue);
-	//		else if constexpr (editType == EditTrade::PRICE)
-	//			security->setQuote(newValue);
-	//		else
-	//			ASSERT(false, "Invalid Edit operation");
-	//	}
-	//	catch (...)
-	//	{
-	//		return Status::INVALID_INPUT;
-	//	}		
+			// Find trade...
+			auto security = securities_.find(isin);
+			if (security == securities_.end())
+				return Status::TRADE_NOT_FOUND;
 
-	//	return Status::SUCCESS;
-	//}
+			// ...and edit it
+			if		constexpr (et == Edit::NAME)
+				security->get()->setName(newValue);
+			else if constexpr (et == Edit::QUANTITY)
+				security->get()->setQuantity(newValue);
+			else if constexpr (et == Edit::PRICE)
+				security->get()->setQuote(newValue);
+			else
+				FAIL("invalid edit operation"); // TODO: assert
+		}
+		catch (...)
+		{
+			return Status::INVALID_INPUT;
+		}		
+
+		return Status::SUCCESS;
+	}
 
 }

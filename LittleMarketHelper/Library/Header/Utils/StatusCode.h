@@ -7,6 +7,13 @@
 
 #include <string>
 
+// Macro to handle Curl errors
+#define RETURN_ON_ERROR(x) do {	\
+  Status s = (x);				\
+  if (s != Status::SUCCESS)		\
+    return s;					\
+} while (0)
+
 
 namespace lmh {
 

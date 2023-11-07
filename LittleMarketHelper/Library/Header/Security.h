@@ -17,36 +17,35 @@ namespace lmh {
 	{
 	public:
 
-		// Constructor [ MAY THROW ]
-		Security( 
+		Security( // [ MAY THROW ]
 			const std::string& isin,
 			const std::string& name,
-			int quantity,
+			uint32_t quantity,
 			const Quote& quote
-		);
+		); 
 
 		Price marketValue() const;
 
 		// Input validators
 		static bool validateIsin(const std::string& isin);
-		static bool validateQuantity(int quantity);
+		static bool validateQuantity(uint32_t quantity);
 
-		// getters 
+		// Getters 
 		inline const std::string& isin() const;
 		inline const std::string& name() const;
-		inline const int quantity() const;
+		inline uint32_t quantity() const;
 		inline const Quote& quote() const;
 					
-		// Setters [ MAY THROW ]
+		// Setters
 		void setName(const std::string& name);
-		void setQuantity(int quantity);
-		void setQuote(double value);
+		void setQuantity(uint32_t quantity); // [ MAY THROW ]
+		void setQuote(double value); // [ MAY THROW ]
 
 	private:
 		
-		const std::string isin_;	// Key
+		const std::string isin_; // Key
 		std::string name_;
-		int quantity_;
+		uint32_t quantity_;
 		Quote quote_;
 	};
 
@@ -54,7 +53,7 @@ namespace lmh {
 	// Inline definitions
 	inline const std::string& Security::isin() const { return isin_; }
 	inline const std::string& Security::name() const { return name_; }
-	inline const int Security::quantity() const { return quantity_; };
+	inline uint32_t Security::quantity() const { return quantity_; };
 	inline const Quote& Security::quote() const { return quote_; };
 }
 

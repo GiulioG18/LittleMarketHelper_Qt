@@ -14,26 +14,25 @@ namespace lmh {
 	class Price
 	{
 	public:
-
-		// Constructor [ MAY THROW ]
-		Price(Currency currency, double value);
+		
+		Price(Currency currency, double value); // [ MAY THROW ]
 
 		// Getters
 		inline double value() const;
 		inline Currency currency() const;
 
-		// Setters [ MAY THROW ]
-		void set(double amount);
+		// Setters
+		void set(double amount); // [ MAY THROW ]
 
-		// Operators [ MAY THROW ]
-		Price operator+(const Price& other) const;
-		Price operator/(const Price& other) const;
-		Price operator*(const Price& other) const;
-		Price operator+(double amount) const;
-		Price operator/(double amount) const;
-		Price operator*(int quantity) const;
-		Price& operator+=(const Price& other);
-		Price& operator+=(double amount);
+		// Operators
+		Price operator+(const Price& other) const; // [ MAY THROW ]
+		Price operator/(const Price& other) const; // [ MAY THROW ]
+		Price operator*(const Price& other) const; // [ MAY THROW ]
+		Price operator+(double amount) const; // [ MAY THROW ]
+		Price operator/(double amount) const; // [ MAY THROW ]
+		Price operator*(int quantity) const; // [ MAY THROW ]
+		Price& operator+=(const Price& other); // [ MAY THROW ]
+		Price& operator+=(double amount); // [ MAY THROW ]
 
 	private:
 

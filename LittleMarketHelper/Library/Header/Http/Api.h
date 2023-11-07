@@ -27,7 +27,6 @@ namespace lmh {
 	
 	namespace http {
 
-
 		// Base 
 		class Api
 		{
@@ -130,56 +129,6 @@ namespace lmh {
 	}
 
 	/*
-	class HttpApi
-	{
-	public:
-
-		struct Stats
-		{
-			std::chrono::duration<double> time_{ 0.0 };
-			size_t bytes_ = 0;	// Download
-		};
-
-	public:
-
-		HttpApi() = default;
-
-	private:		
-
-		std::string method_;
-		std::string url_;
-		std::string data_;
-		std::string filler_;
-		std::vector<std::string> keys_;
-		Stats lastTransfer_;
-	};
-
-
-
-
-	class OpenFigiApi : public HttpApi
-	{
-	public:
-
-		std::optional<std::string> getTicker(const std::string& isin) const
-		{
-			//auto a = figiRequests_->has(isin); // TODO: avoid double lookup
-			return std::string();
-
-		}
-		bool removeFirstTicker()
-		{
-			return false;
-		}
-
-	private:
-
-		//static std::unique_ptr<Cache<std::string, Json>> figiRequests_;
-	};
-
-
-
-
 	class YahooFinanceApi : public HttpApi
 	{
 	public:

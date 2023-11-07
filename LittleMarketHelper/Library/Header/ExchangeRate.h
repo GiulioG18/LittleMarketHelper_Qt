@@ -16,17 +16,19 @@
 
 namespace lmh {
 
+	// Exchange Rate
+
 	class ExchangeRate
 	{
 	public:
 		
-		ExchangeRate(std::string denomination, const Quote& rate); // [ MAY THROW ]
-		ExchangeRate(Currency xxx, Currency yyy, const Quote& rate); // [ MAY THROW ]
+		ExchangeRate(std::string denomination, double value); // [ MAY THROW ]
+		ExchangeRate(Currency xxx, Currency yyy, double value); // [ MAY THROW ]
 
 		// Getters
 		inline Currency xxx() const;
 		inline Currency yyy() const;
-		inline const Quote& quote() const;
+		inline double value() const;
 
 		bool operator<(const ExchangeRate& other) const;
 
@@ -35,9 +37,13 @@ namespace lmh {
 		std::string denomination_;
 		Currency xxx_;
 		Currency yyy_;
-		Quote quote_; // Quote::price_ refers to the non-base currency
+		double value_;
 	};
 
+
+
+
+	// Exchange Rate Repository 
 
 	class ExchangeRateRepository : public Singleton<ExchangeRateRepository>
 	{
@@ -52,11 +58,11 @@ namespace lmh {
 		ExchangeRateRepository() = default;
 		// Initializes rate map and available currencies
 		// NB: the base currency selected here should match the one in the config file
-		static Status initialize(Currency baseCurrency = Currency::EUR);
+		static Status initialize(Currency baseCurrency);
 
 	private:
 
-		std::set<Currency> availableCurrencies_; // TODO: ensure that this is actually constant throughout the whole application, otherwise there could be unavailable rates for available Currencys
+		std::set<Currency> availableCurrencies_;
 		RatesMap rates_;
 		Currency baseCurrency_ = Currency::EUR;
 		bool initialized_ = false;
@@ -66,6 +72,6 @@ namespace lmh {
 	// Inline definitions
 	inline Currency ExchangeRate::xxx() const { return xxx_; }
 	inline Currency ExchangeRate::yyy() const { return yyy_; }
-	inline const Quote& ExchangeRate::quote() const { return quote_; }
+	inline double ExchangeRate::value() const { return value_; }
 
 }

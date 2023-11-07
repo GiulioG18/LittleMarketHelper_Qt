@@ -10,7 +10,6 @@ namespace lmh {
 
 	namespace http {
 
-
 		// Base
 
 		Status Api::send()
@@ -168,7 +167,7 @@ namespace lmh {
 				if (rate.has_value())
 				{
 					// Construct rate
-					lmh::ExchangeRate er(xxx, yyy, lmh::Quote({ yyy, rate.value()}, 0.0)); // TODO: once timestamp is properly impl, impl 
+					lmh::ExchangeRate er(xxx, yyy, rate.value()); // TODO: property set timestamp
 
 					// Move it into output set
 					out.insert(std::move(er));

@@ -18,8 +18,7 @@ namespace lmh {
 
 	public:
 
-		// Constructor [ MAY THROW ]
-		Cash(Currency Currency, double value);
+		Cash(Currency Currency, double value); // [ MAY THROW ]
 
 		// Getters
 		inline const Price& price() const;

@@ -8,7 +8,7 @@ namespace lmh {
 	Price Forex::convert(const Price& price, Currency targetCurrency)
 	{
 		// Example: Converting 100USD into EUR returns: 100 / EURUSD
-		double rate = crossCurrencyRate(targetCurrency, price.currency()).quote().price().value();
+		double rate = crossCurrencyRate(targetCurrency, price.currency()).value();
 		double value = price.value() / rate;
 		ENSURE(value > 0.0, "invalid translated value"); // TODO: ensure, since the value is always positive, and exchange rate is also checked at construction
 
@@ -49,22 +49,22 @@ namespace lmh {
 		if (baseCurrency(xxx))
 		{
 			// Simply get the rate from the map			
-			rate = repo.rates_.at(denomination(xxx, yyy)).quote().price().value();			
+			rate = repo.rates_.at(denomination(xxx, yyy)).value();			
 		}
 		else if (baseCurrency(yyy))
 		{
 			// Get the reciprocal of XXXYYY (since it is garanteed to exist in the map)
-			rate = 1 / repo.rates_.at(denomination(yyy, xxx)).quote().price().value();
+			rate = 1 / repo.rates_.at(denomination(yyy, xxx)).value();
 		}
 		else
 		{
 			// XXXYYY = (BBBYYY / BBBXXX)
-			double bbbyyy = repo.rates_.at(denomination(repo.baseCurrency_, yyy)).quote().price().value();
-			double bbbxxx = repo.rates_.at(denomination(repo.baseCurrency_, xxx)).quote().price().value();
+			double bbbyyy = repo.rates_.at(denomination(repo.baseCurrency_, yyy)).value();
+			double bbbxxx = repo.rates_.at(denomination(repo.baseCurrency_, xxx)).value();
 			rate = bbbyyy / bbbxxx;
 		}
 
-		return ExchangeRate(xxx, yyy, Quote({ yyy, rate }, 0.0)); // TODO: set timestamp equal to oldest timestamp between the rates used
+		return ExchangeRate(xxx, yyy, rate); // TODO: set timestamp equal to oldest timestamp between the rates used
 	}
 
 }

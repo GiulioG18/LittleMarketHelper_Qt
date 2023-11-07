@@ -1,18 +1,17 @@
-#include "Utils/Warnings.h"
 
+#include "Lmh.h"
+#include "Utils/Warnings.h"
 #include "Patterns/Observable.h"
 #include "Patterns/LazyObject.h"
 #include "Utils/Logger.h"
 #include "Security.h"
 #include "Portfolio.h"
 #include "ReportParser.h"
-#include "DegiroReportParser.h"
 #include "Utils/File.h"
 #include "Weight.h"
 #include "Calibrator.h"
 #include "Http/Curl.h"
 #include "Config.h"
-#include "Http/ConfigRequest.h"
 #include "TickersGenerator.h"
 #include "Cash.h"
 #include "ExchangeRate.h"
@@ -42,6 +41,8 @@ using namespace lmh;
 // . check again every throwing function, should make a distinction between ASSERT's and assert...
 // 
 // . User takes snapshots of portfolio that gets saved (somewhere... maybe free Database?)
+// 
+// . Convert std::string paths to std::filesystem::path
 // 
 // . add stats for user investment history (IRR, holding history, holding's IRR, ...)
 // 
@@ -92,6 +93,7 @@ int main()
 {
 	try
 	{
+		start("D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\config.json");
 
 		pt::ptree configTree;
 		pt::read_json({ "D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\config.json" }, configTree);
@@ -126,18 +128,16 @@ int main()
 		LMH_WARNING("this is a warning");
 		LMH_ERROR("this is an error");
 
-		Curl& curl = Curl::get();
+		http::Curl& curl = http::Curl::get();
 		curl.initialize();
 		auto ic = curl.GETRequest("https://papi-pornstarsapi.p.rapidapi.com/pornstars/");
 		std::cout << curl.StatusMessage() << std::endl;
 		auto ec = curl.GETRequest("https://query1.finance.yahoo.com/v8/finance/chart/AMZN");
+		std::cout << curl.response() << std::endl;
 		auto oc = curl.GETRequest("https://catfact.ninja/fact");
 		std::cout << curl.response() << std::endl;
 
 		auto as = curl.POSTRequest("https://api.openfigi.com/v3/mapping", "[{\"idType\":\"ID_ISIN\",\"idValue\":\"US4592001014\"}]");
-
-
-
 
 		ExchangeRateRepository::initialize(Currency::EUR);
 		/*if (status == Status::SUCCESS)
@@ -173,10 +173,27 @@ int main()
 			}
 		}*/
 
-		std::shared_ptr<Security> a1 = std::make_shared<Security>(std::string("LU0908500753"), std::string(), 8, Quote(Price(Currency::EUR, 203.85), 0.0));
-		std::shared_ptr<Security> b2 = std::make_shared<Security>(std::string("IE00BJ38QD84"), std::string(), 12, Quote(Price(Currency::AUD, 47.43),  0.0));
-		std::shared_ptr<Security> c3 = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::EUR,424.20), 0.0));
-		Security d4 = Security(std::string("LU1681045370"), std::string(), 420, Quote(Price(Currency::SEK, 4.37), 0.0));
+		std::shared_ptr<Security> a1 = std::make_shared<Security>(std::string("LU0908500753"), std::string(), 8, Quote(Price(Currency::EUR, 203.85)));
+		std::shared_ptr<Security> b2 = std::make_shared<Security>(std::string("IE00BJ38QD84"), std::string(), 12, Quote(Price(Currency::AUD, 47.43)));
+		std::shared_ptr<Security> c3 = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::EUR,424.20), std::chrono::system_clock::now()));
+		try
+		{
+			std::shared_ptr<Security> negativeValue = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::EUR, -424.20), std::chrono::system_clock::now()));
+		}
+		catch (std::exception& e)
+		{
+			std::cout << e.what() << std::endl;
+		}
+		try
+		{
+			std::shared_ptr<Security> d4 = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::BZR, 424.20), std::chrono::system_clock::now()));
+		}
+		catch (std::exception& e)
+		{
+			std::cout << e.what() << std::endl;
+		}
+
+		Security d4 = Security(std::string("LU1681045370"), std::string(), 420, Quote(Price(Currency::SEK, 4.37), std::chrono::system_clock::now() - 24h));
 
 		std::unique_ptr<Portfolio> portfolio = std::make_unique<Portfolio>(Currency::EUR);
 		portfolio->addSecurity(*a1);
@@ -191,7 +208,11 @@ int main()
 		std::cout << portfolio->openPosition()->price().value() << std::endl;
 		portfolio->removeSecurity("IE00BJ38QD84");
 		std::cout << portfolio->openPosition()->price().value() << std::endl;
-		//portfolio->edit<EditTrade::Type::CURRENCY>("123451234511", Currency::EUR);
+		//portfolio->edit<Edit::Type::NAME>("IE00BJ38QD84", Currency::EUR); // Compilation error
+		portfolio->edit<Edit::Type::NAME>("LU1681045370", std::string(""));
+		portfolio->edit<Edit::Type::QUANTITY>("LU1681045370", -1);
+		portfolio->edit<Edit::Type::QUANTITY>("LU1681045370", static_cast<uint32_t>(1));
+		portfolio->edit<Edit::Type::PRICE>("LU1681045370", -1.124);
 
 
 		auto cash0 = std::make_shared<Cash>(Currency::EUR, 999.99);

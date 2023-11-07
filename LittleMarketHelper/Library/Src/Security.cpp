@@ -8,7 +8,7 @@ namespace lmh {
 	Security::Security(
 		const std::string& isin,
 		const std::string& name,
-		int quantity,
+		uint32_t quantity,
 		const Quote& quote
 	)
 		: 
@@ -32,12 +32,12 @@ namespace lmh {
 		return isin.length() == 12;
 	}
 
-	bool Security::validateQuantity(int quantity)
+	bool Security::validateQuantity(uint32_t quantity)
 	{
 		return quantity >= 0;
 	}
 
-	inline void Security::setName(const std::string& name)
+	void Security::setName(const std::string& name)
 	{
 		if (name_ != name)
 		{
@@ -47,7 +47,7 @@ namespace lmh {
 			
 	}
 
-	void Security::setQuantity(int quantity)
+	void Security::setQuantity(uint32_t quantity)
 	{
 		REQUIRE(validateQuantity(quantity), "invalid quantity as input");
 		if (quantity_ != quantity)

@@ -46,7 +46,7 @@ namespace lmh {
 		: currency_(currency), value_(value)
 	{
 		REQUIRE(value_ >= 0, "invalid value");
-		// TODO: REQUIRE-> check that the Currency is available
+		REQUIRE(Forex::availableCurrency(currency), "currency is not available");
 	}
 
 	void Price::set(double amount)

@@ -10,6 +10,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
+#include "Assertions.h"
 #include "Utils/StatusCode.h"
 
 
@@ -30,10 +31,8 @@ namespace lmh {
 		void clear();
 
 		// Getters
-		inline const pt::ptree& tree() const;
-		inline const fs::path& filename() const;
-
-		//inline void printTree(const boost::property_tree::ptree& pt, int level) const;
+		inline const pt::ptree& tree() const; // [ MAY THROW ]
+		inline const fs::path& filename() const; // [ MAY THROW ]
 
 	private:
 
@@ -43,7 +42,7 @@ namespace lmh {
 
 
 	// Inline definitions
-	inline const pt::ptree& Json::tree() const { return tree_; };
-	inline const fs::path& Json::filename() const { return filename_; };
+	inline const pt::ptree& Json::tree() const { REQUIRE(initialized(), "Json file not initialized"); return tree_; };
+	inline const fs::path& Json::filename() const { REQUIRE(initialized(), "Json file not initialized"); return filename_; };
 
 }

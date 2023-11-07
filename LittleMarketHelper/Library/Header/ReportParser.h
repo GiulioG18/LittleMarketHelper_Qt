@@ -19,18 +19,17 @@ namespace fs = std::filesystem;
 
 namespace lmh {
 
+	// Base
 
 	class ReportParser
 	{
 	public:
 
-		//										Isin		Name
+		//									<----Isin---><----Name--->
 		using UncompleteSecurity = std::pair<std::string, std::string>;	// TODO: make it a class with proper methods (could also avoid variant with polymorphism)
 		using ParsedSecurities = std::vector<std::variant<Security, ReportParser::UncompleteSecurity>>;
 		
 		struct Output;
-
-		// Supported parsers
 		enum class Type;
 
 	public:
@@ -50,8 +49,8 @@ namespace lmh {
 		virtual Status readFile(const fs::path& file, Output& output) const = 0;
 
 		// Const methods
-		virtual fs::path defaultFilename() const;	// TODO: read from config file instead of hardcoding it (and then remove virtualness)
-		virtual fs::path defaultExtension() const;	// TODO: read from config file instead of hardcoding it (and then remove virtualness)
+		virtual fs::path defaultFilename() const;	
+		virtual fs::path defaultExtension() const;	
 
 	private:
 
@@ -86,6 +85,27 @@ namespace lmh {
 		int found_;
 		int discarded_;
 		Status status_;
+	};
+
+
+
+	// DEGIRO
+
+	class DegiroReportParser : public ReportParser
+	{
+	public:
+
+		DegiroReportParser() = default;
+		virtual ~DegiroReportParser() = default;
+
+		// Non-const methods
+		// NB: it reads them from the config file, which MUST first be init when parsing with DEGIRO
+		// NB2: Curl MUST be initialized before parsing with DEGIRO aswell in order to run requests
+		virtual Status readFile(const fs::path& file, Output& output) const override;
+
+		// Const methods
+		virtual fs::path defaultFilename() const override;
+		virtual fs::path defaultExtension() const override;
 	};
 
 }

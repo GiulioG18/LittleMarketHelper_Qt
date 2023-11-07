@@ -27,7 +27,6 @@ namespace lmh {
 			return Status::TRADE_DUPLICATE_NOT_INSERTED;
 
 		registerWith(*insertion.first);
-
 		computeBalance(); // Calls notifyObservers();
 
 		return Status::SUCCESS;
@@ -40,8 +39,7 @@ namespace lmh {
 			return Status::TRADE_NOT_FOUND;
 
 		unregisterWith(*it);
-		securities_.erase(it);
-		
+		securities_.erase(it);		
 		computeBalance(); // Calls notifyObservers();
 
 		return Status::SUCCESS;
