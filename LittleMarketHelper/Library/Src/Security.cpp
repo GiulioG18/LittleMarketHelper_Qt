@@ -1,19 +1,33 @@
 
 #include "Security.h"
+#include "SecurityShell.h"
 #include "Utils/Assertions.h"
 
 
 namespace lmh {
 
 	Security::Security(
-		const std::string& isin,
-		const std::string& name,
+		std::string_view isin,
+		std::string_view name,
 		uint32_t quantity,
-		const Quote& quote
-	)
+		const Quote& quote)
 		: 
 		isin_(isin), 
 		name_(name),
+		quantity_(quantity),
+		quote_(quote)
+	{
+		REQUIRE(Security::validateIsin(isin_), "invalid isin as input");
+		REQUIRE(Security::validateQuantity(quantity_), "invalid quantity as input");
+	}
+
+	Security::Security(
+		const SecurityShell& shell,
+		uint32_t quantity,
+		const Quote& quote)
+		:
+		isin_(shell.isin()),
+		name_(shell.name()),
 		quantity_(quantity),
 		quote_(quote)
 	{
@@ -26,7 +40,7 @@ namespace lmh {
 		return quote_.price() * static_cast<double>(quantity_);
 	}
 
-	bool Security::validateIsin(const std::string& isin)
+	bool Security::validateIsin(std::string_view isin)
 	{
 		// Could be improved, but for now this is enough
 		return isin.length() == 12;
@@ -37,7 +51,7 @@ namespace lmh {
 		return quantity >= 0;
 	}
 
-	void Security::setName(const std::string& name)
+	void Security::setName(std::string_view name)
 	{
 		if (name_ != name)
 		{
@@ -60,7 +74,7 @@ namespace lmh {
 	void Security::setQuote(double value)
 	{
 		// Validation is delegated
-		if (value != quote_.price().value())
+		if (value != quote_.price().amount())
 		{
 			quote_.setValue(value);
 			notifyObservers();

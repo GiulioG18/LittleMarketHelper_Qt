@@ -19,17 +19,17 @@ namespace lmh {
 	{
 		REQUIRE(security_, "invalid security");
 		REQUIRE(balance_, "invalid balance");
-		REQUIRE(security_->quote().price().value() > 0.0, "invalid price");
+		REQUIRE(security_->quote().price().amount() > 0.0, "invalid price");
 		REQUIRE(security_->quantity() >= 0, "invalid quantity");
 
-		if (balance_->price().value() == 0.0)
+		if (balance_->price().amount() == 0.0)
 		{
-			ASSERT(security_->marketValue().value() == 0.0, "balance is 0, but security market value is positive");
+			ASSERT(security_->marketValue().amount() == 0.0, "balance is 0, but security market value is positive");
 			value_ = 0.0;
 		}
 		else
 		{
-			value_ = (security_->marketValue() / balance_->price()).value();
+			value_ = (security_->marketValue() / balance_->price()).amount();
 		}
 
 		ENSURE(value_ >= 0 && value_ <= 1, "weight outside [0, 1] range");

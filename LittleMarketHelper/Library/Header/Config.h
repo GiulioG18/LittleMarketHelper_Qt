@@ -29,7 +29,7 @@ namespace lmh {
 
 	public:
 
-		static Status initialize(const std::string& filename);
+		static Status initialize(const fs::path& filename);
 
 		// Read only access to the Config ptree
 		static const pt::ptree& properties();

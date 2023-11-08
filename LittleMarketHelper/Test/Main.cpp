@@ -25,38 +25,15 @@ using namespace lmh;
 
 // TODO:
 // 
-// . Do not fecth all the historical price when using yf
-// 
 // . write the damn comments (see doxygen todo)
 // 
-// . create repository object (exchange rates map, ...)
-// 
-// . Make Currency inside Portfolio relevant!
-//		- this will be selected by the user and will be relevant for the prices
-// 
-// . Create exchange rates for portfolio's Currency
-// 
-// . add credentials for users
-// 
-// . check again every throwing function, should make a distinction between ASSERT's and assert...
-// 
 // . User takes snapshots of portfolio that gets saved (somewhere... maybe free Database?)
-// 
-// . Convert std::string paths to std::filesystem::path
 // 
 // . add stats for user investment history (IRR, holding history, holding's IRR, ...)
 // 
 // . would be a performance benefit to use "freeze" inside observers
 // 
 // . add concept of session
-// 
-// . create repository and initialize it!
-// 
-// . create some global initialize function for the app
-//		- Config
-//		- Curl
-//		- ExchangeRateRepository
-//		- Logger
 // 
 // . check for all class
 //		- copy/move ctor, copy/move operator
@@ -197,17 +174,17 @@ int main()
 
 		std::unique_ptr<Portfolio> portfolio = std::make_unique<Portfolio>(Currency::EUR);
 		portfolio->addSecurity(*a1);
-		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		std::cout << portfolio->openPosition()->price().amount() << std::endl;
 		portfolio->addSecurity(*b2);
-		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		std::cout << portfolio->openPosition()->price().amount() << std::endl;
 		portfolio->addSecurity(*c3);
-		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		std::cout << portfolio->openPosition()->price().amount() << std::endl;
 		portfolio->addSecurity(d4);
-		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		std::cout << portfolio->openPosition()->price().amount() << std::endl;
 		portfolio->removeSecurity("123451234512");
-		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		std::cout << portfolio->openPosition()->price().amount() << std::endl;
 		portfolio->removeSecurity("IE00BJ38QD84");
-		std::cout << portfolio->openPosition()->price().value() << std::endl;
+		std::cout << portfolio->openPosition()->price().amount() << std::endl;
 		//portfolio->edit<Edit::Type::NAME>("IE00BJ38QD84", Currency::EUR); // Compilation error
 		portfolio->edit<Edit::Type::NAME>("LU1681045370", std::string(""));
 		portfolio->edit<Edit::Type::QUANTITY>("LU1681045370", -1);
@@ -221,17 +198,17 @@ int main()
 		auto cashWrong = std::make_shared<Cash>(Currency::CHF, 124);
 
 		portfolio->addCash(*cash0);
-		std::cout << portfolio->openPosition()->price().value() << std::endl;
-		std::cout << portfolio->value().value() << std::endl;
+		std::cout << portfolio->openPosition()->price().amount() << std::endl;
+		std::cout << portfolio->value().amount() << std::endl;
 		portfolio->addCash(*cash1);
-		std::cout << portfolio->openPosition()->price().value() << std::endl;
-		std::cout << portfolio->value().value() << std::endl;
+		std::cout << portfolio->openPosition()->price().amount() << std::endl;
+		std::cout << portfolio->value().amount() << std::endl;
 		portfolio->addCash(*cash2);
-		std::cout << portfolio->openPosition()->price().value() << std::endl;
-		std::cout << portfolio->value().value() << std::endl;
+		std::cout << portfolio->openPosition()->price().amount() << std::endl;
+		std::cout << portfolio->value().amount() << std::endl;
 		portfolio->addCash(*cashWrong);
-		std::cout << portfolio->openPosition()->price().value() << std::endl;
-		std::cout << portfolio->value().value() << std::endl;
+		std::cout << portfolio->openPosition()->price().amount() << std::endl;
+		std::cout << portfolio->value().amount() << std::endl;
 
 		Calibrator cal(portfolio.get());
 		Calibrator::WeightsMap wm;
@@ -241,14 +218,17 @@ int main()
 		wm.emplace(d4.isin(), 0.15f);
 		cal.runOptimization(wm, Currency::EUR, 20038.12);
 		auto result = cal.result();
-		result.value().cash();
-		result.value().data().at(2).idealQuantity();
-		Calibrator cal2(cal);
-		auto result2 = result;
+		if (result.has_value())
+		{
+			result.value().cash();
+			result.value().data().at(2).idealQuantity();
+			Calibrator cal2(cal);
+			auto result2 = result;
+		}
 	}
 	catch (std::exception& exception)
 	{
 		std::cout << exception.what() << std::endl;
-		return EXIT_FAILURE;
+		std::terminate();
 	}
 }

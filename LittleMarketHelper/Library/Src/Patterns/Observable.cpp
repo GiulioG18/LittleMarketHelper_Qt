@@ -7,8 +7,8 @@ namespace lmh {
 
 	Observable& Observable::operator=(const Observable& other)
 	{
-		// TODO: the notification is sent before the data is actually copied,
-		// so 'update()' is actually called too soon!
+		FAIL("Not implemented");
+
 		if (this != &other)
 		{
 			this->notifyObservers();

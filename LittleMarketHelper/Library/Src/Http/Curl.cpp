@@ -98,7 +98,7 @@ namespace lmh {
 			return status;
 		}
 
-		// TODO: really should avoid init a new curl easy handle every single time.
+		// TODO2: really should avoid init a new curl easy handle every single time.
 		//		 gotta make it work by just setting it up once and reusing it with the common options like writefunction and timeout, 
 		//		 while cleaning the rest by setting them to NULL
 		Status Curl::GETRequest(const std::string& url)

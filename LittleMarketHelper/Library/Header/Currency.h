@@ -7,6 +7,7 @@
 #include <string>
 #include <map>
 #include <optional>
+#include <string_view>
 
 #include "Patterns/Observable.h"
 
@@ -35,7 +36,7 @@ namespace lmh {
 		// Get string from currency
 		std::string	ctos(Currency currency);
 		// Get currency from string (returns std::nullopt if there is no matching currency)
-		std::optional<Currency> stoc(const std::string& currencyStr);
+		std::optional<Currency> stoc(std::string_view currencyStr);
 		// Returns a map of all currencies
 		const std::map<Currency, std::string>& map();
 	}

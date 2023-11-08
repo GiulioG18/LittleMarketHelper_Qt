@@ -13,7 +13,7 @@ namespace lmh {
 
 		if (stream_->is_open())
 		{
-			// TODO: if user modifies the file there could be troubles
+			// TODO2: if user modifies the file there could be troubles
 			//		 at the moment i'm not sure how the groups/permissions work
 			fs::permissions(file_, 
 				fs::perms::owner_all	| 
@@ -51,10 +51,7 @@ namespace lmh {
 
 		// Initialize file
 		logger.file_ = logger.folder_;
-		logger.file_ += fs::path(
-			std::string("//") + 
-			std::string("Log_") + 
-			std::to_string(logger.time_) + ".txt");
+		logger.file_.append(std::string("Log_") + std::to_string(logger.time_) + std::string(".txt"));
 
 		// Initialize log level
 		logger.logLevel_ = logLevel;
@@ -113,16 +110,18 @@ namespace lmh {
 		{
 			try
 			{
-				// Remove oldest (smallest time) Log
+				// Remove oldest (smallest time) Log from host
 				auto oldest = std::begin(logTimes);				
-				std::string file = folder_.string() + "\\Log_" + std::to_string(*oldest) + ".txt";
+				fs::path filename = folder_;
+				filename.append(std::string("Log_") + std::to_string(*oldest) + std::string(".txt"));
+				fs::remove(filename);
+
+				// Erase from set
 				logTimes.erase(oldest);
-			
-				fs::remove(file);	// Remove file from host env
 			}
 			catch (std::exception& e)
 			{
-				// TODO: dilemma, who do we tell if can't remove file?
+				FAIL("could not remove log");
 			}
 		}
 	}

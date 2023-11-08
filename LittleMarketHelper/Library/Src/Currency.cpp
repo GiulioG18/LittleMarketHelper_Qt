@@ -21,7 +21,7 @@ namespace lmh {
 			{Currency::BZR, "BZR"},
 		};
 
-		std::optional<Currency> stoc(const std::string& currencyStr)
+		std::optional<Currency> stoc(std::string_view currencyStr)
 		{
 			std::optional<Currency> currency = std::nullopt;
 

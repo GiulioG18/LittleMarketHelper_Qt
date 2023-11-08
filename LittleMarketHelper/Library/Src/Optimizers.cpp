@@ -29,7 +29,7 @@ namespace lmh {
 
 	void SCIP::optimize()
 	{
-		// TODO: implement
+		// TODO2: implement
 
 		//// Create solver
 		//std::unique_ptr<MPSolver> solver(MPSolver::CreateSolver("SCIP_MIXED_INTEGER_PROGRAMMING"));
@@ -75,8 +75,8 @@ namespace lmh {
 		//MPSolver::ResultStatus status = solver->Solve();
 		//if (status == MPSolver::OPTIMAL) {
 		//	std::cout << "Optimal Solution Found:" << std::endl;
-		//	std::cout << "Buy " << Q1->solution_value() << " units of Product 1" << std::endl;
-		//	std::cout << "Buy " << Q2->solution_value() << " units of Product 2" << std::endl;
+		//	std::cout << "Buy " << Q1->solution_amount() << " units of Product 1" << std::endl;
+		//	std::cout << "Buy " << Q2->solution_amount() << " units of Product 2" << std::endl;
 		//}
 		//else {
 		//	std::cout << "No solution found." << std::endl;

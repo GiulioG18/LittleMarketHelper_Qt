@@ -26,6 +26,7 @@ Endif()
 Set(SRC
 	Src/Portfolio.cpp
 	Src/Security.cpp
+	Src/SecurityShell.cpp
 	Src/Balance.cpp
 	Src/ReportParser.cpp
 	Src/Weight.cpp
@@ -55,6 +56,7 @@ Set(HEADER
 	Header/Balance.h
 	Header/Currency.h
 	Header/Security.h
+	Header/SecurityShell.h
 	Header/Portfolio.h
 	Header/ReportParser.h
 	Header/WeightedSecurity.h

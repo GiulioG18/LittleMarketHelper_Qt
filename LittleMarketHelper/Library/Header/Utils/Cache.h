@@ -125,12 +125,12 @@ namespace lmh {
 	template<typename Key, typename Value>
 	inline void FifoCache<Key, Value>::replacementPolicy(const FifoCache<Key, Value>::Iterator& element, bool inserted)
 	{
-		// TODO: impl
+		// TODO2: impl
 		
 		// If cache is full, evict element
 		if (Cache<Key, Value>::cached_.size() >= Cache<Key, Value>::maxSize_)
 		{
-			// TODO: impl
+			// TODO2: impl
 			// Should remove an element from the queue but also from the cache map
 		}
 

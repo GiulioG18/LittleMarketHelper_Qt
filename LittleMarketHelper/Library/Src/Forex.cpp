@@ -1,4 +1,6 @@
 
+#include <assert.h>
+
 #include "Forex.h"
 #include "ExchangeRate.h"
 
@@ -9,8 +11,8 @@ namespace lmh {
 	{
 		// Example: Converting 100USD into EUR returns: 100 / EURUSD
 		double rate = crossCurrencyRate(targetCurrency, price.currency()).value();
-		double value = price.value() / rate;
-		ENSURE(value > 0.0, "invalid translated value"); // TODO: ensure, since the value is always positive, and exchange rate is also checked at construction
+		double value = price.amount() / rate;
+		assert(value > 0.0);
 
 		return { targetCurrency, value };
 	}
@@ -27,7 +29,10 @@ namespace lmh {
 
 	std::string Forex::denomination(Currency xxx, Currency yyy)
 	{
-		return ccy::ctos(xxx) + ccy::ctos(yyy);
+		std::string denom = ccy::ctos(xxx) + ccy::ctos(yyy);
+
+		ENSURE(denom.length() == 6, "invalid denomination");
+		return denom;
 	}
 
 	std::string Forex::denomination(const ExchangeRate& rate)
@@ -37,7 +42,7 @@ namespace lmh {
 
 	ExchangeRate Forex::crossCurrencyRate(Currency xxx, Currency yyy)
 	{
-		REQUIRE(availableCurrency(xxx) && availableCurrency(yyy), "conversion for non-available currencies"); // TODO: require...
+		assert(availableCurrency(xxx) && availableCurrency(yyy));
 		const ExchangeRateRepository& repo = ExchangeRateRepository::get();
 		double rate = -1.0;
 
@@ -64,7 +69,7 @@ namespace lmh {
 			rate = bbbyyy / bbbxxx;
 		}
 
-		return ExchangeRate(xxx, yyy, rate); // TODO: set timestamp equal to oldest timestamp between the rates used
+		return ExchangeRate(xxx, yyy, rate); // TODO2: set timestamp equal to oldest timestamp between the rates used
 	}
 
 }

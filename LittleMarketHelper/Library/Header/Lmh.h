@@ -14,7 +14,7 @@
 namespace lmh {
 
 	inline Status start(
-		const std::string& configPath,
+		const fs::path& configPath,
 		Currency baseCurrency = Currency::EUR,
 		LogLevel logLevel = LOG_LEVEL_DEFAULT,
 		long curlGlobalFlag = CURL_GLOBAL_ALL

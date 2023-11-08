@@ -9,6 +9,7 @@
 #include <memory>
 #include <set>
 #include <map>
+#include <assert.h>
 
 #include "Utils/StatusCode.h"
 #include "Balance.h"
@@ -34,10 +35,10 @@ namespace lmh {
 		Status addCash(const Cash& cash);
 		Status removeCash(Currency currency);
 		Status addSecurity(const Security& security);
-		Status removeSecurity(const std::string& isin);
+		Status removeSecurity(std::string_view isin);
 		Status reset(Currency currency);
 		template<Edit::Type et, typename Type>
-		Status edit(const std::string& isin, Type newValue);
+		Status edit(std::string_view isin, Type newValue);
 
 		// Const methods
 		size_t size() const;
@@ -70,7 +71,7 @@ namespace lmh {
 	// Template definitions
 
 	template<Edit::Type et, typename Type>
-	Status Portfolio::edit(const std::string& isin, Type newValue)
+	Status Portfolio::edit(std::string_view isin, Type newValue)
 	{
 		try
 		{
@@ -91,7 +92,7 @@ namespace lmh {
 			else if constexpr (et == Edit::PRICE)
 				security->get()->setQuote(newValue);
 			else
-				FAIL("invalid edit operation"); // TODO: assert
+				assert(false && "invalid edit");
 		}
 		catch (...)
 		{

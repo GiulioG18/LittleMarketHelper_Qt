@@ -57,7 +57,7 @@ namespace lmh {
 		static Status initialize(LogLevel logLevel = LOG_LEVEL_DEFAULT);
 
 		// Const methods	
-		template<LogLevel messageLevel> inline void log(const std::string& message) const;
+		template<LogLevel messageLevel> inline void log(std::string_view message) const;
 
 		// Getters
 		inline std::fstream* stream() const;
@@ -91,7 +91,7 @@ namespace lmh {
 	inline bool Logger::initialized() const { return initialized_; }
 
 	template<LogLevel messageLevel>
-	inline void Logger::log(const std::string& message) const
+	inline void Logger::log(std::string_view message) const
 	{
 		if (messageLevel <= logLevel_ && initialized_)
 		{

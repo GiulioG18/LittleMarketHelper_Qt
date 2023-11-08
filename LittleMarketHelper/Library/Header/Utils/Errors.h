@@ -18,10 +18,10 @@ namespace lmh {
     public:
 
         Error(
-            const std::string& file,
+            std::string_view file,
             long line,
-            const std::string& functionName,
-            const std::string& reason)
+            std::string_view functionName,
+            std::string_view reason)
         {
             std::ostringstream msg;
             msg << "FILE:       " << file << "(" << line << ")" << std::endl;

@@ -53,7 +53,7 @@ namespace lmh {
 		return validateSecurities();
 	}
 
-	Status Portfolio::removeSecurity(const std::string& isin)
+	Status Portfolio::removeSecurity(std::string_view isin)
 	{
 		auto it = securities_.find(isin);
 		if (it == securities_.end())

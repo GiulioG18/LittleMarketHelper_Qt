@@ -11,9 +11,9 @@ namespace lmh {
 	ReportParser::ReportParser()
 	{
 		// Initialize guesses dirs
-		// TODO: what about other OS executables?
-		fs::path downloads = std::string(std::getenv("USERPROFILE")) + '\\' + "Downloads";
-		fs::path documents = std::string(std::getenv("USERPROFILE")) + '\\' + "Documents";
+		// TODO2: what about other OS executables?
+		fs::path downloads = fs::path(std::getenv("USERPROFILE")).append("Downloads");
+		fs::path documents = fs::path(std::getenv("USERPROFILE")).append("Documents");
 
 		if (fs::is_directory(downloads))
 			guesses_.insert(downloads);
@@ -44,7 +44,7 @@ namespace lmh {
 
 				fs::path absolutePath;
 				absolutePath += folder;
-				absolutePath += "\\";
+				absolutePath += "\\"; // TODO2: is this Windows specific?
 				absolutePath += file;
 
 				if (fs::is_regular_file(absolutePath))
@@ -159,7 +159,7 @@ namespace lmh {
 			quantity = std::stol(getSection());
 			if (!Security::validateQuantity(quantity))
 			{
-				output.parsedSecurities_.push_back(ReportParser::UncompleteSecurity(isin, name));
+				output.securities_.push_back(SecurityShell(isin, name));
 				continue;
 			}
 
@@ -180,7 +180,7 @@ namespace lmh {
 			}
 			else
 			{
-				output.parsedSecurities_.push_back(ReportParser::UncompleteSecurity(isin, name));
+				output.securities_.push_back(SecurityShell(isin, name));
 				continue;
 			}
 			// Value
@@ -198,7 +198,7 @@ namespace lmh {
 			// . q is valid, otherwise --> uncomplete
 
 			// Everything looks good, construct a security
-			output.parsedSecurities_.push_back(Security(isin, name, quantity, q.value()));
+			output.parsedSecurities_.push_back(Security(isin, name, quantity, q.amount()));
 			output.found_++
 			*/
 		}

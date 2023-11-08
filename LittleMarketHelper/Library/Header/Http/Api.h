@@ -9,6 +9,7 @@
 #include <memory>
 #include <list>
 #include <set>
+#include <string_view>
 
 #include "Http/Curl.h"
 #include "Utils/Json.h"
@@ -19,6 +20,7 @@ namespace lmh {
 
 	// Forward declarations
 	class ExchangeRate;
+	enum class Currency;
 
 	// Fallback mechanism is not implemented.
 	// Each class is a wrapper around an API defined in the configuration file.
@@ -53,7 +55,7 @@ namespace lmh {
 
 			Status sendGetRequest();
 			Status sendPostRequest();
-			void replacePlaceholder(std::string& s, const std::string& value) const;
+			void replacePlaceholder(std::string& s, std::string_view value) const;
 
 		protected:
 
@@ -101,6 +103,8 @@ namespace lmh {
 			Quote();
 			virtual ~Quote() = default;
 
+			// TODO: do not fecth all the historical price when using yf
+
 		};
 
 
@@ -113,7 +117,7 @@ namespace lmh {
 			virtual ~ExchangeRate() = default;
 
 			// Returns a list of rates
-			std::set<lmh::ExchangeRate> run();
+			std::set<lmh::ExchangeRate> run(Currency baseCcy);
 		};
 
 
@@ -175,7 +179,7 @@ namespace lmh {
 			OpenFigiApi of;
 			auto ticker = of.getTicker(isin);
 
-			return getQuoteFromTicker(ticker.value());
+			return getQuoteFromTicker(ticker.amount());
 		}
 	};
 	*/

@@ -32,7 +32,7 @@ namespace lmh {
 		return Status::SUCCESS;
 	}
 
-	Status lmh::Balance::unregisterSecurity(const std::string& isin)
+	Status lmh::Balance::unregisterSecurity(std::string_view isin)
 	{
 		auto it = securities_.find(isin);
 		if (it == securities_.end())

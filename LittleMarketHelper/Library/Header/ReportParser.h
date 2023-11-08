@@ -1,5 +1,6 @@
+
 // ========================================================================
-//		Base parsers class
+//		Report parsers
 // ========================================================================
 
 #pragma once
@@ -12,6 +13,7 @@
 
 #include "Utils/Assertions.h"
 #include "Security.h"
+#include "SecurityShell.h"
 #include "Utils/StatusCode.h"
 
 
@@ -24,17 +26,13 @@ namespace lmh {
 	class ReportParser
 	{
 	public:
-
-		//									<----Isin---><----Name--->
-		using UncompleteSecurity = std::pair<std::string, std::string>;	// TODO: make it a class with proper methods (could also avoid variant with polymorphism)
-		using ParsedSecurities = std::vector<std::variant<Security, ReportParser::UncompleteSecurity>>;
 		
 		struct Output;
 		enum class Type;
 
 	public:
 
-		// The status of the report is written in the output
+		// NB: The status is written in the parser output
 		static Output parseDefault(ReportParser::Type type); 
 		static Output parse(ReportParser::Type type, const fs::path& report);
 		virtual ~ReportParser() = default;
@@ -81,7 +79,7 @@ namespace lmh {
 		}
 
 		ReportParser::Type type_;
-		ReportParser::ParsedSecurities parsedSecurities_;
+		std::vector<std::variant<Security, SecurityShell>> securities_;
 		int found_;
 		int discarded_;
 		Status status_;

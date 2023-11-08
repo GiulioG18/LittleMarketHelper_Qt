@@ -6,6 +6,7 @@
 
 #include <unordered_map>
 #include <memory>
+#include <string_view>
 
 #include "Patterns/Singleton.h"
 #include "Utils/StatusCode.h"
@@ -22,7 +23,7 @@ namespace lmh {
 	{
 	public:
 		
-		ExchangeRate(std::string denomination, double value); // [ MAY THROW ]
+		ExchangeRate(std::string_view denomination, double value); // [ MAY THROW ]
 		ExchangeRate(Currency xxx, Currency yyy, double value); // [ MAY THROW ]
 
 		// Getters

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <memory>
+#include <string_view>
 
 #include "Patterns/Observable.h"
 #include "Utils/StatusCode.h"
@@ -33,7 +34,7 @@ namespace lmh {
 
 		// Const methods
 		Status registerSecurity(std::shared_ptr<WSecurity> security);
-		Status unregisterSecurity(const std::string& isin);
+		Status unregisterSecurity(std::string_view isin);
 
 		// Getters
 		inline const Price& price() const;

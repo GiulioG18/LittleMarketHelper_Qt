@@ -4,6 +4,7 @@
 #include "Http/Api.h"
 #include "Config.h"
 #include "ExchangeRate.h"
+#include "Currency.h"
 
 
 namespace lmh {
@@ -32,7 +33,7 @@ namespace lmh {
 				return status;
 
 			// Write stats
-			// TODO: impl
+			// TODO2: impl
 
 			// Write response
 			response_ = curl.response();
@@ -70,7 +71,7 @@ namespace lmh {
 			return Curl::get().POSTRequest(url_, data_);
 		}
 
-		void Api::replacePlaceholder(std::string& s, const std::string& value) const
+		void Api::replacePlaceholder(std::string& s, std::string_view value) const
 		{
 			std::string placeholder = std::string("%%%PLACEHOLDER%%%");
 
@@ -139,9 +140,9 @@ namespace lmh {
 			keys_.push_back(Config::properties().get<std::string>(basePath + "key"));
 		}
 
-		std::set<lmh::ExchangeRate> ExchangeRate::run()
+		std::set<lmh::ExchangeRate> ExchangeRate::run(Currency baseCcy)
 		{
-			// TODO: should check if the date it is recent enough
+			// TODO2: should check if the date it is recent enough
 			
 			std::set<lmh::ExchangeRate> out;
 
@@ -157,7 +158,7 @@ namespace lmh {
 
 			// Request rates for most common currencies
 			std::string key = keys_.front();
-			Currency xxx = Currency::EUR; // TODO: should we not hard code the base Currency?
+			Currency xxx = baseCcy;
 			for (const auto& pair : ccy::map())
 			{			
 				Currency yyy = pair.first;
@@ -167,7 +168,7 @@ namespace lmh {
 				if (rate.has_value())
 				{
 					// Construct rate
-					lmh::ExchangeRate er(xxx, yyy, rate.value()); // TODO: property set timestamp
+					lmh::ExchangeRate er(xxx, yyy, rate.value());
 
 					// Move it into output set
 					out.insert(std::move(er));

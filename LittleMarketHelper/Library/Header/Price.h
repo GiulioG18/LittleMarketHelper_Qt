@@ -7,7 +7,6 @@
 #include "Utils/Assertions.h"
 #include "Currency.h"
 
-// TODO: naming is a bit inconsistent throughout the whole library...
 
 namespace lmh {
 
@@ -18,7 +17,7 @@ namespace lmh {
 		Price(Currency currency, double value); // [ MAY THROW ]
 
 		// Getters
-		inline double value() const;
+		inline double amount() const;
 		inline Currency currency() const;
 
 		// Setters
@@ -30,19 +29,19 @@ namespace lmh {
 		Price operator*(const Price& other) const; // [ MAY THROW ]
 		Price operator+(double amount) const; // [ MAY THROW ]
 		Price operator/(double amount) const; // [ MAY THROW ]
-		Price operator*(int quantity) const; // [ MAY THROW ]
+		Price operator*(double quantity) const; // [ MAY THROW ]
 		Price& operator+=(const Price& other); // [ MAY THROW ]
 		Price& operator+=(double amount); // [ MAY THROW ]
 
 	private:
 
 		Currency currency_;
-		double value_;
+		double amount_;
 	};
 
 
 	// Inline definitions
-	inline double Price::value() const { return value_; }
+	inline double Price::amount() const { return amount_; }
 	inline Currency Price::currency() const { return currency_; }
 
 }

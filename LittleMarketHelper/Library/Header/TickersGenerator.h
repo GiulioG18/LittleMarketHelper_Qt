@@ -36,7 +36,7 @@ namespace lmh{
 
 	public:
 
-		Status parse(const std::string& response);
+		Status parse(std::string_view response);
 
 	private:
 

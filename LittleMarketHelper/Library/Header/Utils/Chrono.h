@@ -22,7 +22,8 @@ namespace lmh {
 	using Seconds = std::chrono::seconds;				// Duration Type
 
 
-	// TODO: properly impl
+	// TODO2: properly impl
+	
 	// Wrapper around Chrono library time_point class for optional timestamp
 	class Timestamp
 	{

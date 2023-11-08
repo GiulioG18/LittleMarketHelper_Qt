@@ -13,21 +13,31 @@
 
 namespace lmh {
 
+	// Forward declarations
+	class SecurityShell;
+
 	class Security : public Observable
 	{
 	public:
 
 		Security( // [ MAY THROW ]
-			const std::string& isin,
-			const std::string& name,
+			std::string_view isin,
+			std::string_view name,
 			uint32_t quantity,
 			const Quote& quote
 		); 
 
+		Security( // [ MAY THROW ]
+			const SecurityShell& shell,
+			uint32_t quantity,
+			const Quote& quote
+		); 
+
+
 		Price marketValue() const;
 
 		// Input validators
-		static bool validateIsin(const std::string& isin);
+		static bool validateIsin(std::string_view isin);
 		static bool validateQuantity(uint32_t quantity);
 
 		// Getters 
@@ -37,7 +47,7 @@ namespace lmh {
 		inline const Quote& quote() const;
 					
 		// Setters
-		void setName(const std::string& name);
+		void setName(std::string_view name);
 		void setQuantity(uint32_t quantity); // [ MAY THROW ]
 		void setQuote(double value); // [ MAY THROW ]
 

@@ -4,7 +4,7 @@
 
 namespace lmh {
 
-	Status Config::initialize(const std::string& filename)
+	Status Config::initialize(const fs::path& filename)
 	{
 		Config& c = Config::get();
 

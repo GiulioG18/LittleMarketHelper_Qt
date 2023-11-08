@@ -25,7 +25,7 @@ namespace lmh {
 
 		Json() = default;
 
-		Status parse(const std::string& filename);
+		Status parse(const fs::path& filename);
 		Status parse(std::stringstream& ss);
 		bool initialized() const;
 		void clear();
@@ -36,7 +36,7 @@ namespace lmh {
 
 	private:
 
-		std::string filename_;
+		fs::path filename_;
 		pt::ptree tree_;
 	};
 

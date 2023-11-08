@@ -10,12 +10,12 @@ namespace lmh {
 		if (!json_.initialized())
 			return Status::INVALID_JSON_FORMAT;
 
-		// TODO:...
+		// TODO: impl
 
 		return Status();
 	}
 
-	Status Figi::parse(const std::string& response)
+	Status Figi::parse(std::string_view response)
 	{
 		Status status = Status::SUCCESS;
 

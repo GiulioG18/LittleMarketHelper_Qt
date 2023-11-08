@@ -5,11 +5,11 @@
 
 namespace lmh {
 
-	Status Json::parse(const std::string& filename)
+	Status Json::parse(const fs::path& filename)
 	{
 		try
 		{
-			pt::read_json(filename, tree_);
+			pt::read_json(filename.string(), tree_);
 			if (tree_.empty())
 				FAIL("empty tree");
 		}

@@ -14,12 +14,12 @@ namespace lmh {
 		return first->isin() < second->isin();
 	}
 
-	bool WSecurity::Comp::operator()(const std::string& first, const std::shared_ptr<WSecurity>& second) const
+	bool WSecurity::Comp::operator()(std::string_view first, const std::shared_ptr<WSecurity>& second) const
 	{
 		return first < second->isin();
 	}
 
-	bool WSecurity::Comp::operator()(const std::shared_ptr<WSecurity>& first, const std::string& second) const
+	bool WSecurity::Comp::operator()(const std::shared_ptr<WSecurity>& first, std::string_view second) const
 	{
 		return first->isin() < second;
 	}

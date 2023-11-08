@@ -26,13 +26,13 @@ namespace lmh {
 		data_.reserve(wm.size());
 		for (const auto& isinWeight : wm)
 		{
-			const std::string& isin = isinWeight.first;
+			std::string isin = isinWeight.first;
 			const double& weight = isinWeight.second;
 
 			// Extract price
 			const auto& it = securities.find(isin);
 			ASSERT(it != securities.end(), "security-input mismatch");			
-			double price = it->get()->quote().price().value(); // TODO: error! convert all security prices into a base (euro) currency
+			double price = it->get()->quote().price().amount(); // TODO: error! convert all security prices into a base (euro) currency
 			ASSERT(price > 0.0, "invalid price");
 
 			// Create datum from weight map entry
