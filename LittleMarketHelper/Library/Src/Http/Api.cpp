@@ -18,7 +18,7 @@ namespace lmh {
 
 			// Initialize request
 			std::string path = basePath() + "networkConnection.";
-			Curl::Method method = Curl::toMethod(Config::properties().get<std::string>(path + "method"));
+			Curl::Method method = Curl::stom(Config::properties().get<std::string>(path + "method"));
 			std::string url = Config::properties().get<std::string>(path + "url");
 			std::string key = Config::properties().get<std::string>(path + "key");
 
@@ -52,7 +52,7 @@ namespace lmh {
 
 			// Initialize request
 			std::string path = basePath() + "exchangeRates.";
-			Curl::Method method = Curl::toMethod(Config::properties().get<std::string>(path + "method"));
+			Curl::Method method = Curl::stom(Config::properties().get<std::string>(path + "method"));
 			std::string url = Config::properties().get<std::string>(path + "url");
 			std::string key = Config::properties().get<std::string>(path + "key");
 

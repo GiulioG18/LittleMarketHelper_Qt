@@ -34,6 +34,10 @@ namespace lmh {
 
 	namespace http {
 
+		// Response cache size
+		static constexpr size_t MAX_CACHED_REQUESTS = 20;
+
+
 		// Define a callback function for writing data
 		size_t writeCallback(void* contents, size_t size, size_t nmemb, std::string* output)
 		{
@@ -70,7 +74,7 @@ namespace lmh {
 				return Status::CURL_GLOBAL_INIT_FAILED;
 
 			// Init Cache
-			curl.responses_ = std::make_unique<FifoCache<Request, Response>>(30); // 30 max request are cached at the same time
+			curl.responses_ = std::make_unique<FifoCache<Request, Response>>(MAX_CACHED_REQUESTS);
 
 			// Finalize
 			curl.initialized_ = true;
@@ -82,7 +86,7 @@ namespace lmh {
 			Curl& curl = Curl::get();
 
 			// Check if response is cached already
-			if (!request.force_)
+			if (!request.skipCache_)
 			{
 				auto cachedReponse = curl.responses_->get(request);
 				if (cachedReponse)
@@ -100,7 +104,7 @@ namespace lmh {
 			return response;
 		}
 
-		Curl::Method Curl::toMethod(std::string_view str)
+		Curl::Method Curl::stom(std::string_view str)
 		{
 			std::string m{ str };
 			boost::algorithm::to_upper(m);
@@ -111,6 +115,18 @@ namespace lmh {
 				return Curl::Method::POST;
 			else
 				return Curl::Method::INVALID;
+		}
+
+		std::string Curl::mtos(Curl::Method method)
+		{
+			switch (method)
+			{
+			case lmh::http::Curl::Method::INVALID:	return std::string("INVALID"); 
+			case lmh::http::Curl::Method::GET:		return std::string("GET"); 
+			case lmh::http::Curl::Method::POST:		return std::string("POST"); 
+
+			default:								FAIL("unknown method");								
+			}
 		}
 
 		void Curl::Response::extractInfo(CURL*&  curl)
@@ -129,19 +145,13 @@ namespace lmh {
 			char* method = nullptr;
 			curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_METHOD, &method);		
 			assert(method != nullptr);
-			method_ = Curl::toMethod(method);
-			ENSURE(this->method_ == request_.method_, "request and response method are different");
+			ENSURE(stom(method) == request_.method_, "method verification failed");
 
 			// Even if at this point curl_easy_perform returned CURLE_OK, still need to check the actual http code returned
 			int64_t httpCode = 400;
 			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
 			if (httpCode != 200)
 				code_ = Status::CURL_REQUEST_FAILED;
-		}
-
-		void Curl::Response::print() const
-		{
-			
 		}
 
 		// TODO2: really should avoid init a new curl easy handle every single time
@@ -197,6 +207,78 @@ namespace lmh {
 			// Clean-up the CURL handle
 			curl_easy_cleanup(curl);
 		}
+
+
+
+
+		// Curl::Request
+
+		Curl::Request::Request(Method method, std::string_view url, std::string_view data, bool skipCache)
+			:
+			method_(method),
+			url_(url),
+			data_(data),
+			skipCache_(skipCache)
+		{
+			// Verifications
+			ENSURE(!url_.empty(), "empty url not allowed");
+			ENSURE(method_ != Method::INVALID, "invalid method");
+			if (method_ == Method::GET)
+				ENSURE(data_.empty(), "data must be empty for GET requests");
+		}
+
+		constexpr auto Curl::Request::key() const
+		{
+			return std::tie(method_, url_, data_);
+		}
+
+		auto Curl::Request::operator<=>(const Request& other) const
+		{
+			return this->key() <=> other.key();
+		}
+
+		bool Curl::Request::operator==(const Request& other) const
+		{
+			return this->key() == other.key();
+		}
+
+
+
+
+		// Curl::Response
+
+		Curl::Response::Response(const Request& request)
+			:
+			request_(request),
+			id_(0),
+			code_(Status::SUCCESS),
+			duration_(0),
+			bytes_(0),
+			speed_(-1.0),
+			localPort_(0)
+		{
+			// Initialize ID
+			static uint64_t id = 0;
+			id_ = id++;
+		};
+
+		void Curl::Response::print(std::ostream& stream) const
+		{
+			stream << "==========================================" << "\n";
+			stream << "HTTP request n: " << id_ << "\n";
+			stream << "Method: " << mtos(request_.method_) << "\n";
+			stream << "URL: " << request_.url_ << "\n";
+			stream << "Header: " << request_.data_ << "\n";
+			stream << "Skip cache: " << std::boolalpha << request_.skipCache_ << "\n";
+			//stream << "Code: " << code_ << "\n"; // TODO: impl
+			//stream << "Date: " << date_ << "\n"; // TODO: impl
+			stream << "Total duration (s): " << duration_ << "\n";
+			stream << "Bytes downloaded: " << bytes_ << "\n";
+			stream << "Speed (bytes/s): " << speed_ << "\n";
+			stream << "Local port used: " << localPort_ << "\n";
+			stream << "==========================================" << "\n";
+		}
+
 	}
 
 }

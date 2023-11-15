@@ -55,7 +55,9 @@ namespace lmh {
 			// Read or caches the response for the given HTTP request
 			static Response httpRequest(const Request& request);
 			// Convert string to method
-			static Method toMethod(std::string_view str);
+			static Method stom(std::string_view str);
+			// Convert method to string
+			static std::string mtos(Method method);
 
 			// Getters
 			inline bool initialized() const;
@@ -79,44 +81,24 @@ namespace lmh {
 		{
 			// TODO: move impl
 			friend class Curl;
+			friend class Curl::Response;
 
 		public:
 
-			Request(Method method, std::string_view url, std::string_view data, bool force = false) // [ MAY THROW ]
-				:
-				method_(method), 
-				url_(url),
-				data_(data),
-				force_(force)
-			{
-				ENSURE(!url_.empty(), "empty url not allowed");
-				ENSURE(method_ != Method::INVALID, "invalid method");
-				if (method_ == Method::GET)
-					ENSURE(data_.empty(), "data must be empty for GET requests");
-			}
+			Request(Method method, std::string_view url, std::string_view data, bool skipCache = false); // [ MAY THROW ]
 
-			constexpr auto key() const
-			{
-				// force_ does not play a role when comparing different Request objects
-				return std::tie(method_, url_, data_);
-			}
+			constexpr auto key() const;
 
-			auto operator<=>(const Request& other) const
-			{
-				return this->key() <=> other.key();
-			}
-
-			bool operator==(const Request& other) const
-			{
-				return this->key() == other.key();
-			}
+			// Operators
+			auto operator<=>(const Request& other) const;
+			bool operator==(const Request& other) const;
 
 		private:
 
 			Method method_;
 			std::string	url_;
 			std::string	data_;
-			bool force_;
+			bool skipCache_;
 		};
 
 
@@ -135,24 +117,14 @@ namespace lmh {
 
 		private:
 
-			Response(const Request& request)
-				:
-				request_(request),
-				code_(Status::SUCCESS),
-				method_(Method::INVALID),
-				duration_(0),
-				bytes_(0),
-				speed_(-1.0),
-				localPort_(0)
-			{
-			};
+			Response(const Request& request);
 
 			// Extract info from CURL handle
 			void extractInfo(CURL*& curl);
 
 		public:
 
-			void print() const;
+			void print(std::ostream& stream) const;
 
 			// Getters
 			inline const Request& request() const;
@@ -168,13 +140,13 @@ namespace lmh {
 		private:
 
 			Request	request_;
-			Method method_;
+			uint64_t id_;
 			Status code_;
 			std::string data_;				
 			Date date_;
 			Duration duration_; // Seconds
 			size_t bytes_;	
-			Speed speed_; // Bytes/Second
+			Speed speed_; // Bytes/second
 			int64_t localPort_;
 		};
 
@@ -182,7 +154,6 @@ namespace lmh {
 		// Inline definitions
 		inline bool Curl::initialized() const { return initialized_; }; 
 		inline const Curl::Request& Curl::Response::request() const { return request_; }
-		inline Curl::Method Curl::Response::method() const { return method_; }
 		inline Status Curl::Response::code() const { return code_; }
 		inline const std::string& Curl::Response::data() const { return data_; }
 		inline const Date& Curl::Response::date() const { return date_; }

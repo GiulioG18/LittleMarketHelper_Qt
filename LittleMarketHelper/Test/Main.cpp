@@ -47,6 +47,8 @@ using namespace lmh;
 // 
 // . Create doc with doxygen
 // 
+// . review that  all calls to func that may throw are wrapped into try-catch blocks
+// 
 // . create assert() macro with a message
 // 
 // . review all functions that may throw:
@@ -109,6 +111,7 @@ int main()
 
 		http::Curl::Request request1{ http::Curl::Method::GET, "https://papi-pornstarsapi.p.rapidapi.com/pornstars/", "", false };
 		http::Curl::Response response1 = curl.httpRequest(request1);
+		response1.print(std::cout);
 
 		http::Curl::Request request2{ http::Curl::Method::GET, "https://query1.finance.yahoo.com/v8/finance/chart/AMZN", ""};
 		http::Curl::Response response2 = curl.httpRequest(request2);
@@ -117,6 +120,8 @@ int main()
 		http::Curl::Request request3{ http::Curl::Method::GET, "https://catfact.ninja/fact", "", true };
 		http::Curl::Response response3 = curl.httpRequest(request3);
 		http::Curl::Response response3Clone = curl.httpRequest(request3);
+		response3.print(std::cout);
+		response3Clone.print(std::cout);
 
 		http::Curl::Request request4{ http::Curl::Method::POST, "https://api.openfigi.com/v3/mapping", "[{\"idType\":\"ID_ISIN\",\"idValue\":\"US4592001014\"}]", true };
 		http::Curl::Response response4 = curl.httpRequest(request4);
