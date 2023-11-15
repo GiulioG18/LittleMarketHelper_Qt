@@ -49,16 +49,21 @@ namespace lmh {
 	class ExchangeRateRepository : public Singleton<ExchangeRateRepository>
 	{
 	public:
-		
+
+		friend class Singleton<ExchangeRateRepository>;
 		friend class Forex;
 
 		using RatesMap = std::unordered_map<std::string, const ExchangeRate>;
 
-	public:
+	private:
 
 		ExchangeRateRepository() = default;
+
+	public:
+
+		virtual ~ExchangeRateRepository() = default;
+
 		// Initializes rate map and available currencies
-		// NB: the base currency selected here should match the one in the config file
 		static Status initialize(Currency baseCurrency);
 
 	private:

@@ -48,9 +48,10 @@ namespace lmh {
 	private:
 
 		Logger() = default;
-		virtual ~Logger();
 
 	public:
+
+		virtual ~Logger();
 
 		// Non-const methods
 		// If no folder is specified, then it is read in the config file
@@ -77,7 +78,7 @@ namespace lmh {
 
 		std::unique_ptr<std::fstream> stream_;
 		LogLevel logLevel_ = LOG_LEVEL_DEFAULT;
-		std::time_t time_ = static_cast<time_t>(0);
+		std::time_t time_ = static_cast<time_t>(0); // TODO: use chrono stuff
 		fs::path folder_;
 		fs::path file_;
 		int maxLogFiles_ = 5;

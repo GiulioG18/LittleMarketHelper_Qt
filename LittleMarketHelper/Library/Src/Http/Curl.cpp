@@ -1,5 +1,5 @@
 
-#include "Utils/Warnings.h"
+#include <boost/algorithm/string.hpp>
 
 #ifdef _WIN32
 #pragma comment(lib, "advapi32.lib")
@@ -12,18 +12,21 @@ static_assert(false, "I had no clue nor interest in linking these libs for other
 #endif
 
 #include "Http/Curl.h"
-#include "Utils/Logger.h"
+#include "Config.h"
 #include "Http/Api.h"
 
-// Macro to handle Curl errors
-#define RETURN_ON_ERROR_CC(x, err) do {	\
-  lastCode_ = (x);						\
-  if (lastCode_ != CURLE_OK)			\
-  {										\
-	curl_easy_cleanup(curl);			\
-    return err;							\
-  }										\
-} while (0)
+
+// Helper macro to handle Curl errors
+#define CURL_CALL(curl_function, lmh_error) 								\
+	(curl_function) == CURLcode::CURLE_OK ? Status::SUCCESS : lmh_error		\
+
+// Helper macro to return on invalid response
+#define RETURN_ON_INVALID_RESPONSE						\
+	if (response.code_ != Status::SUCCESS)				\
+	{													\
+		curl_easy_cleanup(curl);						\
+		return;											\
+	}													\
 
 
 
@@ -50,7 +53,7 @@ namespace lmh {
 			}
 		}
 
-		Status Curl::initialize(long flag)
+		Status Curl::initialize(int64_t flag)
 		{
 			Curl& curl = Curl::get();
 			if (curl.initialized_)
@@ -66,111 +69,134 @@ namespace lmh {
 			if (code != CURLE_OK)
 				return Status::CURL_GLOBAL_INIT_FAILED;
 
-			// init version
-			curl.version_ = curl_version_info(CURLVERSION_NOW);
+			// Init Cache
+			curl.responses_ = std::make_unique<FifoCache<Request, Response>>(30); // 30 max request are cached at the same time
 
 			// Finalize
 			curl.initialized_ = true;
-
-			// Verify that there is a valid internet connection
-			Status status = curl.checkNetworkConnection();
-			if (status != Status::SUCCESS)
-				curl.initialized_ = false;
-
-			return status;
-		}
-
-		std::string Curl::StatusMessage()
-		{
-			return std::string(curl_easy_strerror(lastCode_));
-		}
-
-		Status Curl::checkNetworkConnection()
-		{
-			if (!initialized_)
-				return Status::CURL_NOT_INITIALIZED;
-
-			Status status;
-			http::ConnectionTest().run() ?
-				status = Status::SUCCESS :
-				status = Status::NO_NETWORK_CONNECTION;
-
-			return status;
-		}
-
-		// TODO2: really should avoid init a new curl easy handle every single time.
-		//		 gotta make it work by just setting it up once and reusing it with the common options like writefunction and timeout, 
-		//		 while cleaning the rest by setting them to NULL
-		Status Curl::GETRequest(const std::string& url)
-		{
-			if (!initialized_)
-				return Status::CURL_NOT_INITIALIZED;
-
-			// Clear the response
-			response_.clear();
-
-			CURL* curl;
-			curl = curl_easy_init();
-			if (!curl)
-				return Status::CURL_HANDLE_INIT_FAILED;
-
-			// Set url
-			RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_URL, url.c_str()), Status::CURL_URL_SET_FAILED);
-
-			// Set the callback function to receive the response data
-			RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback), Status::CURL_OPT_SET_FAILED);
-			RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_), Status::CURL_WRITEDATA_SET_FAILED);
-
-			// Set maximum time to complete the operation to 5 seconds
-			RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L), Status::CURL_OPT_SET_FAILED);
-
-			// Perform the HTTP GET request
-			RETURN_ON_ERROR_CC(curl_easy_perform(curl), Status::CURL_PERFORM_FAILED);
-
-			// Clean handle and return
-			curl_easy_cleanup(curl);
 			return Status::SUCCESS;
 		}
 
-		Status Curl::POSTRequest(const std::string& url, const std::string& data)
+		Curl::Response Curl::httpRequest(const Curl::Request& request)
 		{
-			if (!initialized_)
-				return Status::CURL_NOT_INITIALIZED;
+			Curl& curl = Curl::get();
 
-			// Clear the response
-			response_.clear();
+			// Check if response is cached already
+			if (!request.force_)
+			{
+				auto cachedReponse = curl.responses_->get(request);
+				if (cachedReponse)
+					return *cachedReponse;
+			}
 
-			CURL* curl;
-			curl = curl_easy_init();
-			if (!curl)
-				return Status::CURL_HANDLE_INIT_FAILED;
+			// Run new request
+			Curl::Response response(request);
+			Curl::get().processInternally(response);
 
-			// Set url
-			RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_URL, url.c_str()), Status::CURL_URL_SET_FAILED);
+			// Cache it
+			if (response.code_ == Status::SUCCESS)
+				curl.responses_->put(request, response);
 
-			// Make it a POST request and set header and data
-			RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_POST, 1L), Status::CURL_POST_SET_FAILED);
-			struct curl_slist* slist = NULL;
-			slist = curl_slist_append(slist, "Content-Type: application/json");
-			slist = curl_slist_append(slist, "Accept: application/json");
-			RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist), Status::CURL_HEADER_SET_FAILED);
-			RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str()), Status::CURL_DATA_SET_FAILED);
-
-			// Set the callback function to receive the response data
-			RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback), Status::CURL_URL_SET_FAILED);
-			RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_), Status::CURL_WRITEDATA_SET_FAILED);
-
-			// Set maximum time to complete the operation to 5 seconds
-			RETURN_ON_ERROR_CC(curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L), Status::CURL_OPT_SET_FAILED);
-
-			// Perform the HTTP GET request
-			RETURN_ON_ERROR_CC(curl_easy_perform(curl), Status::CURL_PERFORM_FAILED);
-
-			// Clean handle and return
-			curl_easy_cleanup(curl);
-			return Status::SUCCESS;
+			return response;
 		}
 
+		Curl::Method Curl::toMethod(std::string_view str)
+		{
+			std::string m{ str };
+			boost::algorithm::to_upper(m);
+
+			if		(m == "GET")
+				return Curl::Method::GET;
+			else if (m == "POST")
+				return Curl::Method::POST;
+			else
+				return Curl::Method::INVALID;
+		}
+
+		void Curl::Response::extractInfo(CURL*&  curl)
+		{
+			// Results from curl_easy_getinfo calls are not checked
+
+			assert(code_ == Status::SUCCESS);
+
+			//curl_easy_getinfo(curl, CURLINFO_FILETIME, &date_); // TODO: impl
+			//curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &duration_); // TODO: impl
+			curl_easy_getinfo(curl, CURLINFO_SIZE_DOWNLOAD_T, &bytes_);
+			curl_easy_getinfo(curl, CURLINFO_SPEED_DOWNLOAD_T, &speed_);
+			curl_easy_getinfo(curl, CURLINFO_LOCAL_PORT, &localPort_);
+
+			// Method verification
+			char* method = nullptr;
+			curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_METHOD, &method);		
+			assert(method != nullptr);
+			method_ = Curl::toMethod(method);
+			ENSURE(this->method_ == request_.method_, "request and response method are different");
+
+			// Even if at this point curl_easy_perform returned CURLE_OK, still need to check the actual http code returned
+			int64_t httpCode = 400;
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+			if (httpCode != 200)
+				code_ = Status::CURL_REQUEST_FAILED;
+		}
+
+		void Curl::Response::print() const
+		{
+			
+		}
+
+		// TODO2: really should avoid init a new curl easy handle every single time
+		void Curl::processInternally(Curl::Response& response)
+		{
+			Request& request = response.request_;
+
+			// Curl must be initialized before running an Http request
+			if (!initialized_)
+			{
+				response.code_ = Status::CURL_NOT_INITIALIZED;
+				return;
+			}
+
+			// Initialize a CURL handle
+			CURL* curl;
+			curl = curl_easy_init(); // TODO: create a curl handle maker that works in a RAII fashion
+			if (!curl)
+			{
+				response.code_ = Status::CURL_HANDLE_INIT_FAILED;
+				return;
+			}
+
+			// Url
+			response.code_ = CURL_CALL(curl_easy_setopt(curl, CURLOPT_URL, request.url_.c_str()), Status::CURL_URL_SET_FAILED); RETURN_ON_INVALID_RESPONSE;
+
+			// Callback
+			response.code_ = CURL_CALL(curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback), Status::CURL_OPT_SET_FAILED); RETURN_ON_INVALID_RESPONSE;
+			response.code_ = CURL_CALL(curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response.data_), Status::CURL_WRITEDATA_SET_FAILED); RETURN_ON_INVALID_RESPONSE;
+
+			// Set maximum time to complete the operation to 10 seconds
+			response.code_ = CURL_CALL(curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L), Status::CURL_OPT_SET_FAILED); RETURN_ON_INVALID_RESPONSE;
+
+			if (request.method_ == Method::POST)
+			{
+				// Specify POST request
+				response.code_ = CURL_CALL(curl_easy_setopt(curl, CURLOPT_POST, 1L), Status::CURL_POST_SET_FAILED); RETURN_ON_INVALID_RESPONSE;
+
+				// Set header and data
+				struct curl_slist* slist = NULL;
+				slist = curl_slist_append(slist, "Content-Type: application/json");
+				slist = curl_slist_append(slist, "Accept: application/json");
+				response.code_ = CURL_CALL(curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist), Status::CURL_HEADER_SET_FAILED); RETURN_ON_INVALID_RESPONSE;
+				response.code_ = CURL_CALL(curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.data_.c_str()), Status::CURL_DATA_SET_FAILED); RETURN_ON_INVALID_RESPONSE;
+			}
+
+			// Perform the request
+			response.code_ = CURL_CALL(curl_easy_perform(curl), Status::CURL_PERFORM_FAILED); RETURN_ON_INVALID_RESPONSE;
+
+			// Extract info from curl handle only when the request was successful
+			response.extractInfo(curl);
+
+			// Clean-up the CURL handle
+			curl_easy_cleanup(curl);
+		}
 	}
 
 }

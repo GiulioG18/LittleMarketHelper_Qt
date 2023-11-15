@@ -27,6 +27,8 @@ using namespace lmh;
 // 
 // . write the damn comments (see doxygen todo)
 // 
+// . check rule of 5
+// 
 // . User takes snapshots of portfolio that gets saved (somewhere... maybe free Database?)
 // 
 // . add stats for user investment history (IRR, holding history, holding's IRR, ...)
@@ -43,13 +45,13 @@ using namespace lmh;
 //		- full ticker (very important! it would avoid the figiAPI request since we expect that most products are recurrent 
 //		- Portfolio history
 // 
-// . Pass string around using std::string_view
-// 
 // . Create doc with doxygen
 // 
-// . IMPORTANT: make sure that all polymorphic classes have a virtual dtor
+// . create assert() macro with a message
 // 
-// . replace int types with intX_t
+// . review all functions that may throw:
+//		- add MAY THROW to definition
+//		- check implementation to see if it s possible to assert instead
 // 
 // ...... QT........ 
 // 
@@ -88,9 +90,6 @@ int main()
 		{
 			std::cout << "Config uninitialized!" << std::endl;
 		}
-
-		//std::optional<std::string> ila = config.getString("parser.type.degiro.fileExtension");
-		//std::optional<bool> intinos = config.getBool("settings.portfolio.multiCurrency");
 		auto ilassss = config.properties().get<std::string>("parser.type.degiro.name");
 		auto ilass = config.properties().get<std::string>("parser.type.degiro.fileExtension");
 		
@@ -107,55 +106,34 @@ int main()
 
 		http::Curl& curl = http::Curl::get();
 		curl.initialize();
-		auto ic = curl.GETRequest("https://papi-pornstarsapi.p.rapidapi.com/pornstars/");
-		std::cout << curl.StatusMessage() << std::endl;
-		auto ec = curl.GETRequest("https://query1.finance.yahoo.com/v8/finance/chart/AMZN");
-		std::cout << curl.response() << std::endl;
-		auto oc = curl.GETRequest("https://catfact.ninja/fact");
-		std::cout << curl.response() << std::endl;
 
-		auto as = curl.POSTRequest("https://api.openfigi.com/v3/mapping", "[{\"idType\":\"ID_ISIN\",\"idValue\":\"US4592001014\"}]");
+		http::Curl::Request request1{ http::Curl::Method::GET, "https://papi-pornstarsapi.p.rapidapi.com/pornstars/", "", false };
+		http::Curl::Response response1 = curl.httpRequest(request1);
 
-		ExchangeRateRepository::initialize(Currency::EUR);
-		/*if (status == Status::SUCCESS)
-			std::cout << curl.response() << std::endl;*/
+		http::Curl::Request request2{ http::Curl::Method::GET, "https://query1.finance.yahoo.com/v8/finance/chart/AMZN", ""};
+		http::Curl::Response response2 = curl.httpRequest(request2);
+		http::Curl::Response response2Clone = curl.httpRequest(request2);
 
-		/*auto stringa = ConfigRequest::GET("price", "AMZN", &status);
-		auto stringetto = ConfigRequest::POST("ticker", "IE00B53L4X51", &status);*/
+		http::Curl::Request request3{ http::Curl::Method::GET, "https://catfact.ninja/fact", "", true };
+		http::Curl::Response response3 = curl.httpRequest(request3);
+		http::Curl::Response response3Clone = curl.httpRequest(request3);
 
-		/*Figi figi;
-		if (status == Status::SUCCESS)
-			status = figi.parse(stringetto);*/
+		http::Curl::Request request4{ http::Curl::Method::POST, "https://api.openfigi.com/v3/mapping", "[{\"idType\":\"ID_ISIN\",\"idValue\":\"US4592001014\"}]", true };
+		http::Curl::Response response4 = curl.httpRequest(request4);
 
 		const fs::path t = "C:/Users/giuli/OneDrive/Desktop/test.txt";
 		File::writable(t);
 
-	/*	auto stringettos = ConfigRequest::GET("exchangeRate", "AUD", &status);
-		if (status == Status::SUCCESS)
-		{
-			std::cout << stringettos << std::endl;
-		}*/
-
-		// When parsing from inside Portfolio we should think 
-		// of catching validate user input exception
 		auto output = ReportParser::parseDefault(ReportParser::Type::DEGIRO);
 		auto output1 = ReportParser::parse(ReportParser::Type::DEGIRO, fs::path("C:/Users/giuli/Downloads/Portfolio.csv"));
 
-		/*ReportParser::Output out;
-		if (parsingResults.second)
-		{
-			for (const auto& sec : parsingResults.first)
-			{
-				portfolio->add(std::make_shared<Security>(sec));
-			}
-		}*/
 
 		std::shared_ptr<Security> a1 = std::make_shared<Security>(std::string("LU0908500753"), std::string(), 8, Quote(Price(Currency::EUR, 203.85)));
 		std::shared_ptr<Security> b2 = std::make_shared<Security>(std::string("IE00BJ38QD84"), std::string(), 12, Quote(Price(Currency::AUD, 47.43)));
-		std::shared_ptr<Security> c3 = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::EUR,424.20), std::chrono::system_clock::now()));
+		std::shared_ptr<Security> c3 = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::EUR,424.20), Date::now()));
 		try
 		{
-			std::shared_ptr<Security> negativeValue = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::EUR, -424.20), std::chrono::system_clock::now()));
+			std::shared_ptr<Security> negativeValue = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::EUR, -424.20), Date::now()));
 		}
 		catch (std::exception& e)
 		{
@@ -163,7 +141,7 @@ int main()
 		}
 		try
 		{
-			std::shared_ptr<Security> d4 = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::BZR, 424.20), std::chrono::system_clock::now()));
+			std::shared_ptr<Security> d4 = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::BZR, 424.20), Date::now()));
 		}
 		catch (std::exception& e)
 		{

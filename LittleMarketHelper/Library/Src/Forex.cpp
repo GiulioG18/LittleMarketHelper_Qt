@@ -69,7 +69,7 @@ namespace lmh {
 			rate = bbbyyy / bbbxxx;
 		}
 
-		return ExchangeRate(xxx, yyy, rate); // TODO2: set timestamp equal to oldest timestamp between the rates used
+		return ExchangeRate(xxx, yyy, rate);
 	}
 
 }

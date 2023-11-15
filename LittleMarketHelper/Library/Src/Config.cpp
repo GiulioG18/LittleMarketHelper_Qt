@@ -4,6 +4,8 @@
 
 namespace lmh {
 
+	// TODO: create path class to easily concatenate stuff and wrap the json get method
+
 	Status Config::initialize(const fs::path& filename)
 	{
 		Config& c = Config::get();

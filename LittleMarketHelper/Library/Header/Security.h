@@ -33,6 +33,7 @@ namespace lmh {
 			const Quote& quote
 		); 
 
+		virtual ~Security() = default;
 
 		Price marketValue() const;
 

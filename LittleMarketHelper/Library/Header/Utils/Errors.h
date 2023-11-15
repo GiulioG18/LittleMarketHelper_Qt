@@ -19,7 +19,7 @@ namespace lmh {
 
         Error(
             std::string_view file,
-            long line,
+            int64_t line,
             std::string_view functionName,
             std::string_view reason)
         {

@@ -1,5 +1,7 @@
 
 #include "ExchangeRate.h"
+#include "Http/Curl.h"
+#include "Config.h"
 #include "Http/Api.h"
 
 
@@ -57,6 +59,9 @@ namespace lmh {
 
 	Status ExchangeRateRepository::initialize(Currency baseCurrency)
 	{
+		assert(Config::get().initialized());
+		assert(http::Curl::get().initialized());
+
 		ExchangeRateRepository& repo = get();
 		if (repo.initialized_)
 			return Status::ER_REPO_ALREADY_INITIALIZED;
@@ -65,7 +70,7 @@ namespace lmh {
 		repo.baseCurrency_ = baseCurrency;
 
 		// Request rates and fill the maps
-		std::set<ExchangeRate> rates = http::ExchangeRate().run(baseCurrency);
+		std::set<ExchangeRate> rates = http::Api::getExchangeRatesForThisCurrency(baseCurrency);
 		for (auto& rate : rates)
 		{
 			// Conversion between non-base currencies are triangulated using the

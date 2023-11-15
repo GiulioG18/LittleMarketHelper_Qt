@@ -12,10 +12,10 @@ namespace lmh {
 	{
 	}
 
-	Quote::Quote(const Price& price, const Timestamp& timestamp)
+	Quote::Quote(const Price& price, const Date& date)
 		:
 		price_(price),
-		timestamp_(timestamp)
+		date_(date)
 	{
 	}
 

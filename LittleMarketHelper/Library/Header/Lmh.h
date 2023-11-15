@@ -9,15 +9,17 @@
 #include "Utils/Logger.h"
 #include "Http/Curl.h"
 #include "ExchangeRate.h"
+#include "Http/Api.h"
 
 
 namespace lmh {
 
+	// Must be called at startup
 	inline Status start(
 		const fs::path& configPath,
 		Currency baseCurrency = Currency::EUR,
 		LogLevel logLevel = LOG_LEVEL_DEFAULT,
-		long curlGlobalFlag = CURL_GLOBAL_ALL
+		int64_t curlGlobalFlag = CURL_GLOBAL_ALL
 		)
 	{
 		RETURN_ON_ERROR(Config::initialize(configPath));
@@ -25,7 +27,10 @@ namespace lmh {
 		RETURN_ON_ERROR(http::Curl::initialize(curlGlobalFlag));
 		RETURN_ON_ERROR(ExchangeRateRepository::initialize(baseCurrency));
 
-		return Status::SUCCESS;
+		// Check for a valid internet connection
+		// Right now the app won't start without it, but later it would be possible
+		// to have also an offline available version
+		return http::Api::testNetworkConnection();
 	}
 
 }

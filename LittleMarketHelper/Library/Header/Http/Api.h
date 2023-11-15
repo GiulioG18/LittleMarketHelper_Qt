@@ -1,18 +1,12 @@
 
 // ========================================================================
-//		Http APIs
+//		Http API utility functions
 // ========================================================================
 
 #pragma once
 
-#include <chrono>
-#include <memory>
-#include <list>
 #include <set>
-#include <string_view>
 
-#include "Http/Curl.h"
-#include "Utils/Json.h"
 #include "Utils/StatusCode.h"
 
 
@@ -22,13 +16,47 @@ namespace lmh {
 	class ExchangeRate;
 	enum class Currency;
 
-	// Fallback mechanism is not implemented.
-	// Each class is a wrapper around an API defined in the configuration file.
-	// To achieve more flexibility, url and data and other options can be defined in the configuration file,
-	// but this does not solve the issue: what do we do if the API is not working anymore?
-	
+
 	namespace http {
 
+		class Api
+		{
+		public:
+
+			// Check network connectivity
+			static Status testNetworkConnection();
+			static std::set<ExchangeRate> getExchangeRatesForThisCurrency(Currency currency);
+
+		private:
+
+			static constexpr std::string basePath();
+			static void replacePlaceholder(std::string& s, std::string_view value);						
+		};
+
+	}
+
+}
+
+
+
+//#include <chrono>
+//#include <memory>
+//#include <list>
+//#include <set>
+//#include <string_view>
+//
+//#include "Http/Curl.h"
+//#include "Utils/Json.h"
+//#include "Utils/StatusCode.h"
+//#include "Config.h"
+
+
+
+	// Fallback mechanism is not implemented.
+	// To achieve more flexibility, url and data and other options can be defined in the configuration file
+
+	
+		/*
 		// Base 
 		class Api
 		{
@@ -40,45 +68,22 @@ namespace lmh {
 
 			virtual ~Api() = default;
 
-			// Perform request and writes response 
-			// NB: response could be empty or invalid
-			Status send();
+			void runRequest(const Curl::Request& request);
 
 		protected:
 
 			Api() = default;
 
-			// Write string response into Json
-			virtual Status writeJson();
-
 		private:
 
-			Status sendGetRequest();
-			Status sendPostRequest();
 			void replacePlaceholder(std::string& s, std::string_view value) const;
 
 		protected:
 
-			std::string name_;
-			std::string method_;
-			std::string url_;
-			std::string data_;
-			std::string filler_;
 			std::list<std::string> keys_;
-			std::string response_;
 			Json json_;
-			std::unique_ptr<Stats> lastStats_;
-		};
-
-		// Api stats
-		struct Api::Stats
-		{
-			Stats() { clear(); }
-
-			void clear();
-
-			size_t bytes_;	// Downloaded bytes
-			std::chrono::duration<double> time_;
+			std::optional<Curl::Request> request_;
+			std::optional<Curl::Response> response_;
 		};
 
 
@@ -87,11 +92,11 @@ namespace lmh {
 		{
 		public:
 
-			ConnectionTest();
+			ConnectionTest(); 
 			virtual ~ConnectionTest() = default;
 
 			// Returns true if there is a valid network connection
-			bool run();			
+			bool run();	// [ MAY THROW ]
 		};
 
 
@@ -104,6 +109,7 @@ namespace lmh {
 			virtual ~Quote() = default;
 
 			// TODO: do not fecth all the historical price when using yf
+			// TODO: send a batch request instead of single ones
 
 		};
 
@@ -117,7 +123,7 @@ namespace lmh {
 			virtual ~ExchangeRate() = default;
 
 			// Returns a list of rates
-			std::set<lmh::ExchangeRate> run(Currency baseCcy);
+			std::set<lmh::ExchangeRate> run(Currency baseCcy); 	// [ MAY THROW ]
 		};
 
 
@@ -132,7 +138,7 @@ namespace lmh {
 
 	}
 
-	/*
+	
 	class YahooFinanceApi : public HttpApi
 	{
 	public:
@@ -183,4 +189,3 @@ namespace lmh {
 		}
 	};
 	*/
-}

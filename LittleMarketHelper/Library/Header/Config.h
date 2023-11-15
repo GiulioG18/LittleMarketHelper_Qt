@@ -34,9 +34,16 @@ namespace lmh {
 		// Read only access to the Config ptree
 		static const pt::ptree& properties();
 
+		// Getters
+		inline bool initialized() const;
+
 	private:
 
 		Json json_;
 	};
+
+
+	// Inline definitions
+	inline bool Config::initialized() const { return json_.initialized(); };
 
 }

@@ -6,9 +6,14 @@
 
 #pragma once
 
-#include <unordered_map>
+#define NOMINMAX
+
+#include <map>
 #include <queue>
 #include <memory>
+#include <assert.h>
+
+#include "Assertions.h"
 
 
 namespace lmh {
@@ -21,29 +26,35 @@ namespace lmh {
 
 		using ValuePtr = std::shared_ptr<Value>;
 		using ConstValuePtr = std::shared_ptr<const Value>;
-		using Iterator = std::unordered_map<Key, ValuePtr>::iterator;
+		using Iterator = std::map<Key, ValuePtr>::iterator;
 
 	public:
 
 		Cache(size_t maxSize);
 		virtual ~Cache() = default;
+		Cache(const Cache&) = delete;
+		Cache(Cache&&) = delete;
+		Cache& operator=(const Cache&) = delete;
+		Cache& operator=(Cache&&) = delete;
 
 		// Returns a pointer pointing to an element in the cache, if not found, returns nullptr
 		ConstValuePtr get(const Key& key) const;
-		// Inserts (or updates if already there) an element in the cache
+		// Inserts an element in the cache. Returns false if there is an element with that key already stored
+		// and performs no insertion
 		template<typename K, typename V> 
-		void put(K&& key, V&& value);
+		bool put(K&& key, V&& value);
 
 
 		bool has(const Key& key) const;
 
 	private:
 
-		virtual void replacementPolicy(const Iterator& element, bool inserted) = 0;
+		virtual void registerKey(const Iterator& iterator) = 0;
+		virtual void evict() = 0;
 
 	protected:
 
-		std::unordered_map<Key, ValuePtr> cached_;
+		std::map<Key, ValuePtr> cached_;
 		const size_t maxSize_;
 	};
 
@@ -60,19 +71,18 @@ namespace lmh {
 
 	public:
 		
-		FifoCache(size_t maxSize = std::numeric_limits<size_t>().max());
+		FifoCache(size_t maxSize = (size_t) - 1);
 		virtual ~FifoCache() = default;
 
 	private:
 
-		virtual void replacementPolicy(const Iterator& element, bool inserted) override;
+		virtual void registerKey(const Iterator& iterator) override;
+		virtual void evict() override;
 
 	private:
 
-		std::queue<Key*> keys_;
+		std::queue<Iterator> keys_;
 	};
-
-
 
 
 
@@ -97,14 +107,25 @@ namespace lmh {
 	}
 
 	template<typename Key, typename Value>
-	template<typename K, typename V> void Cache<Key, Value>::put(K&& key, V&& value)
+	template<typename K, typename V> bool Cache<Key, Value>::put(K&& key, V&& value)
 	{
-		auto insertion = cached_.insert_or_assign(
-			std::forward<K>(key),
-			std::make_shared<Value>(std::forward<V>(value))
-			);
+		Iterator iterator;
+		bool inserted;
 
-		replacementPolicy(insertion.first, insertion.second);
+		std::tie(iterator, inserted) = cached_.insert(
+			{ std::forward<K>(key), std::make_shared<Value>(std::forward<V>(value)) }
+		);
+
+		if (inserted)
+		{
+			// Register new key 
+			registerKey(iterator);
+
+			// Evict element based following the specific policy (only when the cache is full)
+			evict();
+		}
+
+		return inserted;
 	}
 
 	template<typename Key, typename Value>
@@ -123,18 +144,27 @@ namespace lmh {
 	}
 
 	template<typename Key, typename Value>
-	inline void FifoCache<Key, Value>::replacementPolicy(const FifoCache<Key, Value>::Iterator& element, bool inserted)
+	inline void FifoCache<Key, Value>::registerKey(const Iterator& iterator)
 	{
-		// TODO2: impl
-		
-		// If cache is full, evict element
-		if (Cache<Key, Value>::cached_.size() >= Cache<Key, Value>::maxSize_)
-		{
-			// TODO2: impl
-			// Should remove an element from the queue but also from the cache map
-		}
+		keys_.push(iterator);
+	}
 
-		// Add key to queue
+	template<typename Key, typename Value>
+	inline void FifoCache<Key, Value>::evict() // TODO: test
+	{
+		assert(this->cached_.size() == keys_.size());
+
+		// Keep cache size within limits
+		if (this->cached_.size() > this->maxSize_)
+		{
+			Iterator evicted = keys_.front();
+			// Remove cached element
+			auto removedElements = this->cached_.erase(evicted);
+			// Remove key
+			keys_.pop();
+
+			assert(this->cached_.size() == this->maxSize_);
+		}
 	}
 
 }

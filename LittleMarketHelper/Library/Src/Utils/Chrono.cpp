@@ -4,25 +4,25 @@
 
 namespace lmh {
 
-	Timestamp::Timestamp(const Year& year, const Month& month, const Day& day, const Hours& hours, const Minutes& minutes, const Seconds& seconds)
+	Date::Date(const Year& year, const Month& month, const Day& day, const Hours& hours, const Minutes& minutes, const Seconds& seconds)
 	{
 	}
 
-	Timestamp::Timestamp(const TPoint& tPoint)
-		: tPoint_(std::make_optional<TPoint>(tPoint))
+	Date::Date(const Timepoint& tPoint)
+		: timepoint_(std::make_optional<Timepoint>(tPoint))
 	{
 	}
 
-	std::ostream& operator<<(std::ostream& os, const Timestamp& timestamp)
+	std::ostream& operator<<(std::ostream& os, const Date& date)
 	{
-		if (timestamp.tPoint_.has_value())
+		if (date.timepoint_.has_value())
 		{
-			std::time_t time = std::chrono::system_clock::to_time_t(*timestamp.tPoint_);
+			std::time_t time = std::chrono::system_clock::to_time_t(*date.timepoint_);
 			os << std::put_time(std::localtime(&time), "%F %T");
 		}
 		else
 		{
-			os << "Null timestamp" << std::endl;
+			os << "Null date" << std::endl;
 		}
 		
 		return os;

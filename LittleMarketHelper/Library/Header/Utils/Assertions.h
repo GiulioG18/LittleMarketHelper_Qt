@@ -4,6 +4,8 @@
 
 #pragma once
 
+#define NOMINMAX
+
 #include "Errors.h"
 
 
@@ -32,7 +34,7 @@
 MULTILINE_FAILURE_BEGIN \
     std::ostringstream msg_stream; \
     msg_stream << message; \
-    throw lmh::Error(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, msg_stream.str()); \
+    throw Error(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, msg_stream.str()); \
 MULTILINE_FAILURE_END
 
 // Throws an error if the given condition is not verified
@@ -41,7 +43,7 @@ MULTILINE_ASSERTION_BEGIN \
 if (!(condition)) { \
     std::ostringstream msg_stream; \
     msg_stream << message; \
-    throw lmh::Error(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, msg_stream.str()); \
+    throw Error(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, msg_stream.str()); \
 } \
 MULTILINE_ASSERTION_END
 
@@ -51,7 +53,7 @@ MULTILINE_ASSERTION_BEGIN \
 if (!(condition)) { \
     std::ostringstream msg_stream; \
     msg_stream << message; \
-    throw lmh::Error(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, msg_stream.str()); \
+    throw Error(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, msg_stream.str()); \
 } \
 MULTILINE_ASSERTION_END
 
@@ -61,7 +63,7 @@ MULTILINE_ASSERTION_BEGIN \
 if (!(condition)) { \
     std::ostringstream msg_stream; \
     msg_stream << message; \
-    throw lmh::Error(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, msg_stream.str()); \
+    throw Error(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, msg_stream.str()); \
 } \
 MULTILINE_ASSERTION_END
 

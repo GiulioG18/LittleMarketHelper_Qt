@@ -5,26 +5,42 @@
 
 #pragma once
 
-#include <string>
-#include <functional>
 #include <memory>
 
+#include "curl/curl.h"
+
+#include "Utils/Warnings.h"
 #include "Patterns/Singleton.h"
 #include "Utils/StatusCode.h"
 #include "Utils/Assertions.h"
-#include "curl/curl.h"
+#include "Utils/Cache.h"
+#include "Utils/Chrono.h"
+
 
 namespace lmh {
 
 	namespace http {
 
 		// Wrapper around libcurl
-		// Only HTTP requests are supported
+
 		class Curl : public Singleton<Curl>
 		{
 		public:
 
 			friend class Singleton<Curl>;
+
+			class Request;
+			class Response;
+
+			// Supported methods
+			enum class Method 
+			{
+				INVALID = -1,
+				GET,
+				POST
+			};
+
+			using ResponseCache = std::unique_ptr<Cache<Request, Response>>;
 
 		private:
 
@@ -32,41 +48,150 @@ namespace lmh {
 
 		public:
 
-			// Following libcurl doc suggestions, in this way multiple calls 
-			// to curl_global_init()/curl_global_cleanup() are avoided
 			virtual ~Curl();
 			// By default sets the flag to CURL_GLOBAL_ALL 
-			// NB: no options are set during initialization
-			static Status initialize(long flag = -1);
-			// Returns string format for CURLcode
-			std::string StatusMessage();
-			// Check network connectivity
-			Status checkNetworkConnection();
-
-			// Requests (Note that returning SUCCESS does not imply that the response is good)
-			Status GETRequest(const std::string& url);
-			Status POSTRequest(const std::string& url, const std::string& data); // Content-Type: application/json
+			// NB: does not check for a valid network connection
+			static Status initialize(int64_t flag = -1);
+			// Read or caches the response for the given HTTP request
+			static Response httpRequest(const Request& request);
+			// Convert string to method
+			static Method toMethod(std::string_view str);
 
 			// Getters
-			inline curl_version_info_data* version() const;
-			inline const std::string& response() const;
 			inline bool initialized() const;
 
 		private:
 
+			void processInternally(Response& response);
+
+		private:
+
+			ResponseCache responses_;
 			bool initialized_ = false;
-			curl_version_info_data* version_ = nullptr;
-			std::string response_ = "";
-			CURLcode lastCode_ = CURLcode::CURLE_OK;
+		};
+
+
+
+
+		// Request
+
+		class Curl::Request
+		{
+			// TODO: move impl
+			friend class Curl;
+
+		public:
+
+			Request(Method method, std::string_view url, std::string_view data, bool force = false) // [ MAY THROW ]
+				:
+				method_(method), 
+				url_(url),
+				data_(data),
+				force_(force)
+			{
+				ENSURE(!url_.empty(), "empty url not allowed");
+				ENSURE(method_ != Method::INVALID, "invalid method");
+				if (method_ == Method::GET)
+					ENSURE(data_.empty(), "data must be empty for GET requests");
+			}
+
+			constexpr auto key() const
+			{
+				// force_ does not play a role when comparing different Request objects
+				return std::tie(method_, url_, data_);
+			}
+
+			auto operator<=>(const Request& other) const
+			{
+				return this->key() <=> other.key();
+			}
+
+			bool operator==(const Request& other) const
+			{
+				return this->key() == other.key();
+			}
+
+		private:
+
+			Method method_;
+			std::string	url_;
+			std::string	data_;
+			bool force_;
+		};
+
+
+
+
+		// Response
+
+		class Curl::Response
+		{
+		public:
+
+			// TODO: move impl
+			friend class Curl;
+
+			using Speed = curl_off_t;
+
+		private:
+
+			Response(const Request& request)
+				:
+				request_(request),
+				code_(Status::SUCCESS),
+				method_(Method::INVALID),
+				duration_(0),
+				bytes_(0),
+				speed_(-1.0),
+				localPort_(0)
+			{
+			};
+
+			// Extract info from CURL handle
+			void extractInfo(CURL*& curl);
+
+		public:
+
+			void print() const;
+
+			// Getters
+			inline const Request& request() const;
+			inline Method method() const;
+			inline Status code() const;
+			inline const std::string& data() const;
+			inline const Date& date() const;
+			inline const Duration& duration() const;
+			inline size_t bytes() const;
+			inline double speed() const;
+			inline int64_t localPort() const;
+
+		private:
+
+			Request	request_;
+			Method method_;
+			Status code_;
+			std::string data_;				
+			Date date_;
+			Duration duration_; // Seconds
+			size_t bytes_;	
+			Speed speed_; // Bytes/Second
+			int64_t localPort_;
 		};
 
 
 		// Inline definitions
-		inline curl_version_info_data* Curl::version() const { return version_; };
-		inline const std::string& Curl::response() const { return response_; };
-		inline bool Curl::initialized() const { return initialized_; };
+		inline bool Curl::initialized() const { return initialized_; }; 
+		inline const Curl::Request& Curl::Response::request() const { return request_; }
+		inline Curl::Method Curl::Response::method() const { return method_; }
+		inline Status Curl::Response::code() const { return code_; }
+		inline const std::string& Curl::Response::data() const { return data_; }
+		inline const Date& Curl::Response::date() const { return date_; }
+		inline const Duration& Curl::Response::duration() const { return duration_; }
+		inline size_t Curl::Response::bytes() const { return bytes_; }
+		inline double Curl::Response::speed() const { return speed_; }
+		inline int64_t Curl::Response::localPort() const { return localPort_; }
 
 	}
-
+		
 }
 

@@ -15,6 +15,7 @@ namespace lmh {
 	public:
 
 		Optimizer(CalibrationResult& result);
+		virtual ~Optimizer() = default;
 
 		bool run();
 

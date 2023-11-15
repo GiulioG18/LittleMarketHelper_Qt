@@ -30,6 +30,8 @@ namespace lmh {
 
 	Status Logger::initialize(LogLevel logLevel)
 	{
+		assert(Config::get().initialized());
+
 		// Create the logger in memory
 		Logger& logger = Singleton<Logger>::get();
 

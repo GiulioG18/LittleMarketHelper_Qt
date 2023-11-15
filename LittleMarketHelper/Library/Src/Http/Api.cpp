@@ -2,6 +2,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "Http/Api.h"
+#include "Http/Curl.h"
 #include "Config.h"
 #include "ExchangeRate.h"
 #include "Currency.h"
@@ -11,160 +12,72 @@ namespace lmh {
 
 	namespace http {
 
-		// Base
-
-		Status Api::send()
+		Status Api::testNetworkConnection()
 		{
-			Curl& curl = Curl::get();
+			assert(Curl::get().initialized());
 
-			// Reset stats
-			lastStats_ = std::make_unique<Stats>();
+			// Initialize request
+			std::string path = basePath() + "networkConnection.";
+			Curl::Method method = Curl::toMethod(Config::properties().get<std::string>(path + "method"));
+			std::string url = Config::properties().get<std::string>(path + "url");
+			std::string key = Config::properties().get<std::string>(path + "key");
 
-			// Send request
-			Status status;
-			if (method_ == "get")
-				status = sendGetRequest();
-			else if (method_ == "post")
-				status = sendPostRequest();
-			else
-				status = Status::API_INVALID_METHOD;
-
-			if (status != Status::SUCCESS)
-				return status;
-
-			// Write stats
-			// TODO2: impl
-
-			// Write response
-			response_ = curl.response();
-			return Status::SUCCESS;
-		}
-											
-		Status Api::writeJson()
-		{
+			// Force the HTTP request every time
+			static Curl::Request request{ method, url, "", true };
+			auto response = Curl::httpRequest(request);
+			if (response.code() != Status::SUCCESS)
+				return Status::NO_NETWORK_CONNECTION;
+			
+			// Process response
+			Json json;
 			std::stringstream ss;
-			ss << response_;
-			return json_.parse(ss);
-		}
-
-		Status Api::sendGetRequest()
-		{
-			Status status = Status::SUCCESS;
-
-			// Validate input
-			REQUIRE(!url_.empty(), "empty url");
-
-			replacePlaceholder(url_, filler_);
-			return Curl::get().GETRequest(url_);
-		}
-
-		Status Api::sendPostRequest()
-		{
-			Status status = Status::SUCCESS;
-
-			// Validate input
-			REQUIRE(!url_.empty(), "empty url");
-			REQUIRE(!filler_.empty(), "empty filler for POST request");
-			REQUIRE(!data_.empty(), "empty data for POST request");
-
-			replacePlaceholder(data_, filler_);
-			return Curl::get().POSTRequest(url_, data_);
-		}
-
-		void Api::replacePlaceholder(std::string& s, std::string_view value) const
-		{
-			std::string placeholder = std::string("%%%PLACEHOLDER%%%");
-
-			auto pos = s.find(placeholder);
-			if (pos == std::string::npos)
-				return;
-
-			s.replace(pos, placeholder.length(), value);
-		}
-
-
-		// Api stats
-
-		void Api::Stats::clear()
-		{
-			bytes_ = static_cast<size_t>(0);
-			time_ = std::chrono::milliseconds::zero();
-		}
-
-
-		// Quote
-
-		ConnectionTest::ConnectionTest()
-		{
-			std::string basePath = std::string("httpRequest.connectionTest.");
-			
-			method_ = Config::properties().get<std::string>(basePath + "method");
-			url_ = Config::properties().get<std::string>(basePath + "url");
-			data_ = ""; 
-			filler_ = "";
-			keys_.push_back(Config::properties().get<std::string>(basePath + "key"));
-		}
-
-		bool ConnectionTest::run()
-		{
-			// Run http request
-			Status status = Api::send();
+			ss << response.data();
+			Status status = json.parse(ss);
 			if (status != Status::SUCCESS)
-				return false;
-			
-			// Parse result into Json file
-			status = Api::writeJson();
-			if (status != Status::SUCCESS)
-				return false;
+				return Status::NO_NETWORK_CONNECTION;
 
-			// Evaluate result
-			auto msg = json_.tree().get_optional<std::string>(keys_.front());
-			return msg.has_value(); // NB: a very cool message is lost here
+			// Evaluate message
+			auto msg = json.tree().get_optional<std::string>(key);
+			if (msg.has_value()) // NB: a very cool message is lost here
+				return Status::SUCCESS;
+			else
+				return Status::NO_NETWORK_CONNECTION;
 		}
 
-		Quote::Quote()
+		std::set<ExchangeRate> Api::getExchangeRatesForThisCurrency(Currency currency)
 		{
-			std::string path = "httpRequest.quoteByFullTicker.yahooFinance";
-		}
+			assert(Curl::get().initialized());
 
-		
-
-		ExchangeRate::ExchangeRate()
-		{
-			std::string basePath = std::string("httpRequest.exchangeRate.");
-
-			method_ = Config::properties().get<std::string>(basePath + "method");
-			url_ = Config::properties().get<std::string>(basePath + "url");
-			data_ = "";
-			filler_ = "";
-			keys_.push_back(Config::properties().get<std::string>(basePath + "key"));
-		}
-
-		std::set<lmh::ExchangeRate> ExchangeRate::run(Currency baseCcy)
-		{
-			// TODO2: should check if the date it is recent enough
-			
 			std::set<lmh::ExchangeRate> out;
 
-			// Run http request
-			Status status = Api::send();
-			if (status != Status::SUCCESS)
+			// Initialize request
+			std::string path = basePath() + "exchangeRates.";
+			Curl::Method method = Curl::toMethod(Config::properties().get<std::string>(path + "method"));
+			std::string url = Config::properties().get<std::string>(path + "url");
+			std::string key = Config::properties().get<std::string>(path + "key");
+
+			// Run HTTP request
+			static Curl::Request request{ method , url, "" };
+			auto response = Curl::httpRequest(request);
+			if (response.code() != Status::SUCCESS)
 				return out;
 
-			// Parse result into Json file
-			status = Api::writeJson();
+			// Process response
+			Json json;
+			std::stringstream ss;
+			ss << response.data();
+			Status status = json.parse(ss);
 			if (status != Status::SUCCESS)
 				return out;
 
 			// Request rates for most common currencies
-			std::string key = keys_.front();
-			Currency xxx = baseCcy;
+			Currency xxx = currency;
 			for (const auto& pair : ccy::map())
 			{			
 				Currency yyy = pair.first;
 				std::string currency = pair.second;
 				boost::algorithm::to_lower(currency);
-				auto rate = json_.tree().get_optional<double>(key + "." + currency);
+				auto rate = json.tree().get_optional<double>(key + "." + currency);
 				if (rate.has_value())
 				{
 					// Construct rate
@@ -175,8 +88,25 @@ namespace lmh {
 				}
 			}
 
+			// TODO2: should check if the date it is recent enough
 			return out;
 		}
 
-}
+		constexpr std::string Api::basePath()
+		{
+			return std::string("httpRequest.");
+		}
+
+		void Api::replacePlaceholder(std::string& s, std::string_view value)
+		{
+			std::string placeholder = std::string("%%%PLACEHOLDER%%%");
+
+			auto pos = s.find(placeholder);
+			if (pos == std::string::npos)
+				return;
+
+			s.replace(pos, placeholder.length(), value);
+		}
+	}
+
 }

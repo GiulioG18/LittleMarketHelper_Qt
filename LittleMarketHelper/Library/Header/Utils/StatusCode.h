@@ -87,6 +87,7 @@ namespace lmh {
 		ER_REPO_ALREADY_INITIALIZED,
 	};
 
+	// TODO: impl
 	inline std::string StatusToString(Status Status)
 	{
 		switch (Status)
