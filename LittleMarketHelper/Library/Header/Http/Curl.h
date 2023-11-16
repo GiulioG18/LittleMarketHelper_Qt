@@ -79,7 +79,6 @@ namespace lmh {
 
 		class Curl::Request
 		{
-			// TODO: move impl
 			friend class Curl;
 			friend class Curl::Response;
 
@@ -110,7 +109,6 @@ namespace lmh {
 		{
 		public:
 
-			// TODO: move impl
 			friend class Curl;
 
 			using Speed = curl_off_t;
@@ -128,13 +126,12 @@ namespace lmh {
 
 			// Getters
 			inline const Request& request() const;
-			inline Method method() const;
 			inline Status code() const;
 			inline const std::string& data() const;
 			inline const Date& date() const;
-			inline const Duration& duration() const;
+			inline const Seconds& duration() const;
 			inline size_t bytes() const;
-			inline double speed() const;
+			inline Speed speed() const;
 			inline int64_t localPort() const;
 
 		private:
@@ -144,7 +141,7 @@ namespace lmh {
 			Status code_;
 			std::string data_;				
 			Date date_;
-			Duration duration_; // Seconds
+			Seconds duration_;
 			size_t bytes_;	
 			Speed speed_; // Bytes/second
 			int64_t localPort_;
@@ -157,9 +154,9 @@ namespace lmh {
 		inline Status Curl::Response::code() const { return code_; }
 		inline const std::string& Curl::Response::data() const { return data_; }
 		inline const Date& Curl::Response::date() const { return date_; }
-		inline const Duration& Curl::Response::duration() const { return duration_; }
+		inline const Seconds& Curl::Response::duration() const { return duration_; }
 		inline size_t Curl::Response::bytes() const { return bytes_; }
-		inline double Curl::Response::speed() const { return speed_; }
+		inline Curl::Response::Speed Curl::Response::speed() const { return speed_; }
 		inline int64_t Curl::Response::localPort() const { return localPort_; }
 
 	}

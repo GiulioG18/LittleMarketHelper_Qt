@@ -76,6 +76,18 @@ int main()
 	{
 		start("D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\config.json");
 
+
+		// TEST CHRONO STUFF:
+		// .. ctors
+		// .. utility functions
+		// .. date functions (operators)
+		// .. review all code that is supposed to use a date
+
+		Date d;
+		d.prettyPrint(std::cout);
+		std::cout << d << std::endl;
+		std::cout << d << std::endl;
+
 		pt::ptree configTree;
 		pt::read_json({ "D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\config.json" }, configTree);
 		auto mc = configTree.get_optional<std::string>("logger.directory");
@@ -135,10 +147,10 @@ int main()
 
 		std::shared_ptr<Security> a1 = std::make_shared<Security>(std::string("LU0908500753"), std::string(), 8, Quote(Price(Currency::EUR, 203.85)));
 		std::shared_ptr<Security> b2 = std::make_shared<Security>(std::string("IE00BJ38QD84"), std::string(), 12, Quote(Price(Currency::AUD, 47.43)));
-		std::shared_ptr<Security> c3 = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::EUR,424.20), Date::now()));
+		std::shared_ptr<Security> c3 = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::EUR,424.20), Chrono::now()));
 		try
 		{
-			std::shared_ptr<Security> negativeValue = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::EUR, -424.20), Date::now()));
+			std::shared_ptr<Security> negativeValue = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::EUR, -424.20), Chrono::now()));
 		}
 		catch (std::exception& e)
 		{
@@ -146,7 +158,7 @@ int main()
 		}
 		try
 		{
-			std::shared_ptr<Security> d4 = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::BZR, 424.20), Date::now()));
+			std::shared_ptr<Security> d4 = std::make_shared<Security>(std::string("IE00B5BMR087"), std::string(), 26, Quote(Price(Currency::BZR, 424.20), Chrono::now()));
 		}
 		catch (std::exception& e)
 		{

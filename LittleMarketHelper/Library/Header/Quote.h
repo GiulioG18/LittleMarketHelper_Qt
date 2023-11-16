@@ -29,7 +29,7 @@ namespace lmh {
 	private:
 
 		Price price_;
-		Date date_;
+		Date date_; // TODO: How do we make this optional?
 	};
 
 

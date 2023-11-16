@@ -87,27 +87,87 @@ namespace lmh {
 		ER_REPO_ALREADY_INITIALIZED,
 	};
 
-	// TODO: impl
-	inline std::string StatusToString(Status Status)
-	{
-		switch (Status)
+
+	namespace error {
+
+		// TODO: impl
+		inline std::string stos(Status status)
 		{
-		case Status::SUCCESS:
-			break;
-		case Status::CURRENCY_NOT_ALLOWED:
-			break;
-		case Status::TRADE_NOT_FOUND:
-			break;
-		case Status::INVALID_INPUT:
-			break;
-		case Status::FILE_NOT_OPEN:
-			break;
-		case Status::FILE_IS_EMPTY:
-			break;
-		case Status::REPORT_NOT_FOUND:
-			break;
-		default: return std::string("Unknown error"); break;
+			switch (status)
+			{
+			case lmh::Status::SUCCESS:
+				break;
+			case lmh::Status::CURRENCY_NOT_ALLOWED:
+				break;
+			case lmh::Status::TRADE_NOT_FOUND:
+				break;
+			case lmh::Status::CASH_NOT_FOUND:
+				break;
+			case lmh::Status::TRADE_DUPLICATE_NOT_INSERTED:
+				break;
+			case lmh::Status::CASH_DUPLICATE_NOT_INSERTED:
+				break;
+			case lmh::Status::INVALID_INPUT:
+				break;
+			case lmh::Status::FILE_NOT_OPEN:
+				break;
+			case lmh::Status::FILE_IS_EMPTY:
+				break;
+			case lmh::Status::REPORT_NOT_FOUND:
+				break;
+			case lmh::Status::INVALID_DIRECTORY:
+				break;
+			case lmh::Status::NO_WRITE_PERMISSION:
+				break;
+			case lmh::Status::INVALID_JSON_FORMAT:
+				break;
+			case lmh::Status::CURL_NOT_INITIALIZED:
+				break;
+			case lmh::Status::CURL_ALREADY_INITIALIZED:
+				break;
+			case lmh::Status::CURL_GLOBAL_INIT_FAILED:
+				break;
+			case lmh::Status::CURL_HANDLE_INIT_FAILED:
+				break;
+			case lmh::Status::CURL_REQUEST_FAILED:
+				break;
+			case lmh::Status::CURL_URL_SET_FAILED:
+				break;
+			case lmh::Status::CURL_POST_SET_FAILED:
+				break;
+			case lmh::Status::CURL_DATA_SET_FAILED:
+				break;
+			case lmh::Status::CURL_HEADER_SET_FAILED:
+				break;
+			case lmh::Status::CURL_WRITEFUNCTION_SET_FAILED:
+				break;
+			case lmh::Status::CURL_WRITEDATA_SET_FAILED:
+				break;
+			case lmh::Status::CURL_OPT_SET_FAILED:
+				break;
+			case lmh::Status::CURL_PERFORM_FAILED:
+				break;
+			case lmh::Status::CONFIG_NOT_INITIALIZED:
+				break;
+			case lmh::Status::CONFIG_ALREADY_INITIALIZED:
+				break;
+			case lmh::Status::CONFIG_INVALID_PATH:
+				break;
+			case lmh::Status::API_INVALID_METHOD:
+				break;
+			case lmh::Status::LOGGER_ALREADY_INITIALIZED:
+				break;
+			case lmh::Status::NO_NETWORK_CONNECTION:
+				break;
+			case lmh::Status::ER_REPO_ALREADY_INITIALIZED:
+				break;
+			default:
+				break;
+			}
+
+			return std::string();
 		}
+
 	}
 
 }

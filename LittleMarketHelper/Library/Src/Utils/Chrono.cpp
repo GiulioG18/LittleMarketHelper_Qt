@@ -1,31 +1,117 @@
 
 #include "Utils/Chrono.h"
+#include "Utils/Assertions.h"
 
 
 namespace lmh {
 
-	Date::Date(const Year& year, const Month& month, const Day& day, const Hours& hours, const Minutes& minutes, const Seconds& seconds)
+	// Date
+
+	Date::Date(const Timezone* tz, const Timepoint& timepoint)
+		: zonedTime_(tz, timepoint)
 	{
 	}
 
-	Date::Date(const Timepoint& tPoint)
-		: timepoint_(std::make_optional<Timepoint>(tPoint))
+	Date::Date(const Timepoint& timepoint)
+		: zonedTime_(Chrono::here(), timepoint)
 	{
+	}
+
+	Date::Date(const Timezone* tz, const UnixTimestamp& timestamp)
+	{
+		const Timepoint sinceEpoch{ timestamp };
+		zonedTime_ = { tz, sinceEpoch };
+	}
+
+	Date::Date(const UnixTimestamp& timestamp)
+	{
+		const Timepoint sinceEpoch{ timestamp };
+		zonedTime_ = { Chrono::here(), sinceEpoch };
+	}
+
+	Date::Date(const Year& year, const Month& month, const Day& day, const Hours& hours, const Minutes& minutes, const Seconds& seconds)
+	{
+		REQUIRE(year.ok(), "invalid year");
+		REQUIRE(month.ok(), "invalid month");
+		REQUIRE(day.ok(), "invalid day");
+
+		Timepoint t = std::chrono::sys_days(year / month / day) + hours + minutes + seconds;
+		zonedTime_ = ZonedTimepoint(Chrono::here(), t);
+	}
+
+	const auto Date::timepoint() const
+	{
+		return zonedTime_.get_sys_time();
+	}
+
+	const auto Date::localTimepoint() const
+	{
+		return zonedTime_.get_local_time();
+	}	
+
+	std::string_view Date::timezone() const
+	{
+		return zonedTime_.get_time_zone()->name();
+	}
+
+	auto Date::operator<=>(const Date& other) const
+	{
+		return this->zonedTime_.get_sys_time() <=> other.zonedTime_.get_sys_time();
+	}
+
+	auto Date::operator==(const Date& other) const
+	{
+		return this->zonedTime_.get_sys_time() == other.zonedTime_.get_sys_time();
+	}
+
+	void Date::prettyPrint(std::ostream& os) const
+	{
+		os << "==========================================================" << "\n";
+		os << "Date UTC time point:		" << timepoint() << "\n";
+		os << "Date local time point:		" << localTimepoint() << "\n";
+		os << "Date timezone:			" << timezone() << "\n";
+		os << "==========================================================" << "\n";
 	}
 
 	std::ostream& operator<<(std::ostream& os, const Date& date)
 	{
-		if (date.timepoint_.has_value())
-		{
-			std::time_t time = std::chrono::system_clock::to_time_t(*date.timepoint_);
-			os << std::put_time(std::localtime(&time), "%F %T");
-		}
-		else
-		{
-			os << "Null date" << std::endl;
-		}
-		
+		os << date.localTimepoint() << " " << date.timezone();
 		return os;
+	}
+
+
+
+	// Chrono
+
+	Seconds Chrono::secondsBetween(const Date& before, const Date& after)
+	{
+		return std::chrono::ceil<Seconds>(after.zonedTime_.get_sys_time() - before.zonedTime_.get_sys_time());
+	}
+
+	Minutes Chrono::minutesBetween(const Date& before, const Date& after)
+	{
+		return std::chrono::ceil<Minutes>(after.zonedTime_.get_sys_time() - before.zonedTime_.get_sys_time());
+	}
+
+	Hours Chrono::hoursBetween(const Date& before, const Date& after)
+	{
+		return std::chrono::ceil<Hours>(after.zonedTime_.get_sys_time() - before.zonedTime_.get_sys_time());
+	}
+
+	uint32_t Chrono::daysBetween(const Date& before, const Date& after)
+	{
+		// NB: floored integer division
+		return std::chrono::ceil<Hours>(after.zonedTime_.get_sys_time() - before.zonedTime_.get_sys_time()).count() / 24;
+	}
+
+	Date::Timepoint Chrono::now()
+	{
+		return Date::Clock::now();
+	}
+
+	const Date::Timezone* Chrono::here()
+	{
+		return std::chrono::current_zone();
 	}
 
 }

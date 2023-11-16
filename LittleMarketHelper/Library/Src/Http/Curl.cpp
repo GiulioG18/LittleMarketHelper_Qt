@@ -270,7 +270,7 @@ namespace lmh {
 			stream << "URL: " << request_.url_ << "\n";
 			stream << "Header: " << request_.data_ << "\n";
 			stream << "Skip cache: " << std::boolalpha << request_.skipCache_ << "\n";
-			//stream << "Code: " << code_ << "\n"; // TODO: impl
+			stream << "Code: " << error::stos(code_) << "\n";
 			//stream << "Date: " << date_ << "\n"; // TODO: impl
 			stream << "Total duration (s): " << duration_ << "\n";
 			stream << "Bytes downloaded: " << bytes_ << "\n";

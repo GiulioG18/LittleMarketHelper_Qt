@@ -4,7 +4,7 @@
 
 namespace lmh {
 
-	// TODO: create path class to easily concatenate stuff and wrap the json get method
+	// TODO2: create path class to easily concatenate stuff and wrap the json get method
 
 	Status Config::initialize(const fs::path& filename)
 	{

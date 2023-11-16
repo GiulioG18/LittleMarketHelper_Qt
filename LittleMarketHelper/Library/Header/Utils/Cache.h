@@ -150,7 +150,7 @@ namespace lmh {
 	}
 
 	template<typename Key, typename Value>
-	inline void FifoCache<Key, Value>::evict() // TODO: test
+	inline void FifoCache<Key, Value>::evict()
 	{
 		assert(this->cached_.size() == keys_.size());
 
