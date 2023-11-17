@@ -129,7 +129,7 @@ namespace lmh {
 			inline Status code() const;
 			inline const std::string& data() const;
 			inline const Date& date() const;
-			inline const Seconds& duration() const;
+			inline const Milliseconds& duration() const;
 			inline size_t bytes() const;
 			inline Speed speed() const;
 			inline int64_t localPort() const;
@@ -141,11 +141,23 @@ namespace lmh {
 			Status code_;
 			std::string data_;				
 			Date date_;
-			Seconds duration_;
+			Milliseconds duration_;
 			size_t bytes_;	
 			Speed speed_; // Bytes/second
 			int64_t localPort_;
 		};
+
+
+
+
+		// Curl Handle wrapper
+
+		struct CurlHandle
+		{
+
+		};
+
+
 
 
 		// Inline definitions
@@ -154,7 +166,7 @@ namespace lmh {
 		inline Status Curl::Response::code() const { return code_; }
 		inline const std::string& Curl::Response::data() const { return data_; }
 		inline const Date& Curl::Response::date() const { return date_; }
-		inline const Seconds& Curl::Response::duration() const { return duration_; }
+		inline const Milliseconds& Curl::Response::duration() const { return duration_; }
 		inline size_t Curl::Response::bytes() const { return bytes_; }
 		inline Curl::Response::Speed Curl::Response::speed() const { return speed_; }
 		inline int64_t Curl::Response::localPort() const { return localPort_; }

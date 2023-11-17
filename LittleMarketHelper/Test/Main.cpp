@@ -86,7 +86,19 @@ int main()
 		Date d;
 		d.prettyPrint(std::cout);
 		std::cout << d << std::endl;
-		std::cout << d << std::endl;
+
+		int64_t sinceEpoch = 1700253913LL;
+		Date uts = Date(Date::UnixTimestamp(std::max(sinceEpoch, 0LL)));
+		std::cout << uts << std::endl;
+		uts.prettyPrint(std::cout);
+		std::cout << "ts: " <<uts.timestamp() << std::endl;
+		std::cout << "se" << sinceEpoch << std::endl;
+
+		Date dateTzTp{ std::chrono::locate_zone("Australia/Sydney"), Chrono::now() };
+		std::cout << dateTzTp << std::endl;
+		dateTzTp.prettyPrint(std::cout);
+		std::cout << "ts: " << dateTzTp.timestamp() << std::endl;
+		std::cout << "se: " << Chrono::now().time_since_epoch().count() << std::endl;
 
 		pt::ptree configTree;
 		pt::read_json({ "D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\config.json" }, configTree);

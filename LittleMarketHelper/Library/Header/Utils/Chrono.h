@@ -23,6 +23,7 @@ namespace lmh {
 	using Hours = std::chrono::hours;			
 	using Minutes = std::chrono::minutes; // Minits
 	using Seconds = std::chrono::seconds;		
+	using Milliseconds = std::chrono::milliseconds;
 
 
 	// . allow arithmetic operations with durations
@@ -34,7 +35,7 @@ namespace lmh {
 	// Stores a local date (technically: a pair of time_zone and time_point)
 	class Date
 	{
-	private:
+	public:
 
 		using Clock = std::chrono::system_clock;
 		using Timepoint = Clock::time_point;
@@ -60,9 +61,10 @@ namespace lmh {
 			const Minutes& minutes,
 			const Seconds& seconds);
 
-		const auto timepoint() const;
-		const auto localTimepoint() const;
+		const auto& systemTime() const;
+		const auto& localTime() const;
 		std::string_view timezone() const;
+		int64_t timestamp() const;
 		void prettyPrint(std::ostream& os) const;
 
 		// Operators

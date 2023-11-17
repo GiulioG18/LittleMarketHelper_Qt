@@ -7,13 +7,12 @@
 
 #include <filesystem>
 #include <fstream>
-#include <chrono>
-#include <ctime>
 
 #include "Utils/Environment.h"
 #include "Utils/Assertions.h"
 #include "Patterns/Singleton.h"
 #include "Utils/StatusCode.h"
+#include "Chrono.h"
 
 
 // Log levels
@@ -35,7 +34,7 @@
 #define LMH_WARNING(x) lmh::Logger::get().log<LOG_LEVEL_WARNING>((x));
 #define LMH_ERROR(x) lmh::Logger::get().log<LOG_LEVEL_ERROR>((x));
 
-using LogLevel = unsigned int;
+using LogLevel = uint32_t;
 namespace fs = std::filesystem;
 
 
@@ -78,10 +77,9 @@ namespace lmh {
 
 		std::unique_ptr<std::fstream> stream_;
 		LogLevel logLevel_ = LOG_LEVEL_DEFAULT;
-		std::time_t time_ = static_cast<time_t>(0); // TODO: use chrono stuff
+		Date date_;
 		fs::path folder_;
 		fs::path file_;
-		int maxLogFiles_ = 5;
 		bool initialized_ = false;
 	};
 

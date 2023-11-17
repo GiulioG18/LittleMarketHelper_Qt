@@ -10,3 +10,5 @@
 #pragma warning(disable : 26819)	// From boost.JSON
 #else
 #endif
+
+#define NOMINMAX

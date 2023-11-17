@@ -4,8 +4,7 @@
 
 #pragma once
 
-#define NOMINMAX
-
+#include "Utils/Warnings.h"
 #include "Errors.h"
 
 

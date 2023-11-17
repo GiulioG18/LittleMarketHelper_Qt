@@ -1,5 +1,8 @@
 
+#include "Utils/Warnings.h"
+
 #include <boost/algorithm/string.hpp>
+#include <algorithm>
 
 #ifdef _WIN32
 #pragma comment(lib, "advapi32.lib")
@@ -129,14 +132,23 @@ namespace lmh {
 			}
 		}
 
+		// NB: status code from all curl_easy_getinfo calls is ignored
 		void Curl::Response::extractInfo(CURL*&  curl)
 		{
-			// Results from curl_easy_getinfo calls are not checked
-
 			assert(code_ == Status::SUCCESS);
 
-			//curl_easy_getinfo(curl, CURLINFO_FILETIME, &date_); // TODO: impl
-			//curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &duration_); // TODO: impl
+			// Extract date
+			int64_t sinceEpoch = 0;
+			curl_easy_getinfo(curl, CURLINFO_FILETIME, &sinceEpoch); // TODO: this time is really off, check why...
+			date_ = Date(Date::UnixTimestamp(std::max(sinceEpoch, 0LL))); 
+
+			// Extract duration
+			double duration = 0.0;
+			curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &duration);
+
+			duration_ = Milliseconds{ static_cast<int64_t>(duration * 1000) };
+
+			// Extract rest
 			curl_easy_getinfo(curl, CURLINFO_SIZE_DOWNLOAD_T, &bytes_);
 			curl_easy_getinfo(curl, CURLINFO_SPEED_DOWNLOAD_T, &speed_);
 			curl_easy_getinfo(curl, CURLINFO_LOCAL_PORT, &localPort_);
@@ -184,6 +196,9 @@ namespace lmh {
 
 			// Set maximum time to complete the operation to 10 seconds
 			response.code_ = CURL_CALL(curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L), Status::CURL_OPT_SET_FAILED); RETURN_ON_INVALID_RESPONSE;
+
+			// Ask for filetime
+			response.code_ = CURL_CALL(curl_easy_setopt(curl, CURLOPT_FILETIME, 1L), Status::CURL_OPT_SET_FAILED); RETURN_ON_INVALID_RESPONSE;
 
 			if (request.method_ == Method::POST)
 			{
@@ -262,21 +277,21 @@ namespace lmh {
 			id_ = id++;
 		};
 
-		void Curl::Response::print(std::ostream& stream) const
+		void Curl::Response::print(std::ostream& os) const
 		{
-			stream << "==========================================" << "\n";
-			stream << "HTTP request n: " << id_ << "\n";
-			stream << "Method: " << mtos(request_.method_) << "\n";
-			stream << "URL: " << request_.url_ << "\n";
-			stream << "Header: " << request_.data_ << "\n";
-			stream << "Skip cache: " << std::boolalpha << request_.skipCache_ << "\n";
-			stream << "Code: " << error::stos(code_) << "\n";
-			//stream << "Date: " << date_ << "\n"; // TODO: impl
-			stream << "Total duration (s): " << duration_ << "\n";
-			stream << "Bytes downloaded: " << bytes_ << "\n";
-			stream << "Speed (bytes/s): " << speed_ << "\n";
-			stream << "Local port used: " << localPort_ << "\n";
-			stream << "==========================================" << "\n";
+			os << "==========================================" << "\n";
+			os << "HTTP request n: " << id_ << "\n";
+			os << "Method: " << mtos(request_.method_) << "\n";
+			os << "URL: " << request_.url_ << "\n";
+			os << "Header: " << request_.data_ << "\n";
+			os << "Skip cache: " << std::boolalpha << request_.skipCache_ << "\n";
+			os << "Code: " << error::stos(code_) << "\n";
+			os << "Date: " << date_ << "\n";
+			os << "Total duration (s): " << duration_ << "\n";
+			os << "Bytes downloaded: " << bytes_ << "\n";
+			os << "Speed (bytes/s): " << speed_ << "\n";
+			os << "Local port used: " << localPort_ << "\n";
+			os << "==========================================" << "\n";
 		}
 
 	}

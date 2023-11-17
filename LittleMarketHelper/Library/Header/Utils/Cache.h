@@ -6,8 +6,6 @@
 
 #pragma once
 
-#define NOMINMAX
-
 #include <map>
 #include <queue>
 #include <memory>

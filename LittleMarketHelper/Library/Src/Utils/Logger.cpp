@@ -5,7 +5,11 @@
 #include "Utils/File.h"
 #include "Config.h"
 
+
 namespace lmh {
+
+	// Maximum number of log files allowed at the same time
+	const uint32_t MAX_LOG_FILES = static_cast<uint32_t>(5);
 
 	Logger::~Logger()
 	{
@@ -49,11 +53,11 @@ namespace lmh {
 			return Status::NO_WRITE_PERMISSION;
 		
 		// Initialize time
-		logger.time_ = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+		logger.date_ = Chrono::now();
 
 		// Initialize file
 		logger.file_ = logger.folder_;
-		logger.file_.append(std::string("Log_") + std::to_string(logger.time_) + std::string(".txt"));
+		logger.file_.append(std::string("Log_") + std::to_string(logger.date_.timestamp()) + std::string(".txt"));
 
 		// Initialize log level
 		logger.logLevel_ = logLevel;
@@ -66,9 +70,6 @@ namespace lmh {
 		if (!logger.stream_->is_open())			
 			return Status::FILE_NOT_OPEN;	
 
-		// Initialize max log files from config file
-		logger.maxLogFiles_ = Config::properties().get<int>("logger.maxLogFiles");
-
 		// Finalize
 		logger.writeLogHeader();
 		logger.initialized_ = true;
@@ -78,48 +79,35 @@ namespace lmh {
 
 	void Logger::writeLogHeader() const
 	{
-		*(stream_) << "Little Market Helper LOG taken on " << std::ctime(&time_)
-			<< std::endl;
-		*(stream_) << "=============================================================="
-			<< std::endl << std::endl;
+		*(stream_) << "Little Market Helper LOG taken on " << date_ << std::endl;
+		*(stream_) << "=======================================================" << std::endl << std::endl;
 	}
 
 	void Logger::ControlLogPopulation() const
 	{
-		// Log format is:
-		// Log_123.txt
+		// Log files in the set will be ordered based on the unix timestamp
+		std::set<std::string> logs;
 
-		std::set<int> logTimes;
 		for (auto const& entry : std::filesystem::directory_iterator(folder_))
 		{
 			std::string fileName = entry.path().filename().string();
 
-			// If it's not a Log file, ignore it
-			if (fileName.substr(0, fileName.find('_')) != "Log")
-				continue;
+			// Must be a log file of the form: Log_123.txt
+			assert(fileName.substr(0, fileName.find('_')) == "Log");
 
-			auto timeExtractor =
-				[](const std::string& log) -> int
-			{
-				int time = std::stoi(log.substr(4, log.find('.')));
-				return time;
-			};
-
-			logTimes.emplace(timeExtractor(fileName));
+			logs.emplace(std::move(fileName));
 		}
 
-		while (logTimes.size() > maxLogFiles_)
+		while (logs.size() > MAX_LOG_FILES)
 		{
 			try
 			{
-				// Remove oldest (smallest time) Log from host
-				auto oldest = std::begin(logTimes);				
-				fs::path filename = folder_;
-				filename.append(std::string("Log_") + std::to_string(*oldest) + std::string(".txt"));
-				fs::remove(filename);
+				// Remove oldest (smallest time) log from logs folder
+				auto oldest = std::begin(logs);	
+				fs::remove(folder_ / fs::path(*oldest));
 
 				// Erase from set
-				logTimes.erase(oldest);
+				logs.erase(oldest);
 			}
 			catch (std::exception& e)
 			{

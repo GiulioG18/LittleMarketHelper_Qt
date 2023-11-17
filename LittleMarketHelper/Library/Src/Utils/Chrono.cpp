@@ -39,12 +39,12 @@ namespace lmh {
 		zonedTime_ = ZonedTimepoint(Chrono::here(), t);
 	}
 
-	const auto Date::timepoint() const
+	const auto& Date::systemTime() const
 	{
 		return zonedTime_.get_sys_time();
 	}
 
-	const auto Date::localTimepoint() const
+	const auto& Date::localTime() const
 	{
 		return zonedTime_.get_local_time();
 	}	
@@ -52,6 +52,11 @@ namespace lmh {
 	std::string_view Date::timezone() const
 	{
 		return zonedTime_.get_time_zone()->name();
+	}
+
+	int64_t Date::timestamp() const
+	{
+		return zonedTime_.get_sys_time().time_since_epoch().count();
 	}
 
 	auto Date::operator<=>(const Date& other) const
@@ -67,15 +72,15 @@ namespace lmh {
 	void Date::prettyPrint(std::ostream& os) const
 	{
 		os << "==========================================================" << "\n";
-		os << "Date UTC time point:		" << timepoint() << "\n";
-		os << "Date local time point:		" << localTimepoint() << "\n";
+		os << "Date UTC time point:		" << systemTime() << "\n";
+		os << "Date local time point:		" << localTime() << "\n";
 		os << "Date timezone:			" << timezone() << "\n";
 		os << "==========================================================" << "\n";
 	}
 
 	std::ostream& operator<<(std::ostream& os, const Date& date)
 	{
-		os << date.localTimepoint() << " " << date.timezone();
+		os << date.localTime() << " " << date.timezone();
 		return os;
 	}
 
