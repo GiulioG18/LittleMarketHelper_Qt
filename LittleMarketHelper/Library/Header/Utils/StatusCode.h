@@ -165,7 +165,7 @@ namespace lmh {
 				break;
 			}
 
-			return std::string();
+			return std::string("Not implemented yet!!");
 		}
 
 	}

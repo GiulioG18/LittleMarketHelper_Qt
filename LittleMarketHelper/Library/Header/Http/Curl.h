@@ -149,14 +149,20 @@ namespace lmh {
 
 
 
-
 		// Curl Handle wrapper
-
-		struct CurlHandle
+		class HandleMaker
 		{
+		public:
 
+			HandleMaker();
+			~HandleMaker();
+
+			inline CURL* const get();
+
+		private:
+
+			CURL* handle_;
 		};
-
 
 
 

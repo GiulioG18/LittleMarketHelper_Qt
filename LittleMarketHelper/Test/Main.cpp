@@ -1,6 +1,15 @@
 
-#include "Lmh.h"
 #include "Utils/Warnings.h"
+
+#define BOOST_TEST_MODULE My very bad test
+#include "boost/test/included/unit_test.hpp"
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
+#include <fstream>
+#include <iostream>
+
+#include "Lmh.h"
 #include "Patterns/Observable.h"
 #include "Patterns/LazyObject.h"
 #include "Utils/Logger.h"
@@ -16,11 +25,10 @@
 #include "Cash.h"
 #include "ExchangeRate.h"
 
-#include <fstream>
-#include <iostream>
 
 
 using namespace lmh;
+namespace pt = boost::property_tree;
 
 
 // TODO:
@@ -36,6 +44,8 @@ using namespace lmh;
 // . would be a performance benefit to use "freeze" inside observers
 // 
 // . add concept of session
+// 
+// . WRITE THE DAMN BOOST TEST SUITE THIS IS UNSAFE AF!
 // 
 // . check for all class
 //		- copy/move ctor, copy/move operator
@@ -65,12 +75,7 @@ using namespace lmh;
 // 
 //
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-
-namespace pt = boost::property_tree;
-
-int main()
+BOOST_AUTO_TEST_CASE(first_test) 
 {
 	try
 	{
@@ -140,7 +145,7 @@ int main()
 
 		http::Curl::Request request1{ http::Curl::Method::GET, "https://papi-pornstarsapi.p.rapidapi.com/pornstars/", "", false };
 		http::Curl::Response response1 = curl.httpRequest(request1);
-		response1.print(std::cout);
+		response1.prettyPrint(std::cout);
 
 		http::Curl::Request request2{ http::Curl::Method::GET, "https://query1.finance.yahoo.com/v8/finance/chart/AMZN", ""};
 		http::Curl::Response response2 = curl.httpRequest(request2);
@@ -149,8 +154,8 @@ int main()
 		http::Curl::Request request3{ http::Curl::Method::GET, "https://catfact.ninja/fact", "", true };
 		http::Curl::Response response3 = curl.httpRequest(request3);
 		http::Curl::Response response3Clone = curl.httpRequest(request3);
-		response3.print(std::cout);
-		response3Clone.print(std::cout);
+		response3.prettyPrint(std::cout);
+		response3Clone.prettyPrint(std::cout);
 
 		http::Curl::Request request4{ http::Curl::Method::POST, "https://api.openfigi.com/v3/mapping", "[{\"idType\":\"ID_ISIN\",\"idValue\":\"US4592001014\"}]", true };
 		http::Curl::Response response4 = curl.httpRequest(request4);

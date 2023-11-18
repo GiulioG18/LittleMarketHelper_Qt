@@ -27,7 +27,6 @@ static_assert(false, "I had no clue nor interest in linking these libs for other
 #define RETURN_ON_INVALID_RESPONSE						\
 	if (response.code_ != Status::SUCCESS)				\
 	{													\
-		curl_easy_cleanup(curl);						\
 		return;											\
 	}													\
 
@@ -178,9 +177,9 @@ namespace lmh {
 				return;
 			}
 
-			// Initialize a CURL handle
-			CURL* curl;
-			curl = curl_easy_init(); // TODO: create a curl handle maker that works in a RAII fashion
+			// Get a CURL handle
+			HandleMaker hm;
+			auto curl = hm.get();
 			if (!curl)
 			{
 				response.code_ = Status::CURL_HANDLE_INIT_FAILED;
@@ -218,9 +217,6 @@ namespace lmh {
 
 			// Extract info from curl handle only when the request was successful
 			response.extractInfo(curl);
-
-			// Clean-up the CURL handle
-			curl_easy_cleanup(curl);
 		}
 
 
@@ -292,6 +288,28 @@ namespace lmh {
 			os << "Speed (bytes/s): " << speed_ << "\n";
 			os << "Local port used: " << localPort_ << "\n";
 			os << "==========================================" << "\n";
+		}
+
+
+
+
+
+		// HandleMaker
+
+		HandleMaker::HandleMaker()
+			: handle_(curl_easy_init())
+		{
+
+		}
+
+		HandleMaker::~HandleMaker()
+		{
+			curl_easy_cleanup(handle_);
+		}
+
+		inline CURL* const HandleMaker::get()
+		{
+			return handle_;
 		}
 
 	}
