@@ -59,12 +59,7 @@ namespace lmh {
 		return zonedTime_.get_sys_time().time_since_epoch().count();
 	}
 
-	auto Date::operator<=>(const Date& other) const
-	{
-		return this->zonedTime_.get_sys_time() <=> other.zonedTime_.get_sys_time();
-	}
-
-	auto Date::operator==(const Date& other) const
+	bool Date::operator==(const Date& other) const
 	{
 		return this->zonedTime_.get_sys_time() == other.zonedTime_.get_sys_time();
 	}

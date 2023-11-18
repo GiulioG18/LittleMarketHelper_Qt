@@ -5,13 +5,15 @@
 
 #pragma once
 
-#include "Price.h"
+#include <string>
 
 
 namespace lmh {
 
 	// Forward declarations
 	class ExchangeRate;
+	class Price;
+	enum class Currency;
 
 	// The behaviour of this class is undefined if the exchange rate repository has not been initialized successfully
 	class Forex

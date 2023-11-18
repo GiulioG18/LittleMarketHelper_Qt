@@ -6,6 +6,7 @@
 
 #include "Utils/Assertions.h"
 #include "Currency.h"
+#include "Forex.h"
 
 
 namespace lmh {
@@ -24,14 +25,16 @@ namespace lmh {
 		void set(double amount); // [ MAY THROW ]
 
 		// Operators
-		Price operator+(const Price& other) const; // [ MAY THROW ]
-		Price operator/(const Price& other) const; // [ MAY THROW ]
-		Price operator*(const Price& other) const; // [ MAY THROW ]
-		Price operator+(double amount) const; // [ MAY THROW ]
-		Price operator/(double amount) const; // [ MAY THROW ]
-		Price operator*(double quantity) const; // [ MAY THROW ]
-		Price& operator+=(const Price& other); // [ MAY THROW ]
-		Price& operator+=(double amount); // [ MAY THROW ]
+		inline auto operator<=>(const Price& other) const;
+		bool operator==(const Price& other) const;
+		Price operator+(const Price& other) const; 
+		Price operator/(const Price& other) const; 
+		Price operator*(const Price& other) const; 
+		Price& operator+=(const Price& other); 
+		Price operator+(double amount) const; 
+		Price operator/(double amount) const; 
+		Price operator*(double quantity) const;
+		Price& operator+=(double amount);
 
 	private:
 
@@ -43,5 +46,14 @@ namespace lmh {
 	// Inline definitions
 	inline double Price::amount() const { return amount_; }
 	inline Currency Price::currency() const { return currency_; }
+
+
+	// Template definitions
+
+	inline auto Price::operator<=>(const Price& other) const
+	{
+		Price convertedOther = Forex::convert(other, this->currency_);
+		return this->amount_ <=> convertedOther.amount_;
+	}
 
 }

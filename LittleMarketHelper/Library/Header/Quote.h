@@ -16,11 +16,11 @@ namespace lmh {
 	{
 	public:
 
-		Quote(const Price& price); // [ MAY THROW ]
-		Quote(const Price& price, const Date& date); // [ MAY THROW ]
+		Quote(const Price& price); // Constructs a Quote with a date with epoch timestamp and current timezone
+		Quote(const Price& price, const Date& date);
 
 		// Setters
-		inline void setValue(double amount); // [ MAY THROW ]
+		inline void setAmount(double amount); // [ MAY THROW ]
 
 		// Getters
 		inline const Price& price() const;
@@ -29,12 +29,12 @@ namespace lmh {
 	private:
 
 		Price price_;
-		Date date_; // TODO: How do we make this optional?
+		Date date_;
 	};
 
 
 	// Inline definitions
-	inline void Quote::setValue(double amount) { price_.set(amount); }
+	inline void Quote::setAmount(double amount) { price_.set(amount); }
 	inline const Price& Quote::price() const { return price_; }
 	inline const Date& Quote::date() const { return date_; }
 

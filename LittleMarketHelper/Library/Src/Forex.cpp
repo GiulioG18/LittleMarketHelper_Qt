@@ -3,6 +3,7 @@
 
 #include "Forex.h"
 #include "ExchangeRate.h"
+#include "Price.h"
 
 
 namespace lmh {

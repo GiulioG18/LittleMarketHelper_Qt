@@ -68,17 +68,15 @@ namespace lmh {
 		void prettyPrint(std::ostream& os) const;
 
 		// Operators
-		auto operator<=>(const Date& other) const;
-		auto operator==(const Date& other) const;
+		inline auto operator<=>(const Date& other) const;
+		bool operator==(const Date& other) const;
 
 	private:
 
 		ZonedTimepoint zonedTime_;
 	};
 
-	
 	std::ostream& operator<<(std::ostream& os, const Date& timepoint);
-
 
 
 
@@ -94,5 +92,15 @@ namespace lmh {
 		static Date::Timepoint now();
 		static const Date::Timezone* here();
 	};
+
+
+
+
+	// Template definitions
+
+	inline auto Date::operator<=>(const Date& other) const
+	{
+		return this->zonedTime_.get_sys_time() <=> other.zonedTime_.get_sys_time();
+	}
 
 }

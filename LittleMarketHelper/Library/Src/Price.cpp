@@ -2,7 +2,6 @@
 #include <functional>
 
 #include "Price.h"
-#include "ExchangeRate.h"
 
 
 namespace lmh {
@@ -45,8 +44,8 @@ namespace lmh {
 	Price::Price(Currency currency, double value)
 		: currency_(currency), amount_(value)
 	{
-		REQUIRE(amount_ >= 0, "invalid value");
 		REQUIRE(Forex::availableCurrency(currency), "currency is not available");
+		REQUIRE(amount_ >= 0, "invalid value");
 	}
 
 	void Price::set(double amount)
@@ -55,6 +54,12 @@ namespace lmh {
 
 		if (amount_ != amount)
 			amount_ = amount;
+	}
+
+	bool Price::operator==(const Price& other) const
+	{
+		Price convertedOther = Forex::convert(other, this->currency_);
+		return this->amount_ == convertedOther.amount_;
 	}
 
 	Price Price::operator+(const Price& other) const

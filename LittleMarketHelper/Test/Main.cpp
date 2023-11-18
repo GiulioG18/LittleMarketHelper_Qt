@@ -76,6 +76,9 @@ int main()
 	{
 		start("D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\config.json");
 
+		Price price1{Currency::GBP, 100}, price2{Currency::EUR, 310};
+		std::cout << std::boolalpha << (price1 == price2) << std::endl;
+		std::cout << std::boolalpha << (price1 < price2) << std::endl;
 
 		// TEST CHRONO STUFF:
 		// .. ctors
@@ -93,6 +96,8 @@ int main()
 		uts.prettyPrint(std::cout);
 		std::cout << "ts: " <<uts.timestamp() << std::endl;
 		std::cout << "se" << sinceEpoch << std::endl;
+
+		std::cout << std::boolalpha << (uts < d) << std::endl;
 
 		Date dateTzTp{ std::chrono::locate_zone("Australia/Sydney"), Chrono::now() };
 		std::cout << dateTzTp << std::endl;

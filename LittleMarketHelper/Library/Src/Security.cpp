@@ -71,12 +71,12 @@ namespace lmh {
 		}			
 	}
 
-	void Security::setQuote(double value)
+	void Security::setQuote(double amount)
 	{
 		// Validation is delegated
-		if (value != quote_.price().amount())
+		if (amount != quote_.price().amount())
 		{
-			quote_.setValue(value);
+			quote_.setAmount(amount);
 			notifyObservers();
 		}
 	}

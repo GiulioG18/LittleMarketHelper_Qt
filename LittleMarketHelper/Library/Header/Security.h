@@ -50,7 +50,7 @@ namespace lmh {
 		// Setters
 		void setName(std::string_view name);
 		void setQuantity(uint32_t quantity); // [ MAY THROW ]
-		void setQuote(double value); // [ MAY THROW ]
+		void setQuote(double amount); // [ MAY THROW ]
 
 	private:
 		
