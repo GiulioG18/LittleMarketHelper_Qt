@@ -80,6 +80,7 @@ namespace lmh {
 		Date date_;
 		fs::path folder_;
 		fs::path file_;
+		uint32_t maximumLogsAllowed_ = 0;
 		bool initialized_ = false;
 	};
 

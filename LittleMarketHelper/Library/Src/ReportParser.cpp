@@ -1,7 +1,11 @@
 
 #include <fstream>
+#include <assert.h>
 
 #include "ReportParser.h"
+#include "Security.h"
+#include "Utils/InputValidator.h"
+#include "Http/Api.h"
 
 
 namespace lmh {
@@ -16,71 +20,63 @@ namespace lmh {
 		fs::path documents = fs::path(std::getenv("USERPROFILE")).append("Documents");
 
 		if (fs::is_directory(downloads))
-			guesses_.insert(downloads);
+			guesses_.push_back(downloads);
 
 		if (fs::is_directory(documents))
-			guesses_.insert(documents);
+			guesses_.push_back(documents);
 	}
 
-	ReportParser::Output ReportParser::parseDefault(ReportParser::Type type)
+	ReportParser::Output ReportParser::parse(ParserType type, const fs::path& report)
 	{
-		ReportParser::Output output(type);
-
 		std::unique_ptr<ReportParser> parser = create(type);
-		ASSERT(parser, "invalid parser");
+		assert(parser);
 
-		fs::path file = parser->defaultFilename();
-		file += parser->defaultExtension();			
-		if (file.has_filename())
+		// Guess the location of the report if no path is provided
+		parser->report_ = report.empty() ? parser->findReport() : report;
+
+		// Check if report path is not empty
+		if (!parser->report_.empty())
 		{
-			// Default file is provided for this parser. Try 
-			// to guess its folder and, if found, parse it
-			// NB: this is not a recursive search, could make it so but  
-			//	   i'm unsure of how it would go with privileges and stuff
-			//	   (only few pre-defined user folders are searched)
-			for (const auto& folder : parser->guesses_)
-			{
-				ASSERT(fs::is_directory(folder), "not a valid folder");
+			// Try create an input file stream
+			std::ifstream stream{ parser->report_ };
 
-				fs::path absolutePath;
-				absolutePath += folder;
-				absolutePath += "\\"; // TODO2: is this Windows specific?
-				absolutePath += file;
-
-				if (fs::is_regular_file(absolutePath))
-				{
-					output.status_ = parser->readFile(absolutePath, output);
-					if (output.status_ == Status::SUCCESS)
-						break;
-				}
-			}
+			// Check if is readable and non-empty
+			if (stream.is_open() && stream.peek() != std::ifstream::traits_type::eof())
+				return parser->extractSecurities(stream);
 		}
+			
+		return ReportParser::Output{};
 
-		return output;
 	}
 
-	ReportParser::Output ReportParser::parse(ReportParser::Type type, const fs::path& report)
-	{
-		ReportParser::Output output(type);
-
-		// Initialize parser
-		std::unique_ptr<ReportParser> parser = create(type);
-		ASSERT(parser, "invalid parser");
-
-		if (fs::is_regular_file(report))
-			output.status_ = parser->readFile(report, output);
-		
-		return output;
-	}
-
-	std::unique_ptr<ReportParser> ReportParser::create(ReportParser::Type type)
+	std::unique_ptr<ReportParser> ReportParser::create(ParserType type)
 	{
 		switch (type)
 		{
-		case ReportParser::Type::DEGIRO: return std::make_unique<DegiroReportParser>();			break;
+		case ParserType::DEGIRO: return std::make_unique<DegiroReportParser>();		break;
 
-		default: ASSERT(false, "unknown report type");											break;
+		default: ASSERT(false, "invalid report type");								break;
 		}
+	}
+
+	fs::path ReportParser::findReport()
+	{		
+		fs::path file = defaultFilename();
+
+		if (!file.empty() && file.has_filename())
+		{
+			for (const auto& folder : guesses_) // This is not a recursive search, only few pre-selected folders are checked
+			{
+				if (!fs::is_directory(folder))
+					continue;
+
+				fs::path absolute(folder / file);
+				if (fs::is_regular_file(absolute)) // TODO2: should check for read permissions too
+					return absolute;
+			}
+		}
+
+		return fs::path();
 	}
 
 	fs::path ReportParser::defaultFilename() const
@@ -88,131 +84,160 @@ namespace lmh {
 		return fs::path("");
 	}
 
-	fs::path ReportParser::defaultExtension() const
+	std::string ReportParser::parseName(const std::string& section, bool& error) const
 	{
-		return fs::path("");
+		if (error)
+			return std::string();
+
+		return section;
 	}
 
+	std::string ReportParser::parseIsin(const std::string& section, bool& error) const
+	{
+		if (error)
+			return std::string();
+
+		std::string isin = section;
+		error = !ValidateInput::isin(isin);
+
+		if (error)
+			return std::string();
+
+		return isin;
+	}
+
+	uint32_t ReportParser::parseQuantity(const std::string& section, bool& error) const
+	{
+		uint32_t quantity = 0;
+
+		if (error)
+			return quantity;
+
+		try
+		{
+			quantity = static_cast<uint32_t>(std::stoul(section));
+			if (!ValidateInput::quantity(quantity))
+				throw;
+		}
+		catch (...)
+		{
+			error = true;
+		}
+
+		return quantity;
+	}
+
+	Currency ReportParser::parseCurrency(const std::string& section, bool& error) const
+	{
+		auto currency = ccy::stoc(section);
+
+		if (!currency.has_value() || !Forex::availableCurrency(currency.value()))
+		{
+			error = true;
+			return Currency::EUR;
+		}
+
+		return currency.value();
+	}
 
 
 	// DEGIRO
 
-	Status DegiroReportParser::readFile(const fs::path& file, Output& output) const
+	ReportParser::Output DegiroReportParser::extractSecurities(std::ifstream& stream) const
 	{
-		REQUIRE(output.type_ == ReportParser::Type::DEGIRO, "parser type is not DEGIRO");
+		// Output
+		Status status = Status::SUCCESS;
+		ParserType type = ParserType::DEGIRO;
+		ReportParser::Output::Securities securities;
 
-		// Check if file is readable
-		std::ifstream stream{ file };
-		bool open = stream.is_open();
-		if (!open)
-			return Status::FILE_NOT_OPEN;
-
-		// ...and not empty
-		bool empty = stream.peek() == std::ifstream::traits_type::eof();
-		if (empty)
-			return Status::FILE_IS_EMPTY;
-
-		// Start parsing
+		// Start parsing file
 		std::string line;
 
 		// Skip Header
 		std::getline(stream, line);
 
-		// Try parse securities
+		// Parse securities
 		for (; std::getline(stream, line); )
 		{
 			// Skip cash lines
 			if (line.substr(0, line.find(' ')) == "CASH")
 				continue;
 
-			std::string name = "";
-			std::string isin = "";
-			int quantity = 0;
-			double price = 0.0;
-			Currency currency;
-
+			// Parser utilities
 			size_t columnStart;
 			size_t columnEnd;
-			auto getSection = [line, &columnStart, &columnEnd]() -> std::string const
+			auto readSection = [line, &columnStart, &columnEnd]() -> std::string const
 			{
 				return std::string(line.begin() + columnStart, line.begin() + columnEnd);
 			};
 
-			// Name
+			bool error = false;
+
+			// Parse name
 			columnStart = 0;
 			columnEnd = line.find_first_of(',', columnStart + 1);
-			name = getSection();
+			std::string name = parseName(readSection(), error);
 
-			// Isin
+			// Parse isin
 			columnStart = columnEnd + 1;
 			columnEnd = line.find_first_of(',', columnStart + 1);
-			isin = getSection();
-			if (!Security::validateIsin(isin))
-			{
-				output.discarded_++;
-				continue;
-			}
+			std::string isin = parseIsin(readSection(), error);
 
-			// Quantity
+			// Parse quantity
 			columnStart = columnEnd + 1;
 			columnEnd = line.find_first_of(',', columnStart + 1);
-			quantity = std::stol(getSection());
-			if (!Security::validateQuantity(quantity))
-			{
-				output.securities_.push_back(SecurityShell(isin, name));
-				continue;
-			}
+			uint32_t quantity = parseQuantity(readSection(), error);
 
-			// Price
-			// Move section even if we do not parse the DEGIRO price since
+			// Parse price: move section even if we do not parse the DEGIRO price since
 			// it actually refers to the last day closing price
 			columnStart = columnEnd + 2; // + 2 since there is a " character after the ,
 			columnEnd = line.find_first_of('"', columnStart + 1);
 
-			// Currency
+			// Parse currency
 			columnStart = columnEnd + 2;	// + 2 since there is a " character before the ,
 			columnEnd = columnStart + 3;	// 3 letter currency
-			std::string currencyStr = getSection();
-			auto optCurrency = ccy::stoc(currencyStr);
-			if (optCurrency.has_value())
+			Currency currency = parseCurrency(readSection(), error);
+			
+			// Check parsing status
+			if (error)
 			{
-				currency = optCurrency.value();
-			}
-			else
-			{
-				output.securities_.push_back(SecurityShell(isin, name));
+				securities.push_back(SecurityShell(isin, name));
 				continue;
 			}
-			// Value
-			/*
-			// DEGIRO does not report neither a valid price nor a ticker for a given security
-			// This means we need to first get the tickers from the isin, and then request
-			// the price from the tickers until we find a good one
 
-			// Request quote, if not succesful, discard this product
-			YahooFinanceApi yf;	// TODO: move as member, maybe create also a member function that returns a std::optional<Quote> here
-			std::optional<Quote> q = yf.getQuoteFromIsin(isin);
-			// TODO: make sure that:
-			// . q has value, otherwise --> uncomplete
-			// . q currency is the same as currency, otherwise --> uncomplete
-			// . q is valid, otherwise --> uncomplete
+			// Fetch quote (quotes are not parsed from DEGIRO report)
+			auto optQuote = http::Api::getQuoteFor(isin, currency);
+			if (!optQuote.has_value())
+			{
+				securities.push_back(SecurityShell(isin, name));
+				continue;
+			}
 
-			// Everything looks good, construct a security
-			output.parsedSecurities_.push_back(Security(isin, name, quantity, q.amount()));
-			output.found_++
-			*/
+			Quote quote{ optQuote.value() };
+
+			// Try to construct a security
+			try 
+			{
+				securities.push_back(Security(isin, name, quantity, quote));
+			}
+			catch (...)
+			{
+				securities.push_back(SecurityShell(isin, name));
+				continue;
+			}
 		}
 
-		return Status::SUCCESS;
+		return { status, type, std::move(securities) };
 	}
 
 	fs::path DegiroReportParser::defaultFilename() const
 	{
-		return "Portfolio";
+		return "Portfolio.csv";
 	}
 
-	fs::path DegiroReportParser::defaultExtension() const
-	{
-		return ".csv";
-	}
 }
+
+
+
+
+		

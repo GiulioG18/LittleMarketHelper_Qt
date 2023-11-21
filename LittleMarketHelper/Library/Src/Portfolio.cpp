@@ -107,7 +107,8 @@ namespace lmh {
 				weights += security->weight().value();
 			}
 		);
-		ASSERT(fabs(weights - 1) < 1.0, "weight sum is not 1.0");
+
+		ENSURE(fabs(weights - 1) < 1.0, "weight sum is not 1.0");
 
 		return Status::SUCCESS;
 	}

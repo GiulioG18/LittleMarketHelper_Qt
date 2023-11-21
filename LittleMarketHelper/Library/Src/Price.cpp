@@ -2,6 +2,7 @@
 #include <functional>
 
 #include "Price.h"
+#include "Utils/InputValidator.h"
 
 
 namespace lmh {
@@ -32,7 +33,7 @@ namespace lmh {
 	template<typename Op>
 	Price binaryDoubleOp(const Price& price, double d)
 	{
-		REQUIRE(d >= 0, "invalid amount");
+		REQUIRE(ValidateInput::amount(d), "invalid amount as input");
 
 		Op op;
 		return { price.currency(), op(price.amount(), d) };
@@ -41,17 +42,16 @@ namespace lmh {
 
 	// Price
 
-	Price::Price(Currency currency, double value)
-		: currency_(currency), amount_(value)
+	Price::Price(Currency currency, double amount)
+		: currency_(currency), amount_(amount)
 	{
-		REQUIRE(Forex::availableCurrency(currency), "currency is not available");
-		REQUIRE(amount_ >= 0, "invalid value");
+		REQUIRE(ValidateInput::currency(currency), "currency is not available");
+		REQUIRE(ValidateInput::amount(amount), "invalid amount as input");
 	}
 
 	void Price::set(double amount)
 	{
-		REQUIRE(amount >= 0, "invalid amount");
-
+		REQUIRE(ValidateInput::amount(amount), "invalid amount as input");
 		if (amount_ != amount)
 			amount_ = amount;
 	}

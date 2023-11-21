@@ -21,8 +21,8 @@ namespace lmh {
 	public:
 
 		static Price convert(const Price& price, Currency targetCurrency);
-		static bool availableCurrency(Currency xxx);
-		static bool baseCurrency(Currency xxx);
+		static bool availableCurrency(Currency currency);
+		static bool baseCurrency(Currency currency);
 		static std::string denomination(Currency xxx, Currency yyy);
 		static std::string denomination(const ExchangeRate& rate);
 

@@ -6,6 +6,10 @@
 #include "Config.h"
 #include "ExchangeRate.h"
 #include "Currency.h"
+#include "Quote.h"
+#include "Ticker.h"
+#include "Utils/Cache.h"
+#include "Utils/Json.h"
 
 
 namespace lmh {
@@ -25,26 +29,21 @@ namespace lmh {
 			// Force the HTTP request every time
 			static Curl::Request request{ method, url, "", true };
 			auto response = Curl::httpRequest(request);
-			if (response.code() != Status::SUCCESS)
-				return Status::NO_NETWORK_CONNECTION;
-			
+
 			// Process response
-			Json json;
-			std::stringstream ss;
-			ss << response.data();
-			Status status = json.parse(ss);
-			if (status != Status::SUCCESS)
+			auto json = response.toJson();
+			if (!json.has_value())
 				return Status::NO_NETWORK_CONNECTION;
 
 			// Evaluate message
-			auto msg = json.tree().get_optional<std::string>(key);
+			auto msg = json.value().tree().get_optional<std::string>(key);
 			if (msg.has_value()) // NB: a very cool message is lost here
 				return Status::SUCCESS;
 			else
 				return Status::NO_NETWORK_CONNECTION;
 		}
 
-		std::set<ExchangeRate> Api::getExchangeRatesForThisCurrency(Currency currency)
+		Api::Rates Api::getExchangeRatesFor(Currency currency)
 		{
 			assert(Curl::get().initialized());
 
@@ -59,15 +58,10 @@ namespace lmh {
 			// Run HTTP request
 			static Curl::Request request{ method , url, "" };
 			auto response = Curl::httpRequest(request);
-			if (response.code() != Status::SUCCESS)
-				return out;
 
 			// Process response
-			Json json;
-			std::stringstream ss;
-			ss << response.data();
-			Status status = json.parse(ss);
-			if (status != Status::SUCCESS)
+			auto json = response.toJson();
+			if (!json.has_value())
 				return out;
 
 			// Request rates for most common currencies
@@ -77,19 +71,46 @@ namespace lmh {
 				Currency yyy = pair.first;
 				std::string currency = pair.second;
 				boost::algorithm::to_lower(currency);
-				auto rate = json.tree().get_optional<double>(key + "." + currency);
-				if (rate.has_value())
-				{
-					// Construct rate
-					lmh::ExchangeRate er(xxx, yyy, rate.value());
+				auto rate = json.value().tree().get_optional<double>(key + "." + currency);
 
-					// Move it into output set
-					out.insert(std::move(er));
-				}
+				// Push new exchange rate into set only if rate is found in the response data
+				if (rate.has_value())
+					out.emplace(xxx, yyy, rate.value());
 			}
 
-			// TODO2: should check if the date it is recent enough
+			// TODO2: should check if the date is recent enough
 			return out;
+		}
+
+		std::optional<Quote> Api::getQuoteFor(std::string_view isin, Currency currency)
+		{
+			// TODO: impl
+			assert(Curl::get().initialized());
+
+			auto tickers = getYahooTickersFor(isin);
+			for (const auto& ticker : tickers)
+			{
+				//		_ Request chart yf
+				//		_ store results
+				//		_ if 3 prices meet -> return average.
+
+			}
+
+			return std::nullopt;
+		}
+
+		std::set<YTicker> Api::getYahooTickersFor(std::string_view isin)
+		{
+			assert(Curl::get().initialized());
+
+			// TODO: impl
+
+
+			// 1. Run openFIGI request
+			// 2. Cache the json response (validated)
+			// 2. 
+
+			return {};
 		}
 
 		constexpr std::string Api::basePath()

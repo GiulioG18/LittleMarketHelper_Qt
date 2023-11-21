@@ -39,6 +39,7 @@ Set(SRC
 	Src/Currency.cpp
 	Src/Price.cpp
 	Src/Quote.cpp
+	Src/Ticker.cpp
 	Src/Cash.cpp
 	Src/Config.cpp
 	Src/Forex.cpp
@@ -46,6 +47,7 @@ Set(SRC
 	Src/Utils/Logger.cpp
 	Src/Utils/Json.cpp
 	Src/Utils/Chrono.cpp
+	Src/Utils/InputValidator.cpp
 	Src/Patterns/Observable.cpp	
 	Src/Http/Curl.cpp
 	Src/Http/Api.cpp
@@ -69,6 +71,7 @@ Set(HEADER
 	Header/Config.h
 	Header/TickersGenerator.h
 	Header/Quote.h
+	Header/Ticker.h
 	Header/Price.h
 	Header/Cash.h
 	Header/Forex.h
@@ -83,6 +86,7 @@ Set(HEADER
 	Header/Utils/Json.h
 	Header/Utils/Cache.h
 	Header/Utils/Chrono.h
+	Header/Utils/InputValidator.h
 	Header/Patterns/LazyObject.h
 	Header/Patterns/Observable.h
 	Header/Patterns/Singleton.h

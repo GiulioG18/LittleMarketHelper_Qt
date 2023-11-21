@@ -70,7 +70,7 @@ namespace lmh {
 		repo.baseCurrency_ = baseCurrency;
 
 		// Request rates and fill the maps
-		std::set<ExchangeRate> rates = http::Api::getExchangeRatesForThisCurrency(baseCurrency);
+		std::set<ExchangeRate> rates = http::Api::getExchangeRatesFor(baseCurrency);
 		for (auto& rate : rates)
 		{
 			// Conversion between non-base currencies are triangulated using the

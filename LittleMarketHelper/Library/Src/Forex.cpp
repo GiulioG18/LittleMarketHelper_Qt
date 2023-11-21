@@ -23,9 +23,9 @@ namespace lmh {
 		return ExchangeRateRepository::get().availableCurrencies_.contains(Currency);
 	}
 
-	bool Forex::baseCurrency(Currency xxx)
+	bool Forex::baseCurrency(Currency currency)
 	{
-		return xxx == ExchangeRateRepository::get().baseCurrency_;
+		return currency == ExchangeRateRepository::get().baseCurrency_;
 	}
 
 	std::string Forex::denomination(Currency xxx, Currency yyy)

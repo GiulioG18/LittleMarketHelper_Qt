@@ -4,19 +4,11 @@
     "description": ""
   },
   "settings": {
-    "quote": {
-      "prudentCheck": {
-        "active": false,
-        "acceptanceThresholdPerc": false,
-        "hoursBeforeExpiry": 2
-      }
-    },
     "exchangeRate": {
       "baseCurrency": "EUR"
     }
   },
   "logger": {
-    "level": 4,
     "directory": "D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\Logs",
     "maxLogFiles": 5
   },

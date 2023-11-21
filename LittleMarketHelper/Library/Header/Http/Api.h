@@ -6,6 +6,8 @@
 #pragma once
 
 #include <set>
+#include <string>
+#include <optional>
 
 #include "Utils/StatusCode.h"
 
@@ -13,19 +15,26 @@
 namespace lmh {
 
 	// Forward declarations
-	class ExchangeRate;
 	enum class Currency;
+	class ExchangeRate;
+	class Quote;
+	class YTicker;
 
 
 	namespace http {
 
 		class Api
 		{
+
+			using Rates = std::set<ExchangeRate>;
+
 		public:
 
 			// Check network connectivity
 			static Status testNetworkConnection();
-			static std::set<ExchangeRate> getExchangeRatesForThisCurrency(Currency currency);
+			static Rates getExchangeRatesFor(Currency currency);
+			static std::optional<Quote> getQuoteFor(std::string_view isin, Currency currency);
+			static std::set<YTicker> getYahooTickersFor(std::string_view isin);
 
 		private:
 

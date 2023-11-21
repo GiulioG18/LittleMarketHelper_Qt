@@ -15,7 +15,7 @@ namespace lmh {
 	{
 	public:
 		
-		Price(Currency currency, double value); // [ MAY THROW ]
+		Price(Currency currency, double amount); // [ MAY THROW ]
 
 		// Getters
 		inline double amount() const;
@@ -24,9 +24,11 @@ namespace lmh {
 		// Setters
 		void set(double amount); // [ MAY THROW ]
 
-		// Operators
+		// Comparison operators
 		inline auto operator<=>(const Price& other) const;
 		bool operator==(const Price& other) const;
+
+		// Arithmetic operators
 		Price operator+(const Price& other) const; 
 		Price operator/(const Price& other) const; 
 		Price operator*(const Price& other) const; 

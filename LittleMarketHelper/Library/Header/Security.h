@@ -37,10 +37,6 @@ namespace lmh {
 
 		Price marketValue() const;
 
-		// Input validators
-		static bool validateIsin(std::string_view isin);
-		static bool validateQuantity(uint32_t quantity);
-
 		// Getters 
 		inline const std::string& isin() const;
 		inline const std::string& name() const;

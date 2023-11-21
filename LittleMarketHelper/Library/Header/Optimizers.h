@@ -33,7 +33,7 @@ namespace lmh {
 	{
 	public:
 
-		SCIP(CalibrationResult& result)
+		SCIP(CalibrationResult& result) // TODO: i dont like the naming, this takes the result in the ctor?
 			: Optimizer(result)
 		{
 		}

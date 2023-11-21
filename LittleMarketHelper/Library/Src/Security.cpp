@@ -1,7 +1,8 @@
 
+#include "Utils/Assertions.h"
 #include "Security.h"
 #include "SecurityShell.h"
-#include "Utils/Assertions.h"
+#include "Utils/InputValidator.h"
 
 
 namespace lmh {
@@ -17,8 +18,8 @@ namespace lmh {
 		quantity_(quantity),
 		quote_(quote)
 	{
-		REQUIRE(Security::validateIsin(isin_), "invalid isin as input");
-		REQUIRE(Security::validateQuantity(quantity_), "invalid quantity as input");
+		REQUIRE(ValidateInput::isin(isin_), "invalid isin as input");
+		REQUIRE(ValidateInput::quantity(quantity_), "invalid quantity as input");
 	}
 
 	Security::Security(
@@ -31,24 +32,13 @@ namespace lmh {
 		quantity_(quantity),
 		quote_(quote)
 	{
-		REQUIRE(Security::validateIsin(isin_), "invalid isin as input");
-		REQUIRE(Security::validateQuantity(quantity_), "invalid quantity as input");
+		REQUIRE(ValidateInput::isin(isin_), "invalid isin as input");
+		REQUIRE(ValidateInput::quantity(quantity_), "invalid quantity as input");
 	}
 
 	Price lmh::Security::marketValue() const
 	{
 		return quote_.price() * static_cast<double>(quantity_);
-	}
-
-	bool Security::validateIsin(std::string_view isin)
-	{
-		// Could be improved, but for now this is enough
-		return isin.length() == 12;
-	}
-
-	bool Security::validateQuantity(uint32_t quantity)
-	{
-		return quantity >= 0;
 	}
 
 	void Security::setName(std::string_view name)
@@ -63,7 +53,7 @@ namespace lmh {
 
 	void Security::setQuantity(uint32_t quantity)
 	{
-		REQUIRE(validateQuantity(quantity), "invalid quantity as input");
+		REQUIRE(ValidateInput::quantity(quantity), "invalid quantity as input");
 		if (quantity_ != quantity)
 		{
 			quantity_ = quantity;
@@ -73,7 +63,7 @@ namespace lmh {
 
 	void Security::setQuote(double amount)
 	{
-		// Validation is delegated
+		REQUIRE(ValidateInput::amount(amount), "invalid amount as input");
 		if (amount != quote_.price().amount())
 		{
 			quote_.setAmount(amount);

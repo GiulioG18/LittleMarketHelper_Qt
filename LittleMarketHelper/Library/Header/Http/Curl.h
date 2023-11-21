@@ -19,6 +19,10 @@
 
 namespace lmh {
 
+	// Forward declarations
+	class Json;
+
+
 	namespace http {
 
 		// Wrapper around libcurl
@@ -122,7 +126,9 @@ namespace lmh {
 
 		public:
 
-			void print(std::ostream& stream) const;
+			// Tries to create a Json from data
+			std::optional<Json> toJson() const;
+			void prettyPrint(std::ostream& stream) const;
 
 			// Getters
 			inline const Request& request() const;
@@ -157,7 +163,7 @@ namespace lmh {
 			HandleMaker();
 			~HandleMaker();
 
-			inline CURL* const get();
+			inline CURL* const get() const;
 
 		private:
 

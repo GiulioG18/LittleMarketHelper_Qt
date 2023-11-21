@@ -70,6 +70,9 @@ namespace lmh {
 		if (!logger.stream_->is_open())			
 			return Status::FILE_NOT_OPEN;	
 
+		// Initialize maximum log files allowed
+		logger.maximumLogsAllowed_ = Config::properties().get<uint32_t>("logger.maxLogFiles");
+
 		// Finalize
 		logger.writeLogHeader();
 		logger.initialized_ = true;
@@ -98,7 +101,7 @@ namespace lmh {
 			logs.emplace(std::move(fileName));
 		}
 
-		while (logs.size() > MAX_LOG_FILES)
+		while (logs.size() > maximumLogsAllowed_)
 		{
 			try
 			{

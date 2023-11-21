@@ -6,20 +6,34 @@
 #pragma once
 
 #include <filesystem>
-#include <set>
+#include <deque>
 #include <memory>
 #include <utility>
 #include <variant>
 
 #include "Utils/Assertions.h"
-#include "Security.h"
-#include "SecurityShell.h"
 #include "Utils/StatusCode.h"
+#include "SecurityShell.h"
+#include "Currency.h"
 
 
 namespace fs = std::filesystem;
 
 namespace lmh {
+
+	// Forward declarations
+	class Security;
+
+
+	// Available parsers
+
+	enum class ParserType
+	{
+		UNDEFINED = 0,
+		DEGIRO
+	};
+
+
 
 	// Base
 
@@ -28,13 +42,10 @@ namespace lmh {
 	public:
 		
 		struct Output;
-		enum class Type;
 
 	public:
 
-		// NB: The status is written in the parser output
-		static Output parseDefault(ReportParser::Type type); 
-		static Output parse(ReportParser::Type type, const fs::path& report);
+		static Output parse(ParserType type, const fs::path& report = ""); // [ MAY THROW ]
 		virtual ~ReportParser() = default;
 
 	protected:
@@ -43,46 +54,35 @@ namespace lmh {
 
 	protected:
 
-		// Non-const methods
-		virtual Status readFile(const fs::path& file, Output& output) const = 0;
+		virtual Output extractSecurities(std::ifstream& stream) const = 0;
+		virtual fs::path defaultFilename() const;
+		std::string parseName(const std::string& section, bool& error) const;
+		std::string parseIsin(const std::string& section, bool& error) const;
+		uint32_t parseQuantity(const std::string& section, bool& error) const;
+		Currency parseCurrency(const std::string& section, bool& error) const;
 
-		// Const methods
-		virtual fs::path defaultFilename() const;	
-		virtual fs::path defaultExtension() const;	
 
 	private:
 
 		// Factory method
-		static std::unique_ptr<ReportParser> create(ReportParser::Type type);
+		static std::unique_ptr<ReportParser> create(ParserType type);
+		// Returns an empty path if no valid report file is found
+		fs::path findReport();
 
 	protected:
 
-		std::set<fs::path> guesses_;
-	};
-
-
-	enum class ReportParser::Type
-	{
-		DEGIRO
+		fs::path report_;
+		std::deque<fs::path> guesses_;
 	};
 
 
 	struct ReportParser::Output
 	{
-		ReportParser::Output(ReportParser::Type type)
-			: 
-			type_(type), 
-			found_(0),
-			discarded_(0),
-			status_(Status::REPORT_NOT_FOUND)
-		{
-		}
+		using Securities = std::vector<std::variant<Security, SecurityShell>>;
 
-		ReportParser::Type type_;
-		std::vector<std::variant<Security, SecurityShell>> securities_;
-		int found_;
-		int discarded_;
-		Status status_;
+		Status status_				= Status::REPORT_NOT_FOUND;
+		ParserType type_			= ParserType::UNDEFINED;
+		Securities securities_;
 	};
 
 
@@ -96,14 +96,8 @@ namespace lmh {
 		DegiroReportParser() = default;
 		virtual ~DegiroReportParser() = default;
 
-		// Non-const methods
-		// NB: it reads them from the config file, which MUST first be init when parsing with DEGIRO
-		// NB2: Curl MUST be initialized before parsing with DEGIRO aswell in order to run requests
-		virtual Status readFile(const fs::path& file, Output& output) const override;
-
-		// Const methods
+		virtual Output extractSecurities(std::ifstream& stream) const override;
 		virtual fs::path defaultFilename() const override;
-		virtual fs::path defaultExtension() const override;
 	};
 
 }

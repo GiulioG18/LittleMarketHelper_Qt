@@ -150,6 +150,9 @@ BOOST_AUTO_TEST_CASE(first_test)
 		http::Curl::Request request2{ http::Curl::Method::GET, "https://query1.finance.yahoo.com/v8/finance/chart/AMZN", ""};
 		http::Curl::Response response2 = curl.httpRequest(request2);
 		http::Curl::Response response2Clone = curl.httpRequest(request2);
+		response2.prettyPrint(std::cout);
+		std::cout << response2.data() << std::endl;
+		response2Clone.prettyPrint(std::cout);
 
 		http::Curl::Request request3{ http::Curl::Method::GET, "https://catfact.ninja/fact", "", true };
 		http::Curl::Response response3 = curl.httpRequest(request3);
@@ -157,14 +160,16 @@ BOOST_AUTO_TEST_CASE(first_test)
 		response3.prettyPrint(std::cout);
 		response3Clone.prettyPrint(std::cout);
 
-		http::Curl::Request request4{ http::Curl::Method::POST, "https://api.openfigi.com/v3/mapping", "[{\"idType\":\"ID_ISIN\",\"idValue\":\"US4592001014\"}]", true };
+		http::Curl::Request request4{ http::Curl::Method::POST, "https://api.openfigi.com/v3/mapping", "[{\"idType\":\"ID_ISIN\",\"idValue\":\"LU1681045370\"}]", true };
 		http::Curl::Response response4 = curl.httpRequest(request4);
+		std::cout << response4.data() << std::endl;
 
-		const fs::path t = "C:/Users/giuli/OneDrive/Desktop/test.txt";
-		File::writable(t);
+		const fs::path t = "C:/Users/giuli/OneDrive/Desktop/";
+		std::cout << "Writable? " << File::writable(t) << std::endl;
 
-		auto output = ReportParser::parseDefault(ReportParser::Type::DEGIRO);
-		auto output1 = ReportParser::parse(ReportParser::Type::DEGIRO, fs::path("C:/Users/giuli/Downloads/Portfolio.csv"));
+		auto output = ReportParser::parse(ParserType::DEGIRO);
+		auto output1 = ReportParser::parse(ParserType::DEGIRO, fs::path("C:/Users/giuli/Downloads/Portfolio.csv"));
+		//auto output2 = ReportParser::parse(ParserType::UNDEFINED); // <--- error!
 
 
 		std::shared_ptr<Security> a1 = std::make_shared<Security>(std::string("LU0908500753"), std::string(), 8, Quote(Price(Currency::EUR, 203.85)));

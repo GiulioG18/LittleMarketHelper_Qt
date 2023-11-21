@@ -17,6 +17,7 @@ static_assert(false, "I had no clue nor interest in linking these libs for other
 #include "Http/Curl.h"
 #include "Config.h"
 #include "Http/Api.h"
+#include "Utils/Json.h"
 
 
 // Helper macro to handle Curl errors
@@ -131,9 +132,10 @@ namespace lmh {
 			}
 		}
 
-		// NB: status code from all curl_easy_getinfo calls is ignored
 		void Curl::Response::extractInfo(CURL*&  curl)
 		{
+			// Status code from all curl_easy_getinfo calls is ignored
+
 			assert(code_ == Status::SUCCESS);
 
 			// Extract date
@@ -273,13 +275,35 @@ namespace lmh {
 			id_ = id++;
 		};
 
-		void Curl::Response::print(std::ostream& os) const
+		std::optional<Json> Curl::Response::toJson() const
+		{
+			// Return null optional if the request was not successful
+			if (code_ != Status::SUCCESS)
+				return std::nullopt;
+
+			Json json;
+
+			// Initialize stream with data
+			std::stringstream ss;
+			ss << data_;
+
+			// Try to parse it as a Json formatted file
+			Status status = json.parse(ss);
+
+			if (status != Status::SUCCESS)
+				return std::nullopt;
+			else
+				return std::make_optional<Json>(json);
+		}
+
+
+		void Curl::Response::prettyPrint(std::ostream& os) const
 		{
 			os << "==========================================" << "\n";
-			os << "HTTP request n: " << id_ << "\n";
+			os << "HTTP response n: " << id_ << "\n";
 			os << "Method: " << mtos(request_.method_) << "\n";
 			os << "URL: " << request_.url_ << "\n";
-			os << "Header: " << request_.data_ << "\n";
+			os << "Header: " << (request_.data_.empty() ? "None" : request_.data_) << "\n";
 			os << "Skip cache: " << std::boolalpha << request_.skipCache_ << "\n";
 			os << "Code: " << error::stos(code_) << "\n";
 			os << "Date: " << date_ << "\n";
@@ -289,7 +313,6 @@ namespace lmh {
 			os << "Local port used: " << localPort_ << "\n";
 			os << "==========================================" << "\n";
 		}
-
 
 
 
@@ -307,7 +330,7 @@ namespace lmh {
 			curl_easy_cleanup(handle_);
 		}
 
-		inline CURL* const HandleMaker::get()
+		inline CURL* const HandleMaker::get() const
 		{
 			return handle_;
 		}

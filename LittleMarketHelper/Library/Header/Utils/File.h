@@ -66,6 +66,7 @@ namespace lmh {
 		if (!status) 
 			return status;
 				
+		// This doesn't look good, how do we get which group is the executable part of?
 		auto permissions = fs::status(folder).permissions();
 		if ((permissions & fs::perms::owner_write) == fs::perms::none ||
 			(permissions & fs::perms::group_write) == fs::perms::none ||
