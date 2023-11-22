@@ -66,7 +66,6 @@ namespace lmh {
 		
 		// Initialize stream
 		logger.stream_ = std::make_unique<std::fstream>(logger.file_, std::ios_base::out | std::ios_base::trunc);
-		ASSERT(logger.stream_, "invalid stream");
 		if (!logger.stream_->is_open())			
 			return Status::FILE_NOT_OPEN;	
 

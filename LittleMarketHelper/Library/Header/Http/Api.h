@@ -32,9 +32,9 @@ namespace lmh {
 
 			// Check network connectivity
 			static Status testNetworkConnection();
-			static Rates getExchangeRatesFor(Currency currency);
-			static std::optional<Quote> getQuoteFor(std::string_view isin, Currency currency);
-			static std::set<YTicker> getYahooTickersFor(std::string_view isin);
+			static Rates fetchRatesFor(Currency currency);
+			static std::optional<Quote> fetchQuoteFor(std::string_view isin, Currency currency);
+			static std::set<YTicker> fetchYTickersFor(std::string_view isin);
 
 		private:
 
@@ -47,68 +47,7 @@ namespace lmh {
 }
 
 
-
-//#include <chrono>
-//#include <memory>
-//#include <list>
-//#include <set>
-//#include <string_view>
-//
-//#include "Http/Curl.h"
-//#include "Utils/Json.h"
-//#include "Utils/StatusCode.h"
-//#include "Config.h"
-
-
-
-	// Fallback mechanism is not implemented.
-	// To achieve more flexibility, url and data and other options can be defined in the configuration file
-
-	
-		/*
-		// Base 
-		class Api
-		{
-		public:
-
-			struct Stats;
-
-		public:
-
-			virtual ~Api() = default;
-
-			void runRequest(const Curl::Request& request);
-
-		protected:
-
-			Api() = default;
-
-		private:
-
-			void replacePlaceholder(std::string& s, std::string_view value) const;
-
-		protected:
-
-			std::list<std::string> keys_;
-			Json json_;
-			std::optional<Curl::Request> request_;
-			std::optional<Curl::Response> response_;
-		};
-
-
-		// Connection test
-		class ConnectionTest : public Api
-		{
-		public:
-
-			ConnectionTest(); 
-			virtual ~ConnectionTest() = default;
-
-			// Returns true if there is a valid network connection
-			bool run();	// [ MAY THROW ]
-		};
-
-
+/*
 		// Get lmh::Quote
 		class Quote : public Api
 		{
@@ -117,8 +56,6 @@ namespace lmh {
 			Quote();
 			virtual ~Quote() = default;
 
-			// TODO: do not fecth all the historical price when using yf
-			// TODO: send a batch request instead of single ones
 
 		};
 

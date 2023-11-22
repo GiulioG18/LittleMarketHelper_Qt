@@ -13,12 +13,9 @@
     "maxLogFiles": 5
   },
   "parser": {
-    "type": {
-      "degiro": {
-        "name": "DEGIRO",
-        "fileName": "Portfolio",
-        "fileExtension": ".csv"
-      }
+    "degiro": {
+      "name": "DEGIRO",
+      "defaultFilename": "Portfolio.csv"
     }
   },
   "httpRequest": {

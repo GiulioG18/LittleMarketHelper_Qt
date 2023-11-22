@@ -1,11 +1,12 @@
 
 #include <fstream>
-#include <assert.h>
+#include <cassert>
 
 #include "ReportParser.h"
 #include "Security.h"
 #include "Utils/InputValidator.h"
 #include "Http/Api.h"
+#include "Config.h"
 
 
 namespace lmh {
@@ -16,8 +17,8 @@ namespace lmh {
 	{
 		// Initialize guesses dirs
 		// TODO2: what about other OS executables?
-		fs::path downloads = fs::path(std::getenv("USERPROFILE")).append("Downloads");
-		fs::path documents = fs::path(std::getenv("USERPROFILE")).append("Documents");
+		fs::path downloads = fs::path(std::getenv("USERPROFILE")) / "Downloads";
+		fs::path documents = fs::path(std::getenv("USERPROFILE")) / "Documents";
 
 		if (fs::is_directory(downloads))
 			guesses_.push_back(downloads);
@@ -206,7 +207,7 @@ namespace lmh {
 			}
 
 			// Fetch quote (quotes are not parsed from DEGIRO report)
-			auto optQuote = http::Api::getQuoteFor(isin, currency);
+			auto optQuote = http::Api::fetchQuoteFor(isin, currency);
 			if (!optQuote.has_value())
 			{
 				securities.push_back(SecurityShell(isin, name));
@@ -232,7 +233,7 @@ namespace lmh {
 
 	fs::path DegiroReportParser::defaultFilename() const
 	{
-		return "Portfolio.csv";
+		return Config::properties().get<std::string>("parser.degiro.defaultFilename");
 	}
 
 }

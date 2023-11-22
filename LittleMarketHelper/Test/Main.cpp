@@ -45,6 +45,8 @@ namespace pt = boost::property_tree;
 // 
 // . add concept of session
 // 
+// . check boost detected memory leaks in test?!?
+// 
 // . WRITE THE DAMN BOOST TEST SUITE THIS IS UNSAFE AF!
 // 
 // . check for all class
@@ -80,6 +82,17 @@ BOOST_AUTO_TEST_CASE(first_test)
 	try
 	{
 		start("D:\\Coding\\01. Visual Studio Projects\\LittleMarketHelper\\LittleMarketHelper\\config.json");
+
+		// Test fetchYTickersFor(isin) cache
+
+
+
+
+
+
+
+
+
 
 		Price price1{Currency::GBP, 100}, price2{Currency::EUR, 310};
 		std::cout << std::boolalpha << (price1 == price2) << std::endl;
@@ -126,8 +139,7 @@ BOOST_AUTO_TEST_CASE(first_test)
 		{
 			std::cout << "Config uninitialized!" << std::endl;
 		}
-		auto ilassss = config.properties().get<std::string>("parser.type.degiro.name");
-		auto ilass = config.properties().get<std::string>("parser.type.degiro.fileExtension");
+		auto ilassss = config.properties().get<std::string>("parser.degiro.name");
 		
 		// Init logger
 		status = Logger::initialize();

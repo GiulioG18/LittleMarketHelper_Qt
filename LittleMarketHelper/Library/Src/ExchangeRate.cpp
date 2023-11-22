@@ -66,15 +66,17 @@ namespace lmh {
 		if (repo.initialized_)
 			return Status::ER_REPO_ALREADY_INITIALIZED;
 
-		// Initialize base currency
+		// Initialize base currency and register it as available
 		repo.baseCurrency_ = baseCurrency;
+		repo.availableCurrencies_.insert(repo.baseCurrency_);
+		repo.rates_.insert({ Forex::denomination(repo.baseCurrency_, repo.baseCurrency_), ExchangeRate(repo.baseCurrency_, repo.baseCurrency_, 1.0) });
 
 		// Request rates and fill the maps
-		std::set<ExchangeRate> rates = http::Api::getExchangeRatesFor(baseCurrency);
+		std::set<ExchangeRate> rates = http::Api::fetchRatesFor(baseCurrency);
 		for (auto& rate : rates)
 		{
 			// Conversion between non-base currencies are triangulated using the
-			//  base one, therefore only base currency rates are stored
+			// base one, therefore only base currency rates are stored
 			if (rate.xxx() != repo.baseCurrency_)
 				continue;
 

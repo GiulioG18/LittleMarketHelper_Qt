@@ -9,7 +9,7 @@
 #include <memory>
 #include <set>
 #include <map>
-#include <assert.h>
+#include <cassert>
 
 #include "Utils/StatusCode.h"
 #include "Balance.h"

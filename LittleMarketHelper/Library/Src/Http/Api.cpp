@@ -43,7 +43,7 @@ namespace lmh {
 				return Status::NO_NETWORK_CONNECTION;
 		}
 
-		Api::Rates Api::getExchangeRatesFor(Currency currency)
+		Api::Rates Api::fetchRatesFor(Currency currency)
 		{
 			assert(Curl::get().initialized());
 
@@ -82,12 +82,12 @@ namespace lmh {
 			return out;
 		}
 
-		std::optional<Quote> Api::getQuoteFor(std::string_view isin, Currency currency)
+		std::optional<Quote> Api::fetchQuoteFor(std::string_view isin, Currency currency)
 		{
 			// TODO: impl
 			assert(Curl::get().initialized());
 
-			auto tickers = getYahooTickersFor(isin);
+			auto tickers = fetchYTickersFor(isin);
 			for (const auto& ticker : tickers)
 			{
 				//		_ Request chart yf
@@ -99,12 +99,19 @@ namespace lmh {
 			return std::nullopt;
 		}
 
-		std::set<YTicker> Api::getYahooTickersFor(std::string_view isin)
+		std::set<YTicker> Api::fetchYTickersFor(std::string_view isin)
 		{
 			assert(Curl::get().initialized());
 
 			// TODO: impl
 
+			// Check in the cache first
+			static std::unique_ptr<Cache<std::string_view, Json>> cache = std::make_unique<FifoCache<std::string_view, Json>>();
+			auto cachedJson = cache->get(isin);
+			if (cachedJson)
+			{
+
+			}
 
 			// 1. Run openFIGI request
 			// 2. Cache the json response (validated)

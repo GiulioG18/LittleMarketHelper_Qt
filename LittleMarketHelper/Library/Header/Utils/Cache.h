@@ -9,7 +9,7 @@
 #include <map>
 #include <queue>
 #include <memory>
-#include <assert.h>
+#include <cassert>
 
 #include "Assertions.h"
 
@@ -37,8 +37,8 @@ namespace lmh {
 
 		// Returns a pointer pointing to an element in the cache, if not found, returns nullptr
 		ConstValuePtr get(const Key& key) const;
-		// Inserts an element in the cache. Returns false if there is an element with that key already stored
-		// and performs no insertion
+		// Inserts an element in the cache. 
+		// Returns false if there is an element with that key already stored and performs no insertion
 		template<typename K, typename V> 
 		bool put(K&& key, V&& value);
 

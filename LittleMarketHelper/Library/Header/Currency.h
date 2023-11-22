@@ -26,7 +26,25 @@ namespace lmh {
 		CNY,
 		HKD,
 		SEK,
-		BZR
+		BZR,
+		KRW,
+		SDG,
+		NOK,
+		NZD,
+		INR,
+		MXN,
+		TWD,
+		ZAR,
+		BRL,
+		DKK,
+		PLN,
+		IDR,
+		CZK,
+		HUF,
+		TRY,
+		CLP,
+		RON,
+		ARS
 	};
 
 	namespace ccy {

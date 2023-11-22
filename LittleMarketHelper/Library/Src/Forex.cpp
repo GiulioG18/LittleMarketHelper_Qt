@@ -1,5 +1,5 @@
 
-#include <assert.h>
+#include <cassert>
 
 #include "Forex.h"
 #include "ExchangeRate.h"
