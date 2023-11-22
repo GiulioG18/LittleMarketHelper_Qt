@@ -63,6 +63,8 @@ namespace pt = boost::property_tree;
 // 
 // . create assert() macro with a message
 // 
+// . create MarketDataset (maybe singleton if cant find other ways to access it) class to manage exchange rates, available currencies, tickers...(price would be harder to achieve)
+// 
 // . review all functions that may throw:
 //		- add MAY THROW to definition
 //		- check implementation to see if it s possible to assert instead

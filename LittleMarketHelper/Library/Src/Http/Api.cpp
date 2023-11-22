@@ -106,7 +106,7 @@ namespace lmh {
 			// TODO: impl
 
 			// Check in the cache first
-			static std::unique_ptr<Cache<std::string_view, Json>> cache = std::make_unique<FifoCache<std::string_view, Json>>();
+			static std::unique_ptr<Cache<std::string_view, std::set<YTicker>>> cache = std::make_unique<FifoCache<std::string_view, std::set<YTicker>>>();
 			auto cachedJson = cache->get(isin);
 			if (cachedJson)
 			{

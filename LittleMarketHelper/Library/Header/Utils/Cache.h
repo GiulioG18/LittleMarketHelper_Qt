@@ -7,7 +7,8 @@
 #pragma once
 
 #include <map>
-#include <queue>
+#include <algorithm>
+#include <deque>
 #include <memory>
 #include <cassert>
 
@@ -79,7 +80,7 @@ namespace lmh {
 
 	private:
 
-		std::queue<Iterator> keys_;
+		std::deque<Iterator> keys_;
 	};
 
 
@@ -144,7 +145,9 @@ namespace lmh {
 	template<typename Key, typename Value>
 	inline void FifoCache<Key, Value>::registerKey(const Iterator& iterator)
 	{
-		keys_.push(iterator);
+		// Make sure key is not already registered
+		assert(std::find(keys_.begin(), keys_.end(), iterator) == keys_.end());
+		keys_.push_back(iterator);
 	}
 
 	template<typename Key, typename Value>
@@ -159,7 +162,7 @@ namespace lmh {
 			// Remove cached element
 			auto removedElements = this->cached_.erase(evicted);
 			// Remove key
-			keys_.pop();
+			keys_.pop_front();
 
 			assert(this->cached_.size() == this->maxSize_);
 		}
