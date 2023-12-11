@@ -59,6 +59,8 @@ namespace pt = boost::property_tree;
 // 
 // . Create doc with doxygen
 // 
+// . Review how divide files in dedicated folders
+// 
 // . review that  all calls to func that may throw are wrapped into try-catch blocks
 // 
 // . create assert() macro with a message

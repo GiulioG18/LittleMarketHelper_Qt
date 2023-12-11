@@ -4,6 +4,9 @@
 #include <boost/algorithm/string.hpp>
 #include <algorithm>
 
+#include "Http/Curl.h"
+#include "Utils/Json.h"
+
 #ifdef _WIN32
 #pragma comment(lib, "advapi32.lib")
 #pragma comment(lib, "crypt32.Lib")
@@ -11,14 +14,8 @@
 #pragma comment(lib, "ws2_32.Lib")
 #pragma comment(lib, "wldap32.Lib")
 #else
-static_assert(false, "I had no clue nor interest in linking these libs for other OS");
+static_assert(false, "I had no clue nor interest in linking these libs for other platforms");
 #endif
-
-#include "Http/Curl.h"
-#include "Config.h"
-#include "Http/Api.h"
-#include "Utils/Json.h"
-
 
 // Helper macro to handle Curl errors
 #define CURL_CALL(curl_function, lmh_error) 								\

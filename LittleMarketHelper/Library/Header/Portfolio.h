@@ -6,6 +6,16 @@
 
 #pragma once
 
+#include <set>
+
+#include "Utils/Chrono.h"
+#include "Patterns/Observable.h"
+#include "MarketData/DatasetAccess.h"
+#include "Currency.h"
+#include "MarketValue.h"
+#include "MarketData/Isin.h"
+
+/*
 #include <memory>
 #include <set>
 #include <map>
@@ -17,8 +27,6 @@
 #include "WeightedSecurity.h"
 #include "PortfolioUtilities.h"
 
-
-namespace lmh {
 
 	class Portfolio
 	{
@@ -97,9 +105,88 @@ namespace lmh {
 		catch (...)
 		{
 			return Status::INVALID_INPUT;
-		}		
+		}
 
 		return Status::SUCCESS;
-	}
+	}*/
+
+namespace lmh {
+
+	// Forward declarations
+	class Portfolio;
+	class Security;
+
+
+
+
+	// Holding
+
+	class Holding
+	{
+	public:
+
+		Holding(const Isin& isin, uint32_t quantity = 0);
+		Holding(const Security* security, uint32_t quantity = 0);
+
+		// Operators
+		bool operator<(const Holding& other) const;
+
+	private:
+
+		Security* security_;
+		uint32_t quantity_;
+		double weight_;
+	};
+
+
+
+
+	// Portfolio
+
+	class Portfolio : public Observer
+	{
+	public:
+
+		friend class PortfolioModifier;
+
+	public:
+
+		// Constructor that takes in cash and holding vectors could easily be added
+		Portfolio(MarketDataset* dataset, const Date& date, Currency currency);
+
+		virtual void update() override;
+
+	private:
+
+		DatasetAccess dataset_;
+		Date date_;
+		Currency currency_;
+		std::set<Holding> holdings_;
+		MarketValue cash_;
+		MarketValue balance_; // Sum of holdings' market values
+	};
+
+
+
+
+	// Helper class with access to specific private portfolio members
+	// Triggers recalculation of the portfolio status
+
+	class PortfolioModifier : public Observable
+	{
+	public:
+
+		PortfolioModifier(Portfolio* portfolio)
+			: portfolio_(portfolio)
+		{
+		}
+
+		// Non-const methods
+
+
+	private:
+
+		Portfolio* const portfolio_;
+	};
 
 }

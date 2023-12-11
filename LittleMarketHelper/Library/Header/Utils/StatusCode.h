@@ -83,8 +83,8 @@ namespace lmh {
 		LOGGER_ALREADY_INITIALIZED,
 		// No network connection
 		NO_NETWORK_CONNECTION,
-		// Exchange rate repository has already been initialized in this session
-		ER_REPO_ALREADY_INITIALIZED,
+		// Mdsr has already been initialized in this session
+		MDSR_ALREADY_INITIALIZED,
 	};
 
 
@@ -158,8 +158,6 @@ namespace lmh {
 			case lmh::Status::LOGGER_ALREADY_INITIALIZED:
 				break;
 			case lmh::Status::NO_NETWORK_CONNECTION:
-				break;
-			case lmh::Status::ER_REPO_ALREADY_INITIALIZED:
 				break;
 			default:
 				break;

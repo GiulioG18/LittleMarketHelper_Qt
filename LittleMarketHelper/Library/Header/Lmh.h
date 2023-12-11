@@ -9,7 +9,7 @@
 #include "Utils/Logger.h"
 #include "Http/Curl.h"
 #include "Currency.h"
-#include "ExchangeRate.h"
+#include "MarketData/MarketDataset.h"
 #include "Http/Api.h"
 
 
@@ -27,7 +27,7 @@ namespace lmh {
 		RETURN_ON_ERROR(http::Curl::initialize(curlGlobalFlag));
 
 		Currency baseCurrency = ccy::stoc(Config::properties().get<std::string>("settings.exchangeRate.baseCurrency")).value();
-		RETURN_ON_ERROR(ExchangeRateRepository::initialize(baseCurrency));
+		RETURN_ON_ERROR(DatasetRepository::initialize(baseCurrency));
 
 		// Check for a valid internet connection
 		// Right now the app won't start without it, but later it would be possible

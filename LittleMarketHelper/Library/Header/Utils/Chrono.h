@@ -57,9 +57,9 @@ namespace lmh {
 			const Year& year,
 			const Month& month,
 			const Day& day,
-			const Hours& hours,
-			const Minutes& minutes,
-			const Seconds& seconds);
+			const Hours& hours = 0h,
+			const Minutes& minutes = 0min,
+			const Seconds& seconds = 0s);
 
 		const auto& systemTime() const;
 		const auto& localTime() const;
@@ -90,6 +90,7 @@ namespace lmh {
 		static Hours hoursBetween(const Date& before, const Date& after);
 		static uint32_t daysBetween(const Date& before, const Date& after);
 		static Date::Timepoint now();
+		static Date::Timepoint today();
 		static const Date::Timezone* here();
 	};
 

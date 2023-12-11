@@ -14,7 +14,7 @@ namespace lmh {
 	class Price
 	{
 	public:
-		
+
 		Price(Currency currency, double amount); // [ MAY THROW ]
 
 		// Getters
@@ -29,12 +29,12 @@ namespace lmh {
 		bool operator==(const Price& other) const;
 
 		// Arithmetic operators
-		Price operator+(const Price& other) const; 
-		Price operator/(const Price& other) const; 
-		Price operator*(const Price& other) const; 
-		Price& operator+=(const Price& other); 
-		Price operator+(double amount) const; 
-		Price operator/(double amount) const; 
+		Price operator+(const Price& other) const;
+		Price operator/(const Price& other) const;
+		Price operator*(const Price& other) const;
+		Price& operator+=(const Price& other);
+		Price operator+(double amount) const;
+		Price operator/(double amount) const;
 		Price operator*(double quantity) const;
 		Price& operator+=(double amount);
 
@@ -54,7 +54,7 @@ namespace lmh {
 
 	inline auto Price::operator<=>(const Price& other) const
 	{
-		Price convertedOther = Forex::convert(other, this->currency_);
+		Price convertedOther = Forex::convertQuote(other, this->currency_);
 		return this->amount_ <=> convertedOther.amount_;
 	}
 

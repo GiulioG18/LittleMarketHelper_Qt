@@ -11,8 +11,10 @@
 namespace lmh {
 
 	// Forward declarations
-	class Date;
 	enum class Currency;
+	class MarketValue;
+	class Date;
+	class Quote;
 
 
 	class ValidateInput
@@ -22,8 +24,9 @@ namespace lmh {
 		static bool isin(std::string_view isin);
 		static bool quantity(uint32_t quantity);
 		static bool currency(Currency currency);
-		static bool amount(double amount);
+		static bool marketValue(const MarketValue& mv);
 		static bool recentDate(const Date& date);
+		static bool quote(const Quote& quote);
 	};
 
 }

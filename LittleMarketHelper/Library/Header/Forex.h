@@ -12,7 +12,7 @@ namespace lmh {
 
 	// Forward declarations
 	class ExchangeRate;
-	class Price;
+	class Quote;
 	enum class Currency;
 
 	// The behaviour of this class is undefined if the exchange rate repository has not been initialized successfully
@@ -20,7 +20,7 @@ namespace lmh {
 	{
 	public:
 
-		static Price convert(const Price& price, Currency targetCurrency);
+		static Quote convertQuote(const Quote& quote, Currency targetCurrency);
 		static bool availableCurrency(Currency currency);
 		static bool baseCurrency(Currency currency);
 		static std::string denomination(Currency xxx, Currency yyy);
@@ -28,7 +28,7 @@ namespace lmh {
 
 	private:
 
-		static ExchangeRate crossCurrencyRate(Currency xxx, Currency yyy);
+		static ExchangeRate const* getExchangeRateFor(Currency xxx, Currency yyy);
 	};
 
 }

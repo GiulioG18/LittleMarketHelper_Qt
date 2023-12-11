@@ -4,7 +4,6 @@
 #include "Http/Api.h"
 #include "Http/Curl.h"
 #include "Config.h"
-#include "ExchangeRate.h"
 #include "Currency.h"
 #include "Quote.h"
 #include "Ticker.h"
@@ -19,6 +18,7 @@ namespace lmh {
 		Status Api::testNetworkConnection()
 		{
 			assert(Curl::get().initialized());
+			assert(Config::get().initialized());
 
 			// Initialize request
 			std::string path = basePath() + "networkConnection.";
@@ -43,9 +43,10 @@ namespace lmh {
 				return Status::NO_NETWORK_CONNECTION;
 		}
 
-		Api::Rates Api::fetchRatesFor(Currency currency)
+		Api::Rates Api::fetchLatestRatesFor(Currency currency)
 		{
 			assert(Curl::get().initialized());
+			assert(Config::get().initialized());
 
 			std::set<lmh::ExchangeRate> out;
 
@@ -82,10 +83,11 @@ namespace lmh {
 			return out;
 		}
 
-		std::optional<Quote> Api::fetchQuoteFor(std::string_view isin, Currency currency)
+		std::optional<Quote> Api::fetchLatestQuoteFor(std::string_view isin, Currency currency)
 		{
 			// TODO: impl
 			assert(Curl::get().initialized());
+			assert(Config::get().initialized());
 
 			auto tickers = fetchYTickersFor(isin);
 			for (const auto& ticker : tickers)
@@ -102,6 +104,7 @@ namespace lmh {
 		std::set<YTicker> Api::fetchYTickersFor(std::string_view isin)
 		{
 			assert(Curl::get().initialized());
+			assert(Config::get().initialized());
 
 			// TODO: impl
 

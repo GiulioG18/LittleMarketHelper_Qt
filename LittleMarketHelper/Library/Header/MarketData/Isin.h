@@ -1,6 +1,6 @@
 
 // ========================================================================
-//		Ticker class
+//		Security ISIN code
 // ========================================================================
 
 #pragma once
@@ -10,17 +10,17 @@
 
 namespace lmh {
 
-	// Yahoo finance ticker
-	class YTicker
+	class Isin
 	{
 	public:
 
-		YTicker() = default;
+		Isin(std::string_view isin); // [ MAY THROW ]
+
+		bool operator<(const Isin& other) const;
 
 	private:
 
-		std::string symbol_;
-		std::string exchangeCode_;
+		std::string value_;
 	};
 
 }

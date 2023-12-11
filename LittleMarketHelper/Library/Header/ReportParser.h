@@ -15,15 +15,12 @@
 #include "Utils/StatusCode.h"
 #include "SecurityShell.h"
 #include "Currency.h"
+#include "MarketData/Security.h"
 
 
 namespace fs = std::filesystem;
 
 namespace lmh {
-
-	// Forward declarations
-	class Security;
-
 
 	// Available parsers
 
@@ -71,6 +68,7 @@ namespace lmh {
 
 	protected:
 
+		// TODO: add mds access here
 		fs::path report_;
 		std::deque<fs::path> guesses_;
 	};

@@ -9,13 +9,13 @@
 
 #include "Utils/Assertions.h"
 #include "Patterns/Observable.h"
+#include "Balance.h"
 
 
 namespace lmh {
 
 	// Forward declarations
 	class Security;
-	class Balance;
 
 
 	// Tracks a Balance object and updates the weight for the given security
@@ -24,19 +24,19 @@ namespace lmh {
 	{
 	public:
 
-		Weight(Security* security, std::shared_ptr<Balance> balance);
+		Weight(Security* security, std::shared_ptr<Observable> balance);
 
 		// Non-const methods
 		virtual void update() override;
 
-		// Const methods
+		// Getters
 		inline double value() const;
 
 	private:
 
 		double value_;
 		Security* security_;
-		std::shared_ptr<Balance> balance_; // Observed
+		std::shared_ptr<Observable> balance_; // Observed (balance)
 	};
 
 

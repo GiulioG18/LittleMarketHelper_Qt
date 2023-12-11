@@ -1,31 +1,36 @@
 
 #include <cassert>
 
-#include "Forex.h"
+#include "Utils/Assertions.h"
 #include "ExchangeRate.h"
-#include "Price.h"
+#include "Forex.h"
+#include "Quote.h"
 
 
 namespace lmh {
 
-	Price Forex::convert(const Price& price, Currency targetCurrency)
+	Quote Forex::convertQuote(const Quote& quote, Currency targetCurrency)
 	{
 		// Example: Converting 100USD into EUR returns: 100 / EURUSD
-		double rate = crossCurrencyRate(targetCurrency, price.currency()).value();
-		double value = price.amount() / rate;
+		double rate = getExchangeRateFor(targetCurrency, quote.currency()).value();
+		double value = quote.price() / rate;
 		assert(value > 0.0);
 
-		return { targetCurrency, value };
+		return { value, targetCurrency };
 	}
 
 	bool Forex::availableCurrency(Currency Currency)
 	{
-		return ExchangeRateRepository::get().availableCurrencies_.contains(Currency);
+		// TODO: impl
+		//return ExchangeRateRepository::get().availableCurrencies_.contains(Currency);
+		return false;
 	}
 
 	bool Forex::baseCurrency(Currency currency)
 	{
-		return currency == ExchangeRateRepository::get().baseCurrency_;
+		// TODO: impl
+		//return currency == ExchangeRateRepository::get().baseCurrency_;
+		return false;
 	}
 
 	std::string Forex::denomination(Currency xxx, Currency yyy)
@@ -41,7 +46,7 @@ namespace lmh {
 		return denomination(rate.xxx(), rate.yyy());
 	}
 
-	ExchangeRate Forex::crossCurrencyRate(Currency xxx, Currency yyy)
+	ExchangeRate const* Forex::getExchangeRateFor(Currency xxx, Currency yyy)
 	{
 		assert(availableCurrency(xxx) && availableCurrency(yyy));
 		const ExchangeRateRepository& repo = ExchangeRateRepository::get();

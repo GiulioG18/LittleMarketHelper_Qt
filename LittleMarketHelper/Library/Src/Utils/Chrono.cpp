@@ -109,6 +109,11 @@ namespace lmh {
 		return Date::Clock::now();
 	}
 
+	Date::Timepoint Chrono::today()
+	{
+		return std::chrono::floor<std::chrono::days>(Chrono::now());
+	}
+
 	const Date::Timezone* Chrono::here()
 	{
 		return std::chrono::current_zone();

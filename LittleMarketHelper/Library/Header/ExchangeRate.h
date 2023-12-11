@@ -1,28 +1,19 @@
+
 // ========================================================================
-//		Exchange Rate class
+//		Forex exchange rate
 // ========================================================================
 
 #pragma once
 
-#include <unordered_map>
-#include <memory>
-#include <string_view>
-
-#include "Patterns/Singleton.h"
-#include "Utils/StatusCode.h"
 #include "Currency.h"
-#include "Quote.h"
-#include "Forex.h"
 
 
 namespace lmh {
 
-	// Exchange Rate
-
 	class ExchangeRate
 	{
 	public:
-		
+
 		ExchangeRate(std::string_view denomination, double value); // [ MAY THROW ]
 		ExchangeRate(Currency xxx, Currency yyy, double value); // [ MAY THROW ]
 
@@ -43,41 +34,8 @@ namespace lmh {
 
 
 
-
-	// Exchange Rate Repository 
-
-	class ExchangeRateRepository : public Singleton<ExchangeRateRepository>
-	{
-	public:
-
-		friend class Singleton<ExchangeRateRepository>;
-		friend class Forex;
-
-		using RatesMap = std::unordered_map<std::string, const ExchangeRate>;
-
-	private:
-
-		ExchangeRateRepository() = default;
-
-	public:
-
-		virtual ~ExchangeRateRepository() = default;
-
-		// Initializes rate map and available currencies
-		static Status initialize(Currency baseCurrency);
-
-	private:
-
-		std::set<Currency> availableCurrencies_;
-		RatesMap rates_;
-		Currency baseCurrency_ = Currency::EUR;
-		bool initialized_ = false;
-	};
-
-
 	// Inline definitions
 	inline Currency ExchangeRate::xxx() const { return xxx_; }
 	inline Currency ExchangeRate::yyy() const { return yyy_; }
 	inline double ExchangeRate::value() const { return value_; }
-
 }

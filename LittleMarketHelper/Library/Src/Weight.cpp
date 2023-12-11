@@ -1,4 +1,6 @@
 
+#include <cassert>
+
 #include "Weight.h"
 #include "Security.h"
 #include "Balance.h"
@@ -6,7 +8,7 @@
 
 namespace lmh {
 
-	Weight::Weight(Security* security, std::shared_ptr<Balance> balance)
+	Weight::Weight(Security* security, std::shared_ptr<Observable> balance)
 		: value_(0.0), security_(security), balance_(std::move(balance))
 	{
 		REQUIRE(security_, "invalid security");
@@ -17,10 +19,10 @@ namespace lmh {
 
 	void Weight::update() 
 	{
-		REQUIRE(security_, "invalid security");
-		REQUIRE(balance_, "invalid balance");
-		REQUIRE(security_->quote().price().amount() > 0.0, "invalid price");
-		REQUIRE(security_->quantity() >= 0, "invalid quantity");
+		assert(security_);
+		assert(balance_);
+		assert(security_->quote().price().amount() > 0.0);
+		assert(security_->quantity() >= 0);
 
 		if (balance_->price().amount() == 0.0)
 		{

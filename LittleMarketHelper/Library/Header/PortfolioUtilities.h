@@ -2,10 +2,8 @@
 
 #include <string>
 
+#include "Utils/TypeTraits.h"
 
-// To ignore const and ref when comparing types
-template<class T1, class T2>
-bool is_almost_same_v = std::is_same_v<const T1&, const T2&>;
 
 namespace lmh {
 

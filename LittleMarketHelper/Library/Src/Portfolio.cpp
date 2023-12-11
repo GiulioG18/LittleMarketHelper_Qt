@@ -1,4 +1,10 @@
 
+#include "Portfolio.h"
+#include "MarketData/Security.h"
+#include "MarketData/DatasetAccess.h"
+
+
+/*
 #include <numeric>
 #include <algorithm>
 
@@ -112,4 +118,47 @@ namespace lmh {
 
 		return Status::SUCCESS;
 	}
+	Holdings::Holdings()
+	{
+	}
+}
+*/
+
+
+namespace lmh {
+
+	// Holding
+
+	Holding::Holding(const Isin& isin, uint32_t quantity)
+	{
+	}
+
+	Holding::Holding(const Security* security, uint32_t quantity)
+	{
+	}
+
+	bool Holding::operator<(const Holding& other) const
+	{
+		return *security_ < *security_;
+	}
+
+
+
+	// Portfolio
+
+	Portfolio::Portfolio(MarketDataset* dataset, const Date& date, Currency currency)
+		: 
+		dataset_(dataset),
+		date_(date), 
+		currency_(currency), 
+		cash_(currency),
+		balance_(currency)
+	{
+	}
+
+	void Portfolio::update()
+	{
+		// Update Portfolio weights and security and cash balance
+	}
+
 }

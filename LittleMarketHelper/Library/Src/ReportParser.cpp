@@ -3,7 +3,6 @@
 #include <cassert>
 
 #include "ReportParser.h"
-#include "Security.h"
 #include "Utils/InputValidator.h"
 #include "Http/Api.h"
 #include "Config.h"
@@ -140,6 +139,8 @@ namespace lmh {
 
 		return currency.value();
 	}
+
+
 
 
 	// DEGIRO

@@ -32,8 +32,8 @@ namespace lmh {
 
 			// Check network connectivity
 			static Status testNetworkConnection();
-			static Rates fetchRatesFor(Currency currency);
-			static std::optional<Quote> fetchQuoteFor(std::string_view isin, Currency currency);
+			static Rates fetchLatestRatesFor(Currency currency);
+			static std::optional<Quote> fetchLatestQuoteFor(std::string_view isin, Currency currency);
 			static std::set<YTicker> fetchYTickersFor(std::string_view isin);
 
 		private:

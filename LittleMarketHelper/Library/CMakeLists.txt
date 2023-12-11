@@ -25,7 +25,6 @@ Endif()
 # Source files
 Set(SRC
 	Src/Portfolio.cpp
-	Src/Security.cpp
 	Src/SecurityShell.cpp
 	Src/Balance.cpp
 	Src/ReportParser.cpp
@@ -34,15 +33,24 @@ Set(SRC
 	Src/Calibrator.cpp
 	Src/CalibrationResult.cpp
 	Src/Optimizers.cpp
-	Src/ExchangeRate.cpp
 	Src/TickersGenerator.cpp
 	Src/Currency.cpp
 	Src/Price.cpp
 	Src/Quote.cpp
-	Src/Ticker.cpp
 	Src/Cash.cpp
 	Src/Config.cpp
 	Src/Forex.cpp
+	Src/ExchangeRate.cpp
+	Src/MarketValue.cpp
+	Src/MarketData/MarketDataset.cpp
+	Src/MarketData/ExchangeRatesDataset.cpp
+	Src/MarketData/QuotesDataset.cpp
+	Src/MarketData/SecuritiesDataset.cpp
+	Src/MarketData/StockExchange.cpp
+	Src/MarketData/Isin.cpp
+	Src/MarketData/Symbol.cpp
+	Src/MarketData/Security.cpp
+	Src/MarketData/DatasetAccess.cpp
 	Src/Utils/Errors.cpp
 	Src/Utils/Logger.cpp
 	Src/Utils/Json.cpp
@@ -57,7 +65,6 @@ Set(SRC
 Set(HEADER
 	Header/Balance.h
 	Header/Currency.h
-	Header/Security.h
 	Header/SecurityShell.h
 	Header/Portfolio.h
 	Header/ReportParser.h
@@ -66,16 +73,25 @@ Set(HEADER
 	Header/Calibrator.h
 	Header/CalibrationResult.h
 	Header/Optimizers.h
-	Header/ExchangeRate.h
 	Header/PortfolioUtilities.h
 	Header/Config.h
 	Header/TickersGenerator.h
 	Header/Quote.h
-	Header/Ticker.h
 	Header/Price.h
 	Header/Cash.h
 	Header/Forex.h
 	Header/Lmh.h
+	Header/ExchangeRate.h
+	Header/MarketValue.h
+	Header/MarketData/MarketDataset.h
+	Header/MarketData/ExchangeRatesDataset.h
+	Header/MarketData/QuotesDataset.h
+	Header/MarketData/SecuritiesDataset.h
+	Header/MarketData/StockExchange.h
+	Header/MarketData/Isin.h
+	Header/MarketData/Symbol.h
+	Header/MarketData/Security.h
+	Header/MarketData/DatasetAccess.h
 	Header/Utils/Assertions.h
 	Header/Utils/Environment.h
 	Header/Utils/Errors.h
@@ -87,6 +103,7 @@ Set(HEADER
 	Header/Utils/Cache.h
 	Header/Utils/Chrono.h
 	Header/Utils/InputValidator.h
+	Header/Utils/TypeTraits.h
 	Header/Patterns/LazyObject.h
 	Header/Patterns/Observable.h
 	Header/Patterns/Singleton.h

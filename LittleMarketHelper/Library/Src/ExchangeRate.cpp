@@ -1,19 +1,16 @@
 
+#include "Utils/Assertions.h"
 #include "ExchangeRate.h"
-#include "Http/Curl.h"
-#include "Config.h"
-#include "Http/Api.h"
+#include "Forex.h"
 
 
 namespace lmh {
 
-	// ExchangeRate
-
 	ExchangeRate::ExchangeRate(std::string_view denomination, double value)
-		: 
+		:
 		xxx_(Currency::EUR),
 		yyy_(Currency::EUR),
-		denomination_(denomination), 
+		denomination_(denomination),
 		value_(value)
 	{
 		REQUIRE(denomination.length() == 6, "invalid denomination");
@@ -54,47 +51,4 @@ namespace lmh {
 		return this->denomination_ < other.denomination_;
 	}
 
-
-	// ExchangeRateRepository
-
-	Status ExchangeRateRepository::initialize(Currency baseCurrency)
-	{
-		assert(Config::get().initialized());
-		assert(http::Curl::get().initialized());
-
-		ExchangeRateRepository& repo = get();
-		if (repo.initialized_)
-			return Status::ER_REPO_ALREADY_INITIALIZED;
-
-		// Initialize base currency and register it as available
-		repo.baseCurrency_ = baseCurrency;
-		repo.availableCurrencies_.insert(repo.baseCurrency_);
-		repo.rates_.insert({ Forex::denomination(repo.baseCurrency_, repo.baseCurrency_), ExchangeRate(repo.baseCurrency_, repo.baseCurrency_, 1.0) });
-
-		// Request rates and fill the maps
-		std::set<ExchangeRate> rates = http::Api::fetchRatesFor(baseCurrency);
-		for (auto& rate : rates)
-		{
-			// Conversion between non-base currencies are triangulated using the
-			// base one, therefore only base currency rates are stored
-			if (rate.xxx() != repo.baseCurrency_)
-				continue;
-
-			// Skip non-positive rate
-			if (rate.value() <= 0.0)
-				continue;
-
-			// Insert rate into maps
-			bool inserted = repo.rates_.insert({ Forex::denomination(rate.xxx(), rate.yyy()), rate }).second;
-
-			// Mark currency as available
-			if (inserted)
-				repo.availableCurrencies_.insert(rate.yyy());
-		}
-
-		ENSURE(repo.availableCurrencies_.find(repo.baseCurrency_) != repo.availableCurrencies_.end(), "base currency not registered as available");
-
-		repo.initialized_ = true;
-		return Status::SUCCESS;
-	}
 }

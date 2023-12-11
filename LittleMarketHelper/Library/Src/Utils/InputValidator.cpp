@@ -1,6 +1,9 @@
 
 #include "Utils/InputValidator.h"
 #include "Forex.h"
+#include "MarketValue.h"
+#include "Utils/Chrono.h"
+#include "Quote.h"
 
 
 namespace lmh {
@@ -21,9 +24,11 @@ namespace lmh {
 		return Forex::availableCurrency(currency);
 	}
 
-	bool ValidateInput::amount(double amount)
+	bool ValidateInput::marketValue(const MarketValue& mv)
 	{
-		return amount >= 0;
+		return
+			ValidateInput::currency(mv.currency()) &&
+			mv.price() >= 0.0;
 	}
 
 	bool lmh::ValidateInput::recentDate(const Date& date)
@@ -31,6 +36,13 @@ namespace lmh {
 		// TODO2: must read from config file what is considered "recent"
 		// NB: should count only workdays?
 		return false;
+	}
+
+	bool ValidateInput::quote(const Quote& quote)
+	{
+		return 
+			ValidateInput::marketValue(quote.userMv()) &&
+			ValidateInput::marketValue(quote.baseMv());
 	}
 
 }
